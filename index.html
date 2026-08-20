@@ -8,7 +8,6 @@
 :root{--bg:#060a10;--s:#0d1320;--card:#121a28;--c2:#182135;--b:rgba(0,220,100,.12);--blue:#4f7aff;--green:#00e080;--red:#ff5f6d;--amber:#f5a623;--purple:#9b6dff;--cyan:#00d4c8;--gold:#ffd700;--text:#e8eaf2;--muted:#5a6282;--mono:'Consolas',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-/* AUTH */
 #auth-screen{display:flex;min-height:100vh;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(0,224,128,.07) 0%,var(--bg) 65%)}
 .auth-wrap{width:100%;max-width:420px;padding:24px}
 .auth-logo{text-align:center;margin-bottom:28px}
@@ -16,15 +15,18 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .auth-logo-title{font-size:24px;font-weight:800}
 .auth-logo-title span{color:var(--green)}
 .auth-logo-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px}
+.trial-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,224,128,.1);border:1px solid rgba(0,224,128,.25);border-radius:20px;padding:5px 14px;font-family:var(--mono);font-size:11px;color:var(--green);margin-top:10px}
 .auth-tabs-nav{display:flex;background:var(--s);border-radius:10px;padding:4px;margin-bottom:18px}
 .auth-tab{flex:1;padding:8px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;transition:all .15s}
 .auth-tab.active{background:var(--card);color:var(--text)}
 .auth-tab-content{display:none}.auth-tab-content.active{display:block}
 .err-box{color:var(--red);font-size:12px;font-family:var(--mono);margin-top:8px;display:none}
-/* APP */
 #app-screen{display:none}
-.layout{display:grid;grid-template-columns:220px 1fr;grid-template-rows:58px 1fr;min-height:100vh}
-.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--s);border-bottom:1px solid var(--b);position:sticky;top:0;z-index:100;gap:10px}
+.layout{display:grid;grid-template-columns:220px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+.trial-bar{grid-column:1/-1;background:rgba(0,224,128,.08);border-bottom:1px solid rgba(0,224,128,.2);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--green)}
+.trial-bar.expired{background:rgba(255,95,109,.08);border-color:rgba(255,95,109,.2);color:var(--red)}
+.trial-bar.hidden{display:none}
+.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:58px;background:var(--s);border-bottom:1px solid var(--b);position:sticky;top:0;z-index:100;gap:10px}
 .logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800}
 .logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--green),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px}
 .logo span{color:var(--green)}
@@ -40,7 +42,6 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .page{display:none}.page.active{display:block;animation:fi .2s ease}
 @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:18px}
-.card2{background:var(--c2);border:1px solid var(--b);border-radius:10px;padding:14px}
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
 .st{font-size:17px;font-weight:700}.ss{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
 .kgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;margin-bottom:20px}
@@ -53,7 +54,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .btn-g{background:var(--green);color:#000}.btn-g:hover{background:#00c870}
 .btn-o{background:transparent;color:var(--text);border:1px solid var(--b)}.btn-o:hover{background:rgba(255,255,255,.05)}
 .btn-r{background:rgba(255,95,109,.12);color:var(--red);border:1px solid rgba(255,95,109,.25)}
-.btn-b{background:var(--blue);color:#fff}.btn-b:hover{background:#3d6aff}
+.btn-b{background:var(--blue);color:#fff}
 .btn-sm{padding:5px 12px;font-size:12px}
 .badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px}
 .bg{background:rgba(0,224,128,.1);color:var(--green);border:1px solid rgba(0,224,128,.2)}
@@ -63,6 +64,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .bp{background:rgba(155,109,255,.1);color:var(--purple);border:1px solid rgba(155,109,255,.2)}
 .bgold{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.25)}
 .badge-gray{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--b)}
+.badge-trial{background:rgba(0,224,128,.1);color:var(--green);border:1px solid rgba(0,224,128,.25)}
 .inp{width:100%;background:var(--s);border:1px solid var(--b);border-radius:8px;color:var(--text);padding:10px 14px;font-size:13px;font-family:var(--mono);transition:border-color .15s}
 .inp:focus{outline:none;border-color:var(--green)}
 .fl{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
@@ -73,12 +75,10 @@ thead tr{border-bottom:1px solid var(--b)}
 th{padding:8px 10px;text-align:left;font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
 td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.03)}
 tr:hover td{background:rgba(255,255,255,.02)}
-/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:24px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto}
 .modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
-/* BILLING */
 .billing-toggle{display:flex;gap:8px;margin-bottom:20px}
 .toggle-btn{padding:7px 18px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--b);background:transparent;color:var(--muted);transition:all .15s}
 .toggle-btn.active{background:var(--green);color:#000;border-color:var(--green)}
@@ -88,7 +88,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .plan-card.featured{border-color:var(--green);position:relative}
 .plan-card.featured::before{content:'POPULAIRE';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-family:var(--mono);font-size:9px;padding:2px 12px;border-radius:0 0 8px 8px;font-weight:700;letter-spacing:1px}
 .wire-box{background:var(--c2);border:1px solid rgba(0,212,200,.2);border-radius:10px;padding:14px;font-family:var(--mono);font-size:12px;line-height:2.2}
-/* TOAST */
 .toast{position:fixed;bottom:20px;right:20px;background:var(--card);border:1px solid var(--b);border-radius:10px;padding:11px 16px;font-size:13px;font-family:var(--mono);z-index:1000;animation:su .3s ease;max-width:380px}
 .tg{border-color:rgba(0,224,128,.4);color:var(--green)}.tr{border-color:rgba(255,95,109,.4);color:var(--red)}.ti{border-color:rgba(79,122,255,.4);color:var(--blue)}
 @keyframes su{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -99,13 +98,14 @@ select.inp option{background:var(--card)}
 </head>
 <body>
 
-<!-- ══ AUTH ════════════════════════════════════════════════════════════════ -->
+<!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-wrap">
     <div class="auth-logo">
       <span class="auth-logo-icon">⚡</span>
       <div class="auth-logo-title">Zenith<span>Dash</span></div>
       <div class="auth-logo-sub">PaaS Facturation · IA Prédictive · Virement Bancaire USD</div>
+      <div class="trial-badge">✦ Essai gratuit 14 jours — sans carte bancaire</div>
     </div>
     <div class="auth-tabs-nav">
       <button class="auth-tab active" data-tab="login" onclick="showAuthTab('login')">Se connecter</button>
@@ -126,15 +126,16 @@ select.inp option{background:var(--card)}
         <div class="fgrp"><label class="fl">Entreprise</label><input class="inp" type="text" id="reg-company" placeholder="Optionnel"></div>
         <div class="fgrp"><label class="fl">Mot de passe</label><input class="inp" type="password" id="reg-password" placeholder="Min. 8 caractères" required></div>
         <div class="err-box" id="reg-err"></div>
-        <button class="btn btn-g" id="reg-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-user-plus"></i> Créer mon compte</button>
+        <button class="btn btn-g" id="reg-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-user-plus"></i> Commencer l'essai gratuit</button>
       </form>
     </div>
   </div>
 </div>
 
-<!-- ══ APP ═════════════════════════════════════════════════════════════════ -->
+<!-- APP -->
 <div id="app-screen">
 <div class="layout">
+  <div id="trial-bar" class="trial-bar hidden"></div>
   <header class="topbar">
     <div class="logo"><div class="logo-icon">⚡</div>Zenith<span>Dash</span></div>
     <div style="display:flex;align-items:center;gap:10px">
@@ -170,10 +171,10 @@ select.inp option{background:var(--card)}
         <button class="btn btn-o btn-sm" onclick="loadDashboard()"><i class="ti ti-refresh"></i></button>
       </div>
       <div class="kgrid">
-        <div class="kpi g"><div class="kl"><i class="ti ti-currency-dollar"></i> Revenus (USD)</div><div class="kv" id="kpi-revenue">—</div></div>
-        <div class="kpi b"><div class="kl"><i class="ti ti-file-invoice"></i> Factures</div><div class="kv" id="kpi-invoices">—</div></div>
-        <div class="kpi p"><div class="kl"><i class="ti ti-users"></i> Clients</div><div class="kv" id="kpi-clients">—</div></div>
-        <div class="kpi c"><div class="kl"><i class="ti ti-api"></i> Appels API</div><div class="kv" id="kpi-calls">—</div></div>
+        <div class="kpi g"><div class="kl">Revenus (USD)</div><div class="kv" id="kpi-revenue">—</div></div>
+        <div class="kpi b"><div class="kl">Factures</div><div class="kv" id="kpi-invoices">—</div></div>
+        <div class="kpi p"><div class="kl">Clients</div><div class="kv" id="kpi-clients">—</div></div>
+        <div class="kpi c"><div class="kl">Plan actuel</div><div class="kv" id="kpi-plan">—</div></div>
       </div>
       <div class="grid2">
         <div class="card">
@@ -191,9 +192,6 @@ select.inp option{background:var(--card)}
             <span style="color:var(--cyan)">🌍</span> Virement international SWIFT (hors RDC)<br>
             <span style="color:var(--amber)">💱</span> USD uniquement<br>
             <span style="color:var(--purple)">↩️</span> Remboursement 14 jours garanti
-          </div>
-          <div style="margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--muted)">
-            Activation 24-48h après réception du virement
           </div>
         </div>
       </div>
@@ -222,52 +220,34 @@ select.inp option{background:var(--card)}
       <div id="clients-list" class="card"></div>
     </div>
 
-    <!-- ABONNEMENTS / BILLING -->
+    <!-- ABONNEMENTS -->
     <div id="page-billing" class="page">
-      <div class="sh"><div><div class="st">Abonnements</div><div class="ss">Virement national Rawbank RDC · Virement international SWIFT</div></div></div>
-
+      <div class="sh"><div><div class="st">Abonnements</div><div class="ss">Virement Rawbank RDC · SWIFT international</div></div></div>
+      <div id="trial-billing-info" style="display:none;margin-bottom:16px"></div>
       <div class="card" style="margin-bottom:16px;border-color:rgba(0,212,200,.2)">
         <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px">
-          <div>
-            <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:4px">🇨🇩 NATIONAL (Rawbank RDC)</div>
-            <div style="color:var(--muted)">Pour les clients en RDC avec une banque congolaise</div>
-          </div>
-          <div>
-            <div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:4px">🌍 INTERNATIONAL (SWIFT USD)</div>
-            <div style="color:var(--muted)">Pour les clients hors RDC — Maroc, France, Belgique, USA...</div>
-          </div>
-          <div>
-            <div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-bottom:4px">↩️ REMBOURSEMENT</div>
-            <div style="color:var(--muted)">Garanti 14 jours après activation — virement de retour</div>
-          </div>
+          <div><div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:4px">🇨🇩 NATIONAL (Rawbank RDC)</div><div style="color:var(--muted)">Pour les clients en RDC</div></div>
+          <div><div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:4px">🌍 INTERNATIONAL (SWIFT USD)</div><div style="color:var(--muted)">Pour les clients hors RDC</div></div>
+          <div><div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-bottom:4px">↩️ REMBOURSEMENT</div><div style="color:var(--muted)">14 jours · 1 seul par compte · annule l'essai</div></div>
         </div>
       </div>
-
       <div class="billing-toggle">
         <button class="toggle-btn active" id="toggle-m" onclick="setSubCycle('monthly')">Mensuel</button>
         <button class="toggle-btn" id="toggle-a" onclick="setSubCycle('annual')">Annuel <span style="color:var(--green);font-size:11px">~17% de réduction</span></button>
       </div>
       <div class="plans-grid" id="plans-grid"></div>
-
       <div class="card" style="margin-top:16px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:12px">Tarifs USD — inchangés</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:12px">Tarifs USD</div>
         <div class="table-wrap">
           <table><thead><tr><th>Plan</th><th>Mensuel</th><th>Annuel</th><th>Économie</th><th>Cible</th></tr></thead>
-          <tbody>
-            <tr><td>${{planBadge('starter')}}</td><td style="font-family:var(--mono)">$29</td><td style="font-family:var(--mono)">$290</td><td style="color:var(--green)">$58</td><td style="color:var(--muted)">Freelances</td></tr>
-            <tr><td>${{planBadge('professional')}}</td><td style="font-family:var(--mono)">$89</td><td style="font-family:var(--mono)">$890</td><td style="color:var(--green)">$178</td><td style="color:var(--muted)">Startups</td></tr>
-            <tr><td>${{planBadge('business')}}</td><td style="font-family:var(--mono)">$199</td><td style="font-family:var(--mono)">$1 990</td><td style="color:var(--green)">$398</td><td style="color:var(--muted)">PME</td></tr>
-            <tr><td>${{planBadge('enterprise')}}</td><td style="font-family:var(--mono)">$499</td><td style="font-family:var(--mono)">$4 990</td><td style="color:var(--green)">$998</td><td style="color:var(--muted)">Grandes structures</td></tr>
-            <tr><td>${{planBadge('ultimate')}}</td><td style="font-family:var(--mono)">$999</td><td style="font-family:var(--mono)">$9 990</td><td style="color:var(--green)">$1 998</td><td style="color:var(--muted)">Multi-entités</td></tr>
-          </tbody>
-        </table>
+          <tbody id="billing-tbody"></tbody></table>
         </div>
       </div>
     </div>
 
-    <!-- ANALYTICS IA -->
+    <!-- ANALYTICS -->
     <div id="page-analytics" class="page">
-      <div class="sh"><div><div class="st">IA Analytics</div><div class="ss">Prévisions de revenus par régression linéaire</div></div>
+      <div class="sh"><div><div class="st">IA Analytics</div><div class="ss">Prévisions de revenus</div></div>
         <button class="btn btn-o btn-sm" onclick="loadAnalytics()"><i class="ti ti-refresh"></i></button>
       </div>
       <div class="kgrid">
@@ -276,8 +256,7 @@ select.inp option{background:var(--card)}
         <div class="kpi p"><div class="kl">Croissance</div><div class="kv" id="pred-growth">—</div></div>
         <div class="kpi c"><div class="kl">Confiance IA</div><div class="kv" id="pred-confidence">—</div></div>
       </div>
-      <div class="card">
-        <div style="font-weight:700;font-size:14px;margin-bottom:12px">Recommandations IA</div>
+      <div class="card"><div style="font-weight:700;font-size:14px;margin-bottom:12px">Recommandations IA</div>
         <ul id="pred-recs" style="list-style:none;padding:0"></ul>
       </div>
     </div>
@@ -297,26 +276,13 @@ select.inp option{background:var(--card)}
         <div class="kpi g"><div class="kl">Encaissé</div><div class="kv" id="rep-paid">—</div></div>
         <div class="kpi b"><div class="kl">En attente</div><div class="kv" id="rep-pending">—</div></div>
         <div class="kpi p"><div class="kl">Net</div><div class="kv" id="rep-net">—</div></div>
-        <div class="kpi c"><div class="kl">Coût API</div><div class="kv" id="rep-api-cost">—</div></div>
-      </div>
-      <div class="grid2">
-        <div class="card">
-          <div style="font-weight:700;font-size:14px;margin-bottom:10px">Factures</div>
-          <div style="font-family:var(--mono);font-size:13px;line-height:2.2;color:var(--muted)">
-            Total : <b id="rep-inv-count" style="color:var(--text)">—</b><br>
-            Payées : <b id="rep-inv-paid" style="color:var(--green)">—</b>
-          </div>
-        </div>
-        <div class="card">
-          <div style="font-weight:700;font-size:14px;margin-bottom:10px">Top clients</div>
-          <div id="rep-top-clients" style="font-family:var(--mono);font-size:12px"></div>
-        </div>
+        <div class="kpi c"><div class="kl">Factures</div><div class="kv" id="rep-inv-count">—</div></div>
       </div>
     </div>
 
     <!-- PROFIL -->
     <div id="page-profile" class="page">
-      <div class="sh"><div><div class="st">Profil & Coordonnées Bancaires</div><div class="ss">Informations personnelles et banque pour remboursements</div></div></div>
+      <div class="sh"><div><div class="st">Profil & Coordonnées Bancaires</div></div></div>
       <div class="grid2">
         <div class="card">
           <div style="font-weight:700;font-size:14px;margin-bottom:14px"><i class="ti ti-user"></i> Profil</div>
@@ -336,22 +302,22 @@ select.inp option{background:var(--card)}
         <div class="card">
           <div style="font-weight:700;font-size:14px;margin-bottom:8px"><i class="ti ti-building-bank"></i> Coordonnées bancaires</div>
           <div style="font-family:var(--mono);font-size:11px;color:var(--muted);background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.15);border-radius:8px;padding:10px;margin-bottom:12px">
-            Utilisées pour te rembourser par virement (national RDC ou international SWIFT) si tu demandes un remboursement dans les 14 jours.
+            Utilisées pour te rembourser par virement si tu demandes un remboursement dans les 14 jours.
           </div>
           <div class="fgrp"><label class="fl">Nom de ta banque</label><input class="inp" type="text" id="bank-name" placeholder="Ex: Rawbank SA"></div>
-          <div class="fgrp"><label class="fl">N° de compte / IBAN</label><input class="inp" type="text" id="bank-account" placeholder="CD12RAWB..."></div>
-          <div class="fgrp"><label class="fl">Code SWIFT/BIC</label><input class="inp" type="text" id="bank-swift" placeholder="RAWBCDDX"></div>
-          <div class="fgrp"><label class="fl">IBAN international</label><input class="inp" type="text" id="bank-iban" placeholder="Optionnel"></div>
+          <div class="fgrp"><label class="fl">N° de compte</label><input class="inp" type="text" id="bank-account" placeholder="CD12RAWB..."></div>
+          <div class="fgrp"><label class="fl">Code SWIFT/BIC</label><input class="inp" type="text" id="bank-swift" placeholder="RAWBCDKI"></div>
+          <div class="fgrp"><label class="fl">IBAN</label><input class="inp" type="text" id="bank-iban" placeholder="Optionnel"></div>
           <button class="btn btn-g btn-sm" onclick="saveBank()"><i class="ti ti-building-bank"></i> Enregistrer</button>
         </div>
       </div>
       <div class="card" style="margin-top:14px">
         <div style="font-weight:700;font-size:14px;margin-bottom:14px"><i class="ti ti-lock"></i> Changer le mot de passe</div>
         <div class="grid2">
-          <div class="fgrp"><label class="fl">Mot de passe actuel</label><input class="inp" type="password" id="pwd-cur" placeholder="••••••••"></div>
-          <div class="fgrp"><label class="fl">Nouveau mot de passe</label><input class="inp" type="password" id="pwd-new" placeholder="••••••••"></div>
+          <div class="fgrp"><label class="fl">Mot de passe actuel</label><input class="inp" type="password" id="pwd-cur"></div>
+          <div class="fgrp"><label class="fl">Nouveau mot de passe</label><input class="inp" type="password" id="pwd-new"></div>
         </div>
-        <div class="fgrp"><label class="fl">Confirmer</label><input class="inp" type="password" id="pwd-cf" placeholder="••••••••" style="max-width:280px"></div>
+        <div class="fgrp"><label class="fl">Confirmer</label><input class="inp" type="password" id="pwd-cf" style="max-width:280px"></div>
         <button class="btn btn-o btn-sm" onclick="savePwd()"><i class="ti ti-key"></i> Modifier</button>
       </div>
     </div>
@@ -360,7 +326,20 @@ select.inp option{background:var(--card)}
 </div>
 </div>
 
-<!-- ══ MODAL VIREMENT ══════════════════════════════════════════════════════ -->
+<!-- MODAL CRÉATEUR -->
+<div id="creator-modal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" style="width:420px">
+    <div class="modal-title"><i class="ti ti-shield-star" style="color:var(--gold)"></i> Accès Créateur</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px">Code secret pour activer le plan Ultimate à vie gratuitement.</div>
+    <div class="fgrp"><label class="fl">Code créateur</label><input class="inp" id="creator-input" type="password" placeholder="••••••••••••••••••••" onkeydown="if(event.key==='Enter')activateCreator()"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="document.getElementById('creator-modal').style.display='none'">Annuler</button>
+      <button class="btn btn-sm" style="background:var(--gold);color:#000;font-weight:700" onclick="activateCreator()"><i class="ti ti-shield-check"></i> Activer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VIREMENT -->
 <div id="wire-modal" class="modal-overlay" onclick="if(event.target===this)closeWireModal()">
   <div class="modal" style="width:600px">
     <div class="modal-title"><i class="ti ti-building-bank" style="color:var(--cyan)"></i> Instructions de virement bancaire</div>
@@ -372,7 +351,7 @@ select.inp option{background:var(--card)}
   </div>
 </div>
 
-<!-- ══ MODAL FACTURE ═══════════════════════════════════════════════════════ -->
+<!-- MODAL FACTURE -->
 <div id="modal-inv" class="modal-overlay" onclick="if(event.target===this)closeInvModal()">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-file-invoice" style="color:var(--green)"></i> Nouvelle facture</div>
@@ -382,8 +361,8 @@ select.inp option{background:var(--card)}
       <div class="fgrp"><label class="fl">Prix unitaire USD *</label><input class="inp" type="number" id="inv-price" placeholder="0.00" min="0" step="0.01"></div>
     </div>
     <div class="grid2">
-      <div class="fgrp"><label class="fl">TVA (%)</label><input class="inp" type="number" id="inv-tax" placeholder="0" min="0" max="100"></div>
-      <div class="fgrp"><label class="fl">Remise (USD)</label><input class="inp" type="number" id="inv-disc" placeholder="0" min="0"></div>
+      <div class="fgrp"><label class="fl">TVA (%)</label><input class="inp" type="number" id="inv-tax" placeholder="0"></div>
+      <div class="fgrp"><label class="fl">Remise (USD)</label><input class="inp" type="number" id="inv-disc" placeholder="0"></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-o btn-sm" onclick="closeInvModal()">Annuler</button>
@@ -392,13 +371,13 @@ select.inp option{background:var(--card)}
   </div>
 </div>
 
-<!-- ══ MODAL CLIENT ════════════════════════════════════════════════════════ -->
+<!-- MODAL CLIENT -->
 <div id="modal-client" class="modal-overlay" onclick="if(event.target===this)closeClientModal()">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-user-plus" style="color:var(--blue)"></i> Nouveau client</div>
     <div class="fgrp"><label class="fl">Nom *</label><input class="inp" id="cl-name" placeholder="Nom du client"></div>
     <div class="grid2">
-      <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="cl-email" placeholder="client@exemple.com"></div>
+      <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="cl-email"></div>
       <div class="fgrp"><label class="fl">Téléphone</label><input class="inp" id="cl-phone" placeholder="+243 81 000 000"></div>
     </div>
     <div class="modal-footer">
@@ -408,29 +387,416 @@ select.inp option{background:var(--card)}
   </div>
 </div>
 
-<script src="assets/js/api.js"></script>
-<script src="assets/js/pages.js"></script>
 <script>
-// Remplacement du tableau de prix statique
-document.addEventListener("DOMContentLoaded",()=>{
-  const tbl=document.querySelector("#page-billing tbody");
-  if(tbl) tbl.innerHTML=[
-    ["starter","$29","$290","$58","Freelances"],
-    ["professional","$89","$890","$178","Startups"],
-    ["business","$199","$1 990","$398","PME"],
-    ["enterprise","$499","$4 990","$998","Grandes structures"],
-    ["ultimate","$999","$9 990","$1 998","Multi-entités"]
-  ].map(([p,m,a,s,t])=>`<tr>
-    <td>${planBadge(p)}</td>
-    <td style="font-family:var(--mono)">${m}</td>
-    <td style="font-family:var(--mono)">${a}</td>
-    <td style="color:var(--green);font-family:var(--mono)">${s}</td>
-    <td style="color:var(--muted)">${t}</td>
-  </tr>`).join("");
+const API_BASE = window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1"
+  ? "http://localhost:8000/v1"
+  : "https://zenith-dash-production.up.railway.app/v1";
 
-  if(State.token&&State.tenant){
-    showAppLayout();
+const State={token:localStorage.getItem("zd_token"),tenant:JSON.parse(localStorage.getItem("zd_tenant")||"null")};
+
+async function api(method,path,body=null){
+  const h={"Content-Type":"application/json"};
+  if(State.token) h["Authorization"]=`Bearer ${State.token}`;
+  try{
+    const r=await fetch(API_BASE+path,{method,headers:h,body:body?JSON.stringify(body):null});
+    const d=await r.json();
+    if(!r.ok){const m=typeof d.detail==="object"?(d.detail.message||d.detail.error):d.detail;throw new Error(m||"Erreur serveur");}
+    return d;
+  }catch(e){
+    if(e.message==="Failed to fetch"||e.name==="TypeError") throw new Error("Backend injoignable");
+    throw e;
   }
+}
+
+function fmtUSD(a){return"$"+new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(a||0);}
+function fmtDate(iso){if(!iso)return"—";return new Date(iso).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"numeric"});}
+
+function planBadge(plan){
+  const c={trial:"badge-trial",sandbox:"badge-gray",starter:"bg",professional:"bb",business:"bp",enterprise:"ba",ultimate:"bgold"};
+  const labels={trial:"ESSAI 14J",sandbox:"SANDBOX",starter:"STARTER",professional:"PRO",business:"BUSINESS",enterprise:"ENTERPRISE",ultimate:"ULTIMATE"};
+  return`<span class="badge ${c[plan]||"bb"}">${labels[plan]||plan?.toUpperCase()}</span>`;
+}
+function statusBadge(s){const m={draft:"badge-gray",sent:"bb",paid:"bg",overdue:"br",cancelled:"badge-gray"};return`<span class="badge ${m[s]||"bb"}">${s}</span>`;}
+
+function showTrialBar(trial){
+  const bar=document.getElementById("trial-bar");
+  if(!trial||trial.is_creator){bar.className="trial-bar hidden";return;}
+  if(trial.active&&trial.days_remaining!=null){
+    bar.className="trial-bar";
+    bar.innerHTML=`⏱ Essai gratuit — <b>${trial.days_remaining} jour(s) restant(s)</b> &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--green);text-decoration:underline">Souscrire maintenant →</a>`;
+  } else if(trial.expired){
+    bar.className="trial-bar expired";
+    bar.innerHTML=`⚠️ Essai expiré — Souscrivez pour continuer &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--red);text-decoration:underline">Voir les plans →</a>`;
+  } else {
+    bar.className="trial-bar hidden";
+  }
+}
+
+async function login(email,password){
+  const r=await api("POST","/auth/login",{email,password});
+  State.token=r.token; State.tenant=r.user;
+  localStorage.setItem("zd_token",State.token);
+  localStorage.setItem("zd_tenant",JSON.stringify(r.user));
+  return r;
+}
+async function register(data){
+  const r=await api("POST","/auth/register",data);
+  State.token=r.token; State.tenant=r.user;
+  localStorage.setItem("zd_token",State.token);
+  localStorage.setItem("zd_tenant",JSON.stringify(r.user));
+  return r;
+}
+function logout(){
+  State.token=null; State.tenant=null;
+  localStorage.removeItem("zd_token"); localStorage.removeItem("zd_tenant");
+}
+
+const getDashboard    = ()=>api("GET","/analytics/dashboard");
+const getAIPrediction = ()=>api("GET","/analytics/predict");
+const listInvoices    = (s)=>api("GET","/invoices/"+(s?`?status=${s}`:""));
+const createInvoice   = (d)=>api("POST","/invoices/",d);
+const sendInvoice     = (id)=>api("POST",`/invoices/${id}/send`);
+const markPaid        = (id)=>api("POST",`/invoices/${id}/paid`);
+const listClients     = ()=>api("GET","/clients/");
+const createClient    = (d)=>api("POST","/clients/",d);
+const deleteClient    = (id)=>api("DELETE",`/clients/${id}`);
+const getPlans        = ()=>api("GET","/billing/plans");
+const subscribeToPlan = (plan,cycle)=>api("POST","/billing/subscribe",{plan,billing_cycle:cycle});
+const getReport       = (p)=>api("GET",`/reports/summary?period=${p}`);
+const getProfile      = ()=>api("GET","/profile/");
+const updateProfile   = (d)=>api("PATCH","/profile/",d);
+const updateBank      = (d)=>api("PATCH","/profile/bank",d);
+const changePassword  = (d)=>api("POST","/profile/change-password",d);
+
+function showToast(msg,type="success"){
+  document.querySelector(".toast")?.remove();
+  const t=Object.assign(document.createElement("div"),{className:`toast t${type==="error"?"r":type==="info"?"i":"g"}`,textContent:msg});
+  document.body.appendChild(t);setTimeout(()=>t.remove(),4500);
+}
+function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent=msg;e.style.display=msg?"block":"none";}}
+
+function navigate(page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-i").forEach(n=>n.classList.remove("active"));
+  document.getElementById(`page-${page}`)?.classList.add("active");
+  document.querySelector(`[data-p="${page}"]`)?.classList.add("active");
+  loadPage(page);
+}
+async function loadPage(p){
+  switch(p){
+    case"dashboard": await loadDashboard();break;
+    case"invoices":  await loadInvoices();break;
+    case"clients":   await loadClients();break;
+    case"billing":   await loadBilling();break;
+    case"analytics": await loadAnalytics();break;
+    case"reports":   await loadReport("month");break;
+    case"profile":   await loadProfile();break;
+  }
+}
+
+async function showAppLayout(){
+  document.getElementById("auth-screen").style.display="none";
+  document.getElementById("app-screen").style.display="block";
+  const t=State.tenant;
+  if(t){
+    document.getElementById("topbar-name").textContent=t.name;
+    document.getElementById("topbar-av").textContent=t.name?.charAt(0).toUpperCase();
+    document.getElementById("topbar-plan").innerHTML=planBadge(t.plan);
+    if(t.trial) showTrialBar(t.trial);
+  }
+  navigate("dashboard");
+}
+
+async function loadDashboard(){
+  try{
+    const s=await getDashboard();
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set("kpi-invoices",s.invoices_created.toLocaleString());
+    set("kpi-revenue",fmtUSD(s.total_revenue_usd));
+    set("kpi-clients",s.active_clients.toLocaleString());
+    const pe=document.getElementById("kpi-plan");
+    if(pe) pe.innerHTML=planBadge(s.plan);
+    if(s.trial) showTrialBar(s.trial);
+  }catch(e){console.error(e);}
+}
+
+async function loadInvoices(filter=null){
+  const tbody=document.getElementById("inv-tbody");if(!tbody)return;
+  tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr>`;
+  try{
+    const invs=await listInvoices(filter);
+    if(!invs?.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Aucune facture. <a href="#" onclick="openInvModal()">Créer →</a></td></tr>`;return;}
+    tbody.innerHTML=invs.map(i=>`<tr>
+      <td style="font-family:var(--mono);color:var(--blue)">${i.number}</td>
+      <td>${fmtDate(i.created_at)}</td>
+      <td>${statusBadge(i.status)}</td>
+      <td style="font-family:var(--mono);font-weight:700">${fmtUSD(i.total)}</td>
+      <td>${i.blockchain_hash?`<span class="badge bp">🔗 Signé</span>`:"—"}</td>
+      <td style="display:flex;gap:5px">
+        ${i.status==="draft"?`<button class="btn btn-sm btn-o" onclick="handleSend('${i.id}')">Envoyer</button>`:""}
+        ${i.status!=="paid"?`<button class="btn btn-sm btn-g" onclick="handlePaid('${i.id}')">Payée</button>`:""}
+      </td></tr>`).join("");
+  }catch(e){tbody.innerHTML=`<tr><td colspan="6" style="color:var(--red);padding:20px">${e.message}</td></tr>`;}
+}
+async function handleSend(id){try{await sendInvoice(id);showToast("Envoyée ✓");loadInvoices();}catch(e){showToast(e.message,"error");}}
+async function handlePaid(id){try{await markPaid(id);showToast("Payée ✓");loadInvoices();}catch(e){showToast(e.message,"error");}}
+function openInvModal(){document.getElementById("modal-inv").style.display="flex";}
+function closeInvModal(){document.getElementById("modal-inv").style.display="none";}
+async function submitInvoice(){
+  const desc=document.getElementById("inv-desc").value;
+  const qty=parseFloat(document.getElementById("inv-qty").value);
+  const price=parseFloat(document.getElementById("inv-price").value);
+  const tax=parseFloat(document.getElementById("inv-tax").value||0);
+  const disc=parseFloat(document.getElementById("inv-disc").value||0);
+  if(!desc||!qty||!price){showToast("Remplissez les champs obligatoires","error");return;}
+  try{
+    await createInvoice({items:[{description:desc,qty,unit_price:price,tax_rate:tax}],discount_amount:disc,currency:"USD"});
+    showToast("Facture créée ✓");closeInvModal();
+    ["inv-desc","inv-qty","inv-price"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+    loadInvoices();
+  }catch(e){showToast(e.message,"error");}
+}
+
+async function loadClients(){
+  const c=document.getElementById("clients-list");if(!c)return;
+  try{
+    const cls=await listClients();
+    if(!cls?.length){c.innerHTML=`<div style="text-align:center;color:var(--muted);padding:32px">Aucun client. <a href="#" onclick="openClientModal()">Ajouter →</a></div>`;return;}
+    c.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Facturé</th><th></th></tr></thead><tbody>
+    ${cls.map(cl=>`<tr><td style="font-weight:600">${cl.name}</td><td style="font-family:var(--mono);font-size:12px">${cl.email||"—"}</td><td style="font-family:var(--mono);font-size:12px">${cl.phone||"—"}</td><td style="font-family:var(--mono);font-weight:700">${fmtUSD(cl.total_invoiced)}</td><td><button class="btn btn-sm btn-r" onclick="handleDelClient('${cl.id}')">Suppr.</button></td></tr>`).join("")}
+    </tbody></table></div>`;
+  }catch(e){c.innerHTML=`<p style="color:var(--red)">${e.message}</p>`;}
+}
+async function handleDelClient(id){if(!confirm("Supprimer ?"))return;try{await deleteClient(id);showToast("Supprimé ✓");loadClients();}catch(e){showToast(e.message,"error");}}
+function openClientModal(){document.getElementById("modal-client").style.display="flex";}
+function closeClientModal(){document.getElementById("modal-client").style.display="none";}
+async function submitClient(){
+  const name=document.getElementById("cl-name").value;
+  if(!name){showToast("Nom obligatoire","error");return;}
+  try{
+    await createClient({name,email:document.getElementById("cl-email").value||null,phone:document.getElementById("cl-phone").value||null});
+    showToast("Client ajouté ✓");closeClientModal();loadClients();
+  }catch(e){showToast(e.message,"error");}
+}
+
+let _plans={};let _subCycle="monthly";let _lastWire=null;
+async function loadBilling(){
+  try{
+    _plans=await getPlans();
+    renderPlans();
+    const tbl=document.getElementById("billing-tbody");
+    if(tbl) tbl.innerHTML=[
+      ["starter","$29","$290","$58","Freelances"],
+      ["professional","$89","$890","$178","Startups"],
+      ["business","$199","$1 990","$398","PME"],
+      ["enterprise","$499","$4 990","$998","Grandes structures"],
+      ["ultimate","$999","$9 990","$1 998","Multi-entités"]
+    ].map(([p,m,a,s,t])=>`<tr><td>${planBadge(p)}</td><td style="font-family:var(--mono)">${m}</td><td style="font-family:var(--mono)">${a}</td><td style="color:var(--green);font-family:var(--mono)">${s}</td><td style="color:var(--muted)">${t}</td></tr>`).join("");
+    const tenant=State.tenant;
+    const info=document.getElementById("trial-billing-info");
+    if(info&&tenant?.trial?.active&&!tenant.trial.is_creator){
+      info.style.display="block";
+      info.innerHTML=`<div style="background:rgba(0,224,128,.07);border:1px solid rgba(0,224,128,.2);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--green)">
+        ⏱ Tu es en essai gratuit — <b>${tenant.trial.days_remaining} jour(s) restant(s)</b>. Souscris avant expiration pour ne pas perdre tes données. <span style="color:var(--amber);font-size:11px;font-family:var(--mono)">⚠️ Note : un remboursement supprime définitivement ton essai gratuit.</span>
+      </div>`;
+    }
+  }catch(e){console.error(e);}
+}
+function setSubCycle(cycle){
+  _subCycle=cycle;
+  document.getElementById("toggle-m").classList.toggle("active",cycle==="monthly");
+  document.getElementById("toggle-a").classList.toggle("active",cycle==="annual");
+  renderPlans();
+}
+function renderPlans(){
+  const grid=document.getElementById("plans-grid");if(!grid||!_plans)return;
+  const order=["starter","professional","business","enterprise","ultimate"];
+  const colors={starter:"var(--green)",professional:"var(--blue)",business:"var(--purple)",enterprise:"var(--amber)",ultimate:"var(--gold)"};
+  grid.innerHTML=order.filter(k=>_plans[k]).map(k=>{
+    const p=_plans[k];
+    const price=_subCycle==="annual"?p.price_annual:p.price_monthly;
+    const period=_subCycle==="annual"?"/an":"/mois";
+    return`<div class="plan-card ${k==="professional"?"featured":""}">
+      <div style="font-family:var(--mono);font-size:10px;color:${colors[k]};text-transform:uppercase;margin-bottom:8px">${p.name}</div>
+      <div style="font-size:28px;font-weight:800">$${price}</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">USD${period}</div>
+      ${_subCycle==="annual"&&p.savings_annual>0?`<div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-top:2px">Économisez $${p.savings_annual}/an</div>`:""}
+      <div style="font-size:11px;color:var(--muted);margin:8px 0 12px;font-style:italic">${p.tagline}</div>
+      <button class="btn btn-g" style="width:100%;justify-content:center" onclick="initSubscribe('${k}')">
+        <i class="ti ti-building-bank"></i> Souscrire
+      </button>
+    </div>`;
+  }).join("");
+}
+async function initSubscribe(plan){
+  try{const r=await subscribeToPlan(plan,_subCycle);_lastWire=r;showWireModal(r);}
+  catch(e){showToast(e.message,"error");}
+}
+function showWireModal(r){
+  const ins=r.instructions; const nw=ins.national_wire; const iw=ins.international_wire;
+  document.getElementById("wire-modal-content").innerHTML=`
+    <div style="background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.2);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-weight:700;margin-bottom:4px">${ins.plan} — ${ins.billing_cycle}</div>
+      <div style="font-size:20px;font-weight:800;color:var(--green);margin:6px 0">${fmtUSD(ins.amount_usd)}</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">${ins.refund_policy}</div>
+    </div>
+    <div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-weight:700;font-size:13px;color:var(--amber)">
+      ⚠️ Libellé OBLIGATOIRE : <span style="font-family:var(--mono);letter-spacing:2px">${ins.reference}</span>
+    </div>
+    <div style="font-weight:700;font-size:14px;margin-bottom:10px;color:var(--green)">🇨🇩 ${nw.label}</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${nw.note}</div>
+    <div class="wire-box" style="margin-bottom:16px">
+      <b>Bénéficiaire :</b> ${nw.beneficiary}<br>
+      <b>N° de compte :</b> ${nw.account_number}<br>
+      <b>Réf. complète :</b> ${nw.full_account_reference}<br>
+      <b>Banque :</b> ${nw.bank_name}<br>
+      <b>Adresse :</b> ${nw.bank_address}<br>
+      <b>SWIFT :</b> ${nw.swift_bic}<br>
+      <b>Devise :</b> ${nw.currency}
+    </div>
+    <div style="font-weight:700;font-size:14px;margin-bottom:10px;color:var(--cyan)">🌍 ${iw.label}</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${iw.note}</div>
+    <div class="wire-box">
+      <b>Bénéficiaire :</b> ${iw.beneficiary}<br>
+      <b>Adresse titulaire :</b> ${iw.beneficiary_address}<br>
+      <b>N° de compte :</b> ${iw.account_number}<br>
+      <b>Réf. complète :</b> ${iw.full_account_reference}<br>
+      <b>SWIFT/BIC :</b> ${iw.swift_bic}<br>
+      <b>Banque :</b> ${iw.bank_name}<br>
+      <b>Adresse banque :</b> ${iw.bank_address}<br>
+      <b>Banque correspondante :</b> ${iw.correspondent_bank}<br>
+      <b>SWIFT correspondant :</b> ${iw.correspondent_bic}<br>
+      <b>Devise :</b> ${iw.currency}
+    </div>
+    <div style="margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--muted)">${ins.activation}</div>`;
+  document.getElementById("wire-modal").style.display="flex";
+}
+function closeWireModal(){document.getElementById("wire-modal").style.display="none";}
+function copyWireDetails(){
+  if(!_lastWire)return;
+  const ins=_lastWire.instructions; const nw=ins.national_wire; const iw=ins.international_wire;
+  const text=`VIREMENT ZENITH DASH\nPlan: ${ins.plan} (${ins.billing_cycle})\nMontant: ${fmtUSD(ins.amount_usd)}\nRéférence OBLIGATOIRE: ${ins.reference}\n\nVIREMENT NATIONAL (RDC)\nBénéficiaire: ${nw.beneficiary}\nCompte: ${nw.account_number}\nRéf: ${nw.full_account_reference}\nSWIFT: ${nw.swift_bic}\n\nVIREMENT INTERNATIONAL\nBénéficiaire: ${iw.beneficiary}\nCompte: ${iw.account_number}\nSWIFT: ${iw.swift_bic}\nCorrespondant: ${iw.correspondent_bank} (${iw.correspondent_bic})`;
+  navigator.clipboard.writeText(text).then(()=>showToast("Coordonnées copiées ✓"));
+}
+
+async function loadAnalytics(){
+  try{
+    const p=await getAIPrediction();
+    const set=(id,v,col)=>{const e=document.getElementById(id);if(e){e.textContent=v;if(col)e.style.color=col;}};
+    set("pred-next-month",fmtUSD(p.predicted_revenue_next_month));
+    set("pred-next-quarter",fmtUSD(p.predicted_revenue_next_quarter));
+    set("pred-growth",(p.growth_rate_percent>=0?"+":"")+p.growth_rate_percent+"%",p.growth_rate_percent>=0?"var(--green)":"var(--red)");
+    set("pred-confidence",Math.round(p.confidence*100)+"%");
+    const el=document.getElementById("pred-recs");
+    if(el) el.innerHTML=p.recommendations.map(r=>`<li style="padding:6px 0;border-bottom:1px solid var(--b);font-size:13px"><span style="color:var(--purple);margin-right:8px">→</span>${r}</li>`).join("");
+  }catch(e){console.error(e);}
+}
+
+let _repPeriod="month";
+async function loadReport(period,btn){
+  _repPeriod=period||"month";
+  if(btn){document.querySelectorAll("[data-rp]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");}
+  try{
+    const r=await getReport(_repPeriod);
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set("rep-paid",fmtUSD(r.revenue?.total_paid));
+    set("rep-pending",fmtUSD(r.revenue?.pending));
+    set("rep-net",fmtUSD(r.revenue?.net));
+    set("rep-inv-count",r.invoices?.total||0);
+  }catch(e){console.error(e);}
+}
+async function exportCsv(){
+  try{
+    const r=await fetch(`${API_BASE}/reports/export/csv?period=${_repPeriod}`,{headers:{Authorization:`Bearer ${State.token}`}});
+    const csv=await r.text();
+    const blob=new Blob([csv],{type:"text/csv"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download=`zenith-${_repPeriod}.csv`; a.click();
+    showToast("Export téléchargé ✓");
+  }catch(e){showToast(e.message,"error");}
+}
+
+async function loadProfile(){
+  try{
+    const p=await getProfile();
+    const set=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.value=v;};
+    set("prof-name",p.name); set("prof-company",p.company_name);
+    set("prof-phone",p.phone); set("prof-country",p.country);
+    set("bank-name",p.bank?.bank_name); set("bank-account",p.bank?.bank_account);
+    set("bank-swift",p.bank?.bank_swift); set("bank-iban",p.bank?.bank_iban);
+  }catch(e){console.error(e);}
+}
+async function saveProfile(){
+  try{
+    const d={};
+    const f={name:"prof-name",company_name:"prof-company",phone:"prof-phone",country:"prof-country"};
+    for(const[k,id] of Object.entries(f)){const e=document.getElementById(id);if(e&&e.value)d[k]=e.value;}
+    await updateProfile(d); showToast("Profil mis à jour ✓");
+  }catch(e){showToast(e.message,"error");}
+}
+async function saveBank(){
+  const name=document.getElementById("bank-name")?.value;
+  const account=document.getElementById("bank-account")?.value;
+  if(!name||!account){showToast("Nom et numéro de compte obligatoires","error");return;}
+  try{
+    await updateBank({bank_name:name,bank_account:account,bank_swift:document.getElementById("bank-swift")?.value||null,bank_iban:document.getElementById("bank-iban")?.value||null});
+    showToast("Coordonnées bancaires enregistrées ✓");
+  }catch(e){showToast(e.message,"error");}
+}
+async function savePwd(){
+  const cur=document.getElementById("pwd-cur")?.value;
+  const nw=document.getElementById("pwd-new")?.value;
+  const cf=document.getElementById("pwd-cf")?.value;
+  if(!cur||!nw||!cf){showToast("Remplissez tous les champs","error");return;}
+  if(nw!==cf){showToast("Les mots de passe ne correspondent pas","error");return;}
+  try{await changePassword({current_password:cur,new_password:nw});showToast("Mot de passe modifié ✓");}
+  catch(e){showToast(e.message,"error");}
+}
+
+async function handleLogin(e){
+  e.preventDefault();
+  const btn=document.getElementById("login-btn");btn.textContent="Connexion...";btn.disabled=true;
+  try{await login(document.getElementById("login-email").value,document.getElementById("login-password").value);showAppLayout();}
+  catch(err){showErr("login-err",err.message);btn.innerHTML='<i class="ti ti-login"></i> Se connecter';btn.disabled=false;}
+}
+async function handleRegister(e){
+  e.preventDefault();
+  const btn=document.getElementById("reg-btn");btn.textContent="Création...";btn.disabled=true;
+  try{
+    await register({name:document.getElementById("reg-name").value,email:document.getElementById("reg-email").value,password:document.getElementById("reg-password").value,company_name:document.getElementById("reg-company").value||null});
+    showAppLayout();
+  }catch(err){showErr("reg-err",err.message);btn.innerHTML='<i class="ti ti-user-plus"></i> Commencer l\'essai gratuit';btn.disabled=false;}
+}
+function showAuthTab(tab){
+  document.querySelectorAll(".auth-tab-content").forEach(t=>t.style.display="none");
+  document.querySelectorAll(".auth-tab").forEach(b=>b.classList.remove("active"));
+  document.getElementById(`tab-${tab}`).style.display="block";
+  document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
+}
+function doLogout(){logout();document.getElementById("app-screen").style.display="none";document.getElementById("auth-screen").style.display="flex";}
+
+document.addEventListener("keydown",e=>{
+  if(e.ctrlKey&&e.shiftKey&&e.key==="K"){
+    document.getElementById("creator-modal").style.display="flex";
+    document.getElementById("creator-input").focus();
+  }
+});
+async function activateCreator(){
+  const code=document.getElementById("creator-input").value.trim();
+  if(!code){showToast("Entre le code","error");return;}
+  try{
+    const r=await api("POST",`/creator/activate?code=${encodeURIComponent(code)}`);
+    showToast(r.message);
+    if(State.tenant){State.tenant.plan="ultimate";localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));}
+    document.getElementById("topbar-plan").innerHTML=planBadge("ultimate");
+    document.getElementById("trial-bar").className="trial-bar hidden";
+    document.getElementById("creator-modal").style.display="none";
+    document.getElementById("creator-input").value="";
+  }catch(e){showToast(e.message,"error");}
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  if(State.token&&State.tenant) showAppLayout();
 });
 </script>
 </body>
