@@ -348,6 +348,29 @@ select.inp option{background:var(--card)}
       </div>
     </div>
 
+
+    <!-- ADMIN -->
+    <div id="page-admin" class="page">
+      <div class="sh"><div><div class="st">🔐 Panel Admin</div><div class="ss">Confirmer les paiements reçus · Accès privé</div></div></div>
+      <div class="card" style="margin-bottom:16px;border-color:rgba(245,166,35,.2)">
+        <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--amber)"><i class="ti ti-shield-check"></i> Confirmer un virement reçu</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Entre la référence du virement que le client t a communiqué (ex: ZD-AB12CD-EF34GH).</div>
+        <div class="fgrp"><label class="fl">Référence du virement *</label><input class="inp" id="admin-ref" placeholder="ZD-XXXXXX-XXXXXX" style="font-family:var(--mono);letter-spacing:2px;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fgrp"><label class="fl">Référence banque (optionnel)</label><input class="inp" id="admin-bank-ref" placeholder="Référence reçue de Rawbank"></div>
+        <button class="btn btn-g" onclick="adminConfirmWire()"><i class="ti ti-check"></i> Confirmer et activer le compte</button>
+        <div id="admin-result" style="margin-top:14px;display:none;border-radius:10px;padding:12px 16px;font-family:var(--mono);font-size:13px"></div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;font-size:14px;margin-bottom:12px">Comment ca marche</div>
+        <div style="font-size:13px;color:var(--muted);line-height:2.4;font-family:var(--mono)">
+          1. Le client souscrit et reçoit une référence ZD-XXXXXX<br>
+          2. Il vire l argent sur ton compte Rawbank avec cette référence<br>
+          3. Tu reçois l argent sur ton compte Rawbank<br>
+          4. Tu entres la référence ici et son plan s active automatiquement
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 </div>
@@ -531,6 +554,7 @@ async function loadPage(p){
     case"analytics": await loadAnalytics();break;
     case"reports":   await loadReport("month");break;
     case"profile":   await loadProfile();break;
+    case"admin":      break;
   }
 }
 
@@ -833,6 +857,28 @@ async function activateCreator(){
     document.getElementById("creator-modal").style.display="none";
     document.getElementById("creator-input").value="";
   }catch(e){showToast(e.message,"error");}
+}
+
+async function adminConfirmWire(){
+  const ref=document.getElementById("admin-ref")?.value.trim();
+  if(!ref){showToast("Entre la référence du virement","error");return;}
+  const bankRef=document.getElementById("admin-bank-ref")?.value.trim();
+  const res=document.getElementById("admin-result");
+  try{
+    const url=`/webhooks/admin/confirm-wire?wire_reference=${encodeURIComponent(ref)}${bankRef?`&bank_reference=${encodeURIComponent(bankRef)}`:""}`;
+    const r=await api("POST",url);
+    if(res){
+      res.style.display="block";
+      res.style.background="rgba(0,224,128,.08)";
+      res.style.border="1px solid rgba(0,224,128,.2)";
+      res.style.color="var(--green)";
+      res.innerHTML=r.success?`✅ Plan <b>${r.plan_activated}</b> activé pour <b>${r.tenant}</b>`:"❌ Échec — vérifie la référence";
+    }
+    if(r.success) showToast("Compte activé ✓");
+  }catch(e){
+    if(res){res.style.display="block";res.style.background="rgba(255,95,109,.08)";res.style.border="1px solid rgba(255,95,109,.2)";res.style.color="var(--red)";res.innerHTML="❌ "+e.message;}
+    showToast(e.message,"error");
+  }
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
