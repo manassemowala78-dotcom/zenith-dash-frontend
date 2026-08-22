@@ -93,7 +93,33 @@ tr:hover td{background:rgba(255,255,255,.02)}
 @keyframes su{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 select.inp option{background:var(--card)}
-@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:14px}.kgrid{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.plans-grid{grid-template-columns:1fr}}
+
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--s);border-top:1px solid var(--b);z-index:200;padding:6px 0 10px}
+.bottom-nav-inner{display:flex;justify-content:space-around;align-items:center}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;color:var(--muted);cursor:pointer;font-size:10px;font-weight:600;transition:all .15s;border-radius:8px;min-width:48px}
+.bnav-item i{font-size:20px}
+.bnav-item.active{color:var(--green)}
+.bnav-item span{font-family:var(--mono);font-size:9px}
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .bottom-nav{display:block}
+  .main{padding:12px;padding-bottom:80px}
+  .kgrid{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+  .plans-grid{grid-template-columns:1fr}
+  .topbar{padding:0 12px;height:52px}
+  .logo{font-size:15px}
+  .logo-icon{width:28px;height:28px;font-size:13px}
+  #topbar-name{display:none}
+  .trial-bar{font-size:10px;padding:6px 12px;flex-wrap:wrap;gap:4px}
+  .kpi{padding:12px 14px}
+  .kv{font-size:22px}
+  .card{padding:14px}
+  .modal{padding:18px}
+  .wire-box{font-size:11px;line-height:2}
+  .sh{margin-bottom:12px}
+}
 </style>
 </head>
 <body>
@@ -326,6 +352,18 @@ select.inp option{background:var(--card)}
 </div>
 </div>
 
+<!-- BOTTOM NAV MOBILE -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <div class="bnav-item active" data-bp="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i><span>Home</span></div>
+    <div class="bnav-item" data-bp="invoices" onclick="navigate('invoices')"><i class="ti ti-file-invoice"></i><span>Factures</span></div>
+    <div class="bnav-item" data-bp="clients" onclick="navigate('clients')"><i class="ti ti-users"></i><span>Clients</span></div>
+    <div class="bnav-item" data-bp="billing" onclick="navigate('billing')"><i class="ti ti-building-bank"></i><span>Plans</span></div>
+    <div class="bnav-item" data-bp="analytics" onclick="navigate('analytics')"><i class="ti ti-brain"></i><span>IA</span></div>
+    <div class="bnav-item" data-bp="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i><span>Profil</span></div>
+  </div>
+</div>
+
 <!-- MODAL CRÉATEUR -->
 <div id="creator-modal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal" style="width:420px">
@@ -478,8 +516,10 @@ function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent
 function navigate(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".nav-i").forEach(n=>n.classList.remove("active"));
+  document.querySelectorAll(".bnav-item").forEach(n=>n.classList.remove("active"));
   document.getElementById(`page-${page}`)?.classList.add("active");
   document.querySelector(`[data-p="${page}"]`)?.classList.add("active");
+  document.querySelector(`[data-bp="${page}"]`)?.classList.add("active");
   loadPage(page);
 }
 async function loadPage(p){
