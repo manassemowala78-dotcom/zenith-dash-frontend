@@ -208,7 +208,7 @@ select.inp option{background:var(--card)}
     <div class="nav-g">
       <div class="nav-lbl">Compte</div>
       <div class="nav-i" data-p="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i>Profil & Banque</div>
-      <div class="nav-i" data-p="admin" onclick="navigate('admin')"><i class="ti ti-shield"></i>Admin</div>
+      <div class="nav-i" data-p="admin" id="nav-admin" onclick="navigate('admin')" style="display:none"><i class="ti ti-shield"></i>Admin</div>
     </div>
   </aside>
   <main class="main">
@@ -917,6 +917,10 @@ async function showAppLayout(){
     document.getElementById("topbar-av").textContent=t.name?.charAt(0).toUpperCase();
     setHTML("topbar-plan",planBadge(t.plan));
     if(t.trial) showTrialBar(t.trial);
+    if(t.plan==="ultimate"&&t.trial&&t.trial.is_creator){
+      const navAdmin=document.getElementById("nav-admin");
+      if(navAdmin) navAdmin.style.display="flex";
+    }
   }
   navigate("dashboard");
 }
@@ -1535,6 +1539,8 @@ async function activateCreator(){
     document.getElementById("trial-bar").className="trial-bar hidden";
     document.getElementById("creator-modal").style.display="none";
     document.getElementById("creator-input").value="";
+    const navAdmin=document.getElementById("nav-admin");
+    if(navAdmin) navAdmin.style.display="flex";
   }catch(e){showToast(e.message,"error");}
 }
 
