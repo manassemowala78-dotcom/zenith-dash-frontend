@@ -2,10 +2,10 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Zenith Dash — PaaS Facturation</title>
+<title>Zenith Dash ERP — Gestion d'Entreprise</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-:root{--bg:#060a10;--s:#0d1320;--card:#121a28;--c2:#182135;--b:rgba(0,220,100,.12);--blue:#4f7aff;--green:#00e080;--red:#ff5f6d;--amber:#f5a623;--purple:#9b6dff;--cyan:#00d4c8;--gold:#ffd700;--text:#e8eaf2;--muted:#5a6282;--mono:'Consolas',monospace}
+:root{--bg:#060a10;--s:#0d1320;--card:#121a28;--c2:#182135;--b:rgba(0,220,100,.12);--blue:#4f7aff;--green:#00e080;--red:#ff5f6d;--amber:#f5a623;--purple:#9b6dff;--cyan:#00d4c8;--gold:#ffd700;--pink:#ff6eb4;--text:#e8eaf2;--muted:#5a6282;--mono:'Consolas',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 #auth-screen{display:flex;min-height:100vh;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(0,224,128,.07) 0%,var(--bg) 65%)}
@@ -22,7 +22,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .auth-tab-content{display:none}.auth-tab-content.active{display:block}
 .err-box{color:var(--red);font-size:12px;font-family:var(--mono);margin-top:8px;display:none}
 #app-screen{display:none}
-.layout{display:grid;grid-template-columns:220px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+.layout{display:grid;grid-template-columns:230px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
 .trial-bar{grid-column:1/-1;background:rgba(0,224,128,.08);border-bottom:1px solid rgba(0,224,128,.2);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--green)}
 .trial-bar.expired{background:rgba(255,95,109,.08);border-color:rgba(255,95,109,.2);color:var(--red)}
 .trial-bar.hidden{display:none}
@@ -32,29 +32,32 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .logo span{color:var(--green)}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#000}
 .sidebar{background:var(--s);border-right:1px solid var(--b);padding:14px 0;overflow-y:auto}
-.nav-g{padding:0 10px;margin-bottom:6px}
+.nav-g{padding:0 10px;margin-bottom:4px}
 .nav-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:8px 8px 4px}
 .nav-i{display:flex;align-items:center;gap:9px;padding:8px 10px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;border-radius:8px;margin-bottom:1px}
 .nav-i:hover{color:var(--text);background:rgba(255,255,255,.04)}
 .nav-i.active{color:var(--green);background:rgba(0,224,128,.1)}
 .nav-i i{font-size:15px;flex-shrink:0}
+.nav-badge{font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:4px;background:rgba(255,95,109,.15);color:var(--red);margin-left:auto}
 .main{padding:24px;overflow-y:auto}
 .page{display:none}.page.active{display:block;animation:fi .2s ease}
 @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:18px}
+.card2{background:var(--c2);border:1px solid var(--b);border-radius:10px;padding:14px}
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
 .st{font-size:17px;font-weight:700}.ss{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
 .kgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;margin-bottom:20px}
 .kpi{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.kpi.g::before{background:var(--green)}.kpi.b::before{background:var(--blue)}.kpi.p::before{background:var(--purple)}.kpi.c::before{background:var(--cyan)}
+.kpi.g::before{background:var(--green)}.kpi.b::before{background:var(--blue)}.kpi.p::before{background:var(--purple)}.kpi.c::before{background:var(--cyan)}.kpi.a::before{background:var(--amber)}.kpi.r::before{background:var(--red)}.kpi.pk::before{background:var(--pink)}
 .kl{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
-.kv{font-size:26px;font-weight:800}
+.kv{font-size:24px;font-weight:800}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
 .btn-g{background:var(--green);color:#000}.btn-g:hover{background:#00c870}
 .btn-o{background:transparent;color:var(--text);border:1px solid var(--b)}.btn-o:hover{background:rgba(255,255,255,.05)}
 .btn-r{background:rgba(255,95,109,.12);color:var(--red);border:1px solid rgba(255,95,109,.25)}
-.btn-b{background:var(--blue);color:#fff}
+.btn-b{background:var(--blue);color:#fff}.btn-b:hover{background:#3d6aff}
+.btn-a{background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.25)}
 .btn-sm{padding:5px 12px;font-size:12px}
 .badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px}
 .bg{background:rgba(0,224,128,.1);color:var(--green);border:1px solid rgba(0,224,128,.2)}
@@ -63,6 +66,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .ba{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.2)}
 .bp{background:rgba(155,109,255,.1);color:var(--purple);border:1px solid rgba(155,109,255,.2)}
 .bgold{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.25)}
+.bc{background:rgba(0,212,200,.1);color:var(--cyan);border:1px solid rgba(0,212,200,.2)}
 .badge-gray{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--b)}
 .badge-trial{background:rgba(0,224,128,.1);color:var(--green);border:1px solid rgba(0,224,128,.25)}
 .inp{width:100%;background:var(--s);border:1px solid var(--b);border-radius:8px;color:var(--text);padding:10px 14px;font-size:13px;font-family:var(--mono);transition:border-color .15s}
@@ -92,45 +96,39 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .tg{border-color:rgba(0,224,128,.4);color:var(--green)}.tr{border-color:rgba(255,95,109,.4);color:var(--red)}.ti{border-color:rgba(79,122,255,.4);color:var(--blue)}
 @keyframes su{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 select.inp option{background:var(--card)}
-
+.pipeline-col{background:var(--s);border-radius:10px;padding:12px;min-height:200px}
+.pipeline-col-title{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.opp-card{background:var(--card);border:1px solid var(--b);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.opp-card:hover{border-color:rgba(0,224,128,.3)}
+.alert-bar{background:rgba(255,95,109,.08);border:1px solid rgba(255,95,109,.2);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--s);border-top:1px solid var(--b);z-index:200;padding:6px 0 10px}
 .bottom-nav-inner{display:flex;justify-content:space-around;align-items:center}
-.bnav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;color:var(--muted);cursor:pointer;font-size:10px;font-weight:600;transition:all .15s;border-radius:8px;min-width:48px}
-.bnav-item i{font-size:20px}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;color:var(--muted);cursor:pointer;font-size:10px;font-weight:600;transition:all .15s;border-radius:8px;min-width:40px}
+.bnav-item i{font-size:18px}
 .bnav-item.active{color:var(--green)}
 .bnav-item span{font-family:var(--mono);font-size:9px}
 @media(max-width:768px){
-  .layout{grid-template-columns:1fr}
-  .sidebar{display:none}
-  .bottom-nav{display:block}
-  .main{padding:12px;padding-bottom:80px}
-  .kgrid{grid-template-columns:1fr 1fr}
-  .grid2{grid-template-columns:1fr}
-  .plans-grid{grid-template-columns:1fr}
-  .topbar{padding:0 12px;height:52px}
-  .logo{font-size:15px}
-  .logo-icon{width:28px;height:28px;font-size:13px}
-  #topbar-name{display:none}
+  .layout{grid-template-columns:1fr}.sidebar{display:none}.bottom-nav{display:block}
+  .main{padding:12px;padding-bottom:80px}.kgrid{grid-template-columns:1fr 1fr}
+  .grid2,.grid3{grid-template-columns:1fr}.plans-grid{grid-template-columns:1fr}
+  .topbar{padding:0 12px;height:52px}.logo{font-size:15px}
+  .logo-icon{width:28px;height:28px;font-size:13px}#topbar-name{display:none}
   .trial-bar{font-size:10px;padding:6px 12px;flex-wrap:wrap;gap:4px}
-  .kpi{padding:12px 14px}
-  .kv{font-size:22px}
-  .card{padding:14px}
-  .modal{padding:18px}
-  .wire-box{font-size:11px;line-height:2}
-  .sh{margin-bottom:12px}
+  .kpi{padding:12px 14px}.kv{font-size:20px}.card{padding:14px}
+  .modal{padding:18px}.wire-box{font-size:11px;line-height:2}.sh{margin-bottom:12px}
 }
 </style>
 </head>
 <body>
-
 <!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-wrap">
     <div class="auth-logo">
       <span class="auth-logo-icon">⚡</span>
       <div class="auth-logo-title">Zenith<span>Dash</span></div>
-      <div class="auth-logo-sub">PaaS Facturation · IA Prédictive · Virement Bancaire USD</div>
+      <div class="auth-logo-sub">ERP · Facturation · RH · Stock · CRM · Comptabilité</div>
       <div class="trial-badge">✦ Essai gratuit 14 jours — sans carte bancaire</div>
     </div>
     <div class="auth-tabs-nav">
@@ -175,8 +173,31 @@ select.inp option{background:var(--card)}
     <div class="nav-g">
       <div class="nav-lbl">Principal</div>
       <div class="nav-i active" data-p="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+    </div>
+    <div class="nav-g">
+      <div class="nav-lbl">Facturation</div>
       <div class="nav-i" data-p="invoices" onclick="navigate('invoices')"><i class="ti ti-file-invoice"></i>Factures</div>
       <div class="nav-i" data-p="clients" onclick="navigate('clients')"><i class="ti ti-users"></i>Clients</div>
+    </div>
+    <div class="nav-g">
+      <div class="nav-lbl">CRM</div>
+      <div class="nav-i" data-p="crm" onclick="navigate('crm')"><i class="ti ti-target"></i>Pipeline</div>
+      <div class="nav-i" data-p="quotes" onclick="navigate('quotes')"><i class="ti ti-file-description"></i>Devis</div>
+    </div>
+    <div class="nav-g">
+      <div class="nav-lbl">Ressources Humaines</div>
+      <div class="nav-i" data-p="employees" onclick="navigate('employees')"><i class="ti ti-user-check"></i>Employés</div>
+      <div class="nav-i" data-p="leaves" onclick="navigate('leaves')"><i class="ti ti-calendar-off"></i>Congés</div>
+      <div class="nav-i" data-p="payroll" onclick="navigate('payroll')"><i class="ti ti-receipt"></i>Paie</div>
+    </div>
+    <div class="nav-g">
+      <div class="nav-lbl">Stock & Produits</div>
+      <div class="nav-i" data-p="stock" onclick="navigate('stock')"><i class="ti ti-package"></i>Inventaire <span class="nav-badge" id="stock-alert-badge" style="display:none">!</span></div>
+    </div>
+    <div class="nav-g">
+      <div class="nav-lbl">Comptabilité</div>
+      <div class="nav-i" data-p="expenses" onclick="navigate('expenses')"><i class="ti ti-credit-card"></i>Dépenses</div>
+      <div class="nav-i" data-p="pl" onclick="navigate('pl')"><i class="ti ti-chart-pie"></i>P&L</div>
     </div>
     <div class="nav-g">
       <div class="nav-lbl">Finance</div>
@@ -187,20 +208,24 @@ select.inp option{background:var(--card)}
     <div class="nav-g">
       <div class="nav-lbl">Compte</div>
       <div class="nav-i" data-p="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i>Profil & Banque</div>
+      <div class="nav-i" data-p="admin" onclick="navigate('admin')"><i class="ti ti-shield"></i>Admin</div>
     </div>
   </aside>
   <main class="main">
 
     <!-- DASHBOARD -->
     <div id="page-dashboard" class="page active">
-      <div class="sh"><div><div class="st">Dashboard</div><div class="ss">Bienvenue sur Zenith Dash</div></div>
+      <div class="sh"><div><div class="st">Dashboard ERP</div><div class="ss">Vue globale de votre entreprise</div></div>
         <button class="btn btn-o btn-sm" onclick="loadDashboard()"><i class="ti ti-refresh"></i></button>
       </div>
+      <div id="stock-alert-banner" style="display:none"></div>
       <div class="kgrid">
         <div class="kpi g"><div class="kl">Revenus (USD)</div><div class="kv" id="kpi-revenue">—</div></div>
-        <div class="kpi b"><div class="kl">Factures</div><div class="kv" id="kpi-invoices">—</div></div>
-        <div class="kpi p"><div class="kl">Clients</div><div class="kv" id="kpi-clients">—</div></div>
-        <div class="kpi c"><div class="kl">Plan actuel</div><div class="kv" id="kpi-plan">—</div></div>
+        <div class="kpi b"><div class="kl">En attente</div><div class="kv" id="kpi-pending">—</div></div>
+        <div class="kpi p"><div class="kl">Pipeline CRM</div><div class="kv" id="kpi-pipeline">—</div></div>
+        <div class="kpi c"><div class="kl">Clients</div><div class="kv" id="kpi-clients">—</div></div>
+        <div class="kpi a"><div class="kl">Employés actifs</div><div class="kv" id="kpi-employees">—</div></div>
+        <div class="kpi r"><div class="kl">Dépenses (30j)</div><div class="kv" id="kpi-expenses">—</div></div>
       </div>
       <div class="grid2">
         <div class="card">
@@ -208,16 +233,20 @@ select.inp option{background:var(--card)}
           <div style="display:flex;flex-direction:column;gap:8px">
             <button class="btn btn-g" onclick="navigate('invoices');openInvModal()"><i class="ti ti-plus"></i> Nouvelle facture</button>
             <button class="btn btn-o" onclick="navigate('clients');openClientModal()"><i class="ti ti-user-plus"></i> Nouveau client</button>
-            <button class="btn btn-o" onclick="navigate('billing')"><i class="ti ti-building-bank"></i> Gérer l'abonnement</button>
+            <button class="btn btn-o" onclick="navigate('crm');openOppModal()"><i class="ti ti-target"></i> Nouvelle opportunité</button>
+            <button class="btn btn-o" onclick="navigate('employees');openEmpModal()"><i class="ti ti-user-check"></i> Nouvel employé</button>
+            <button class="btn btn-o" onclick="navigate('stock');openProductModal()"><i class="ti ti-package"></i> Nouveau produit</button>
+            <button class="btn btn-o" onclick="navigate('expenses');openExpenseModal()"><i class="ti ti-credit-card"></i> Nouvelle dépense</button>
           </div>
         </div>
         <div class="card">
-          <div style="font-weight:700;font-size:14px;margin-bottom:14px">Info paiement</div>
-          <div style="font-family:var(--mono);font-size:12px;color:var(--muted);line-height:2">
-            <span style="color:var(--green)">🇨🇩</span> Virement national Rawbank (RDC)<br>
-            <span style="color:var(--cyan)">🌍</span> Virement international SWIFT (hors RDC)<br>
-            <span style="color:var(--amber)">💱</span> USD uniquement<br>
-            <span style="color:var(--purple)">↩️</span> Remboursement 14 jours garanti
+          <div style="font-weight:700;font-size:14px;margin-bottom:14px">Résumé financier</div>
+          <div style="font-family:var(--mono);font-size:13px;line-height:2.8;color:var(--muted)">
+            Factures : <b id="dash-inv-count" style="color:var(--text)">—</b><br>
+            Produits : <b id="dash-products" style="color:var(--text)">—</b><br>
+            Alertes stock : <b id="dash-low-stock" style="color:var(--red)">—</b><br>
+            Opportunités : <b id="dash-opps" style="color:var(--text)">—</b><br>
+            Plan actuel : <span id="dash-plan">—</span>
           </div>
         </div>
       </div>
@@ -243,7 +272,130 @@ select.inp option{background:var(--card)}
         <div><div class="st">Clients</div><div class="ss">Gérez votre portefeuille client</div></div>
         <button class="btn btn-g btn-sm" onclick="openClientModal()"><i class="ti ti-user-plus"></i> Ajouter</button>
       </div>
-      <div id="clients-list" class="card"></div>
+      <div class="card"><div class="table-wrap">
+        <table><thead><tr><th>Nom</th><th>Entreprise</th><th>Email</th><th>Téléphone</th><th>Pays</th><th>Facturé</th><th></th></tr></thead>
+        <tbody id="clients-tbody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+      </div></div>
+    </div>
+
+    <!-- CRM PIPELINE -->
+    <div id="page-crm" class="page">
+      <div class="sh">
+        <div><div class="st">Pipeline CRM</div><div class="ss">Suivi des opportunités commerciales</div></div>
+        <button class="btn btn-g btn-sm" onclick="openOppModal()"><i class="ti ti-plus"></i> Nouvelle opportunité</button>
+      </div>
+      <div id="pipeline-board" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;overflow-x:auto"></div>
+    </div>
+
+    <!-- DEVIS -->
+    <div id="page-quotes" class="page">
+      <div class="sh">
+        <div><div class="st">Devis</div><div class="ss">Créez et convertissez vos devis en factures</div></div>
+        <button class="btn btn-g btn-sm" onclick="openQuoteModal()"><i class="ti ti-plus"></i> Nouveau devis</button>
+      </div>
+      <div class="card"><div class="table-wrap">
+        <table><thead><tr><th>Numéro</th><th>Date</th><th>Statut</th><th>Total</th><th>Valide jusqu'au</th><th>Actions</th></tr></thead>
+        <tbody id="quotes-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+      </div></div>
+    </div>
+
+    <!-- EMPLOYÉS -->
+    <div id="page-employees" class="page">
+      <div class="sh">
+        <div><div class="st">Employés</div><div class="ss">Gérez votre équipe</div></div>
+        <button class="btn btn-g btn-sm" onclick="openEmpModal()"><i class="ti ti-user-plus"></i> Ajouter</button>
+      </div>
+      <div class="card"><div class="table-wrap">
+        <table><thead><tr><th>Nom</th><th>Poste</th><th>Département</th><th>Contrat</th><th>Salaire</th><th>Solde congés</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="emp-tbody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+      </div></div>
+    </div>
+
+    <!-- CONGÉS -->
+    <div id="page-leaves" class="page">
+      <div class="sh">
+        <div><div class="st">Congés</div><div class="ss">Demandes et validation des congés</div></div>
+        <button class="btn btn-g btn-sm" onclick="openLeaveModal()"><i class="ti ti-plus"></i> Nouvelle demande</button>
+      </div>
+      <div class="card"><div class="table-wrap">
+        <table><thead><tr><th>Employé</th><th>Type</th><th>Du</th><th>Au</th><th>Jours</th><th>Raison</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody id="leaves-tbody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+      </div></div>
+    </div>
+
+    <!-- PAIE -->
+    <div id="page-payroll" class="page">
+      <div class="sh">
+        <div><div class="st">Fiches de Paie</div><div class="ss">Gestion de la paie mensuelle</div></div>
+        <button class="btn btn-g btn-sm" onclick="openPayslipModal()"><i class="ti ti-plus"></i> Nouvelle fiche</button>
+      </div>
+      <div class="card"><div class="table-wrap">
+        <table><thead><tr><th>Employé</th><th>Mois</th><th>Salaire base</th><th>Primes</th><th>Déductions</th><th>Net</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody id="payroll-tbody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+      </div></div>
+    </div>
+
+    <!-- STOCK -->
+    <div id="page-stock" class="page">
+      <div class="sh">
+        <div><div class="st">Inventaire & Stock</div><div class="ss">Gérez vos produits et mouvements de stock</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-o btn-sm" onclick="openStockMoveModal()"><i class="ti ti-arrows-exchange"></i> Mouvement</button>
+          <button class="btn btn-g btn-sm" onclick="openProductModal()"><i class="ti ti-plus"></i> Produit</button>
+        </div>
+      </div>
+      <div id="stock-alerts-section" style="display:none;margin-bottom:12px"></div>
+      <div class="card"><div class="table-wrap">
+        <table><thead><tr><th>Produit</th><th>SKU</th><th>Catégorie</th><th>Prix vente</th><th>Prix coût</th><th>Stock</th><th>Seuil min</th><th>Statut</th><th></th></tr></thead>
+        <tbody id="stock-tbody"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+      </div></div>
+    </div>
+
+    <!-- DÉPENSES -->
+    <div id="page-expenses" class="page">
+      <div class="sh">
+        <div><div class="st">Dépenses</div><div class="ss">Suivi et catégorisation des dépenses</div></div>
+        <button class="btn btn-g btn-sm" onclick="openExpenseModal()"><i class="ti ti-plus"></i> Ajouter</button>
+      </div>
+      <div class="card"><div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Catégorie</th><th>Description</th><th>Montant</th><th>Déductible</th><th></th></tr></thead>
+        <tbody id="expenses-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+      </div></div>
+    </div>
+
+    <!-- P&L -->
+    <div id="page-pl" class="page">
+      <div class="sh"><div><div class="st">Compte de Résultat (P&L)</div><div class="ss">Revenus, coûts et bénéfice net</div></div>
+        <button class="btn btn-o btn-sm" onclick="loadPL(_plPeriod)"><i class="ti ti-refresh"></i></button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+        <button class="toggle-btn active" data-pp="week" onclick="loadPL('week',this)">7 jours</button>
+        <button class="toggle-btn" data-pp="month" onclick="loadPL('month',this)">30 jours</button>
+        <button class="toggle-btn" data-pp="quarter" onclick="loadPL('quarter',this)">Trimestre</button>
+        <button class="toggle-btn" data-pp="year" onclick="loadPL('year',this)">Année</button>
+      </div>
+      <div class="kgrid">
+        <div class="kpi g"><div class="kl">Revenus</div><div class="kv" id="pl-revenue">—</div></div>
+        <div class="kpi r"><div class="kl">Dépenses</div><div class="kv" id="pl-expenses">—</div></div>
+        <div class="kpi a"><div class="kl">Masse salariale</div><div class="kv" id="pl-payroll">—</div></div>
+        <div class="kpi b"><div class="kl">Bénéfice net</div><div class="kv" id="pl-profit">—</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:12px">Marge bénéficiaire</div>
+          <div style="font-size:32px;font-weight:800" id="pl-margin">—</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px">% de marge sur le chiffre d'affaires</div>
+        </div>
+        <div class="card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:12px">Résumé TVA (année en cours)</div>
+          <div style="font-family:var(--mono);font-size:12px;line-height:2.4;color:var(--muted)">
+            CA annuel : <b id="tax-revenue" style="color:var(--text)">—</b><br>
+            TVA collectée : <b id="tax-collected" style="color:var(--amber)">—</b><br>
+            Charges déductibles : <b id="tax-deductible" style="color:var(--green)">—</b><br>
+            Base imposable estimée : <b id="tax-base" style="color:var(--blue)">—</b>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ABONNEMENTS -->
@@ -254,7 +406,7 @@ select.inp option{background:var(--card)}
         <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px">
           <div><div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:4px">🇨🇩 NATIONAL (Rawbank RDC)</div><div style="color:var(--muted)">Pour les clients en RDC</div></div>
           <div><div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:4px">🌍 INTERNATIONAL (SWIFT USD)</div><div style="color:var(--muted)">Pour les clients hors RDC</div></div>
-          <div><div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-bottom:4px">↩️ REMBOURSEMENT</div><div style="color:var(--muted)">14 jours · 1 seul par compte · annule l'essai</div></div>
+          <div><div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-bottom:4px">↩️ REMBOURSEMENT</div><div style="color:var(--muted)">14 jours · 1 seul par compte</div></div>
         </div>
       </div>
       <div class="billing-toggle">
@@ -262,18 +414,11 @@ select.inp option{background:var(--card)}
         <button class="toggle-btn" id="toggle-a" onclick="setSubCycle('annual')">Annuel <span style="color:var(--green);font-size:11px">~17% de réduction</span></button>
       </div>
       <div class="plans-grid" id="plans-grid"></div>
-      <div class="card" style="margin-top:16px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:12px">Tarifs USD</div>
-        <div class="table-wrap">
-          <table><thead><tr><th>Plan</th><th>Mensuel</th><th>Annuel</th><th>Économie</th><th>Cible</th></tr></thead>
-          <tbody id="billing-tbody"></tbody></table>
-        </div>
-      </div>
     </div>
 
     <!-- ANALYTICS -->
     <div id="page-analytics" class="page">
-      <div class="sh"><div><div class="st">IA Analytics</div><div class="ss">Prévisions de revenus</div></div>
+      <div class="sh"><div><div class="st">IA Analytics</div><div class="ss">Prévisions de revenus par régression linéaire</div></div>
         <button class="btn btn-o btn-sm" onclick="loadAnalytics()"><i class="ti ti-refresh"></i></button>
       </div>
       <div class="kgrid">
@@ -308,91 +453,81 @@ select.inp option{background:var(--card)}
 
     <!-- PROFIL -->
     <div id="page-profile" class="page">
-      <div class="sh"><div><div class="st">Profil & Coordonnées Bancaires</div></div></div>
+      <div class="sh"><div><div class="st">Profil & Paramètres</div></div></div>
       <div class="grid2">
         <div class="card">
-          <div style="font-weight:700;font-size:14px;margin-bottom:14px"><i class="ti ti-user"></i> Profil</div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:14px"><i class="ti ti-user"></i> Profil entreprise</div>
           <div class="fgrp"><label class="fl">Nom</label><input class="inp" type="text" id="prof-name"></div>
           <div class="fgrp"><label class="fl">Entreprise</label><input class="inp" type="text" id="prof-company"></div>
+          <div class="fgrp"><label class="fl">N° Fiscal / TVA</label><input class="inp" type="text" id="prof-tax" placeholder="Optionnel"></div>
           <div class="fgrp"><label class="fl">Téléphone</label><input class="inp" type="text" id="prof-phone"></div>
+          <div class="fgrp"><label class="fl">Adresse</label><input class="inp" type="text" id="prof-address" placeholder="Adresse complète"></div>
+          <div class="fgrp"><label class="fl">Devise par défaut</label>
+            <select class="inp" id="prof-currency">
+              <option value="USD">USD — Dollar américain</option>
+              <option value="EUR">EUR — Euro</option>
+              <option value="XAF">XAF — Franc CFA</option>
+              <option value="MAD">MAD — Dirham marocain</option>
+              <option value="GBP">GBP — Livre sterling</option>
+            </select>
+          </div>
           <div class="fgrp"><label class="fl">Pays</label>
             <select class="inp" id="prof-country">
-              <option value="CD">RDC — Congo</option><option value="MA">Maroc</option>
-              <option value="FR">France</option><option value="BE">Belgique</option>
-              <option value="US">États-Unis</option><option value="CI">Côte d'Ivoire</option>
-              <option value="SN">Sénégal</option><option value="CM">Cameroun</option>
+              <option value="AF">Afghanistan</option><option value="ZA">Afrique du Sud</option><option value="AL">Albanie</option><option value="DZ">Algérie</option><option value="DE">Allemagne</option><option value="AO">Angola</option><option value="AR">Argentine</option><option value="AU">Australie</option><option value="AT">Autriche</option><option value="BE">Belgique</option><option value="BJ">Bénin</option><option value="BR">Brésil</option><option value="BF">Burkina Faso</option><option value="BI">Burundi</option><option value="CM">Cameroun</option><option value="CA">Canada</option><option value="CF">Centrafrique</option><option value="CL">Chili</option><option value="CN">Chine</option><option value="CO">Colombie</option><option value="CG">Congo</option><option value="CD">RDC — Congo</option><option value="KR">Corée du Sud</option><option value="CI">Côte d'Ivoire</option><option value="HR">Croatie</option><option value="DK">Danemark</option><option value="DJ">Djibouti</option><option value="EG">Égypte</option><option value="AE">Émirats Arabes Unis</option><option value="ES">Espagne</option><option value="US">États-Unis</option><option value="ET">Éthiopie</option><option value="FI">Finlande</option><option value="FR">France</option><option value="GA">Gabon</option><option value="GM">Gambie</option><option value="GH">Ghana</option><option value="GR">Grèce</option><option value="GN">Guinée</option><option value="GQ">Guinée équatoriale</option><option value="IN">Inde</option><option value="ID">Indonésie</option><option value="IQ">Irak</option><option value="IR">Iran</option><option value="IE">Irlande</option><option value="IL">Israël</option><option value="IT">Italie</option><option value="JP">Japon</option><option value="JO">Jordanie</option><option value="KZ">Kazakhstan</option><option value="KE">Kenya</option><option value="KW">Koweït</option><option value="LB">Liban</option><option value="LY">Libye</option><option value="LU">Luxembourg</option><option value="MG">Madagascar</option><option value="MY">Malaisie</option><option value="MW">Malawi</option><option value="ML">Mali</option><option value="MA">Maroc</option><option value="MR">Mauritanie</option><option value="MX">Mexique</option><option value="MZ">Mozambique</option><option value="NA">Namibie</option><option value="NP">Népal</option><option value="NE">Niger</option><option value="NG">Nigeria</option><option value="NO">Norvège</option><option value="NZ">Nouvelle-Zélande</option><option value="UG">Ouganda</option><option value="PK">Pakistan</option><option value="PA">Panama</option><option value="PY">Paraguay</option><option value="NL">Pays-Bas</option><option value="PE">Pérou</option><option value="PH">Philippines</option><option value="PL">Pologne</option><option value="PT">Portugal</option><option value="QA">Qatar</option><option value="RO">Roumanie</option><option value="GB">Royaume-Uni</option><option value="RU">Russie</option><option value="RW">Rwanda</option><option value="SN">Sénégal</option><option value="RS">Serbie</option><option value="SL">Sierra Leone</option><option value="SG">Singapour</option><option value="SO">Somalie</option><option value="SD">Soudan</option><option value="SS">Soudan du Sud</option><option value="LK">Sri Lanka</option><option value="SE">Suède</option><option value="CH">Suisse</option><option value="SY">Syrie</option><option value="TZ">Tanzanie</option><option value="TD">Tchad</option><option value="CZ">Tchéquie</option><option value="TH">Thaïlande</option><option value="TG">Togo</option><option value="TN">Tunisie</option><option value="TR">Turquie</option><option value="UA">Ukraine</option><option value="UY">Uruguay</option><option value="VE">Venezuela</option><option value="VN">Viêt Nam</option><option value="YE">Yémen</option><option value="ZM">Zambie</option><option value="ZW">Zimbabwe</option>
             </select>
           </div>
           <button class="btn btn-g btn-sm" onclick="saveProfile()"><i class="ti ti-device-floppy"></i> Sauvegarder</button>
         </div>
         <div class="card">
           <div style="font-weight:700;font-size:14px;margin-bottom:8px"><i class="ti ti-building-bank"></i> Coordonnées bancaires</div>
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.15);border-radius:8px;padding:10px;margin-bottom:12px">
-            Utilisées pour te rembourser par virement si tu demandes un remboursement dans les 14 jours.
-          </div>
-          <div class="fgrp"><label class="fl">Nom de ta banque</label><input class="inp" type="text" id="bank-name" placeholder="Ex: Rawbank SA"></div>
-          <div class="fgrp"><label class="fl">N° de compte</label><input class="inp" type="text" id="bank-account" placeholder="CD12RAWB..."></div>
-          <div class="fgrp"><label class="fl">Code SWIFT/BIC</label><input class="inp" type="text" id="bank-swift" placeholder="RAWBCDKI"></div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.15);border-radius:8px;padding:10px;margin-bottom:12px">Utilisées pour les remboursements dans les 14 jours.</div>
+          <div class="fgrp"><label class="fl">Nom de la banque</label><input class="inp" type="text" id="bank-name" placeholder="Ex: Rawbank SA"></div>
+          <div class="fgrp"><label class="fl">N° de compte</label><input class="inp" type="text" id="bank-account"></div>
+          <div class="fgrp"><label class="fl">Code SWIFT/BIC</label><input class="inp" type="text" id="bank-swift"></div>
           <div class="fgrp"><label class="fl">IBAN</label><input class="inp" type="text" id="bank-iban" placeholder="Optionnel"></div>
           <button class="btn btn-g btn-sm" onclick="saveBank()"><i class="ti ti-building-bank"></i> Enregistrer</button>
-        </div>
-      </div>
-      <div class="card" style="margin-top:14px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:14px"><i class="ti ti-lock"></i> Changer le mot de passe</div>
-        <div class="grid2">
+          <div style="margin-top:20px;font-weight:700;font-size:14px;margin-bottom:14px"><i class="ti ti-lock"></i> Changer le mot de passe</div>
           <div class="fgrp"><label class="fl">Mot de passe actuel</label><input class="inp" type="password" id="pwd-cur"></div>
           <div class="fgrp"><label class="fl">Nouveau mot de passe</label><input class="inp" type="password" id="pwd-new"></div>
+          <div class="fgrp"><label class="fl">Confirmer</label><input class="inp" type="password" id="pwd-cf"></div>
+          <button class="btn btn-o btn-sm" onclick="savePwd()"><i class="ti ti-key"></i> Modifier</button>
         </div>
-        <div class="fgrp"><label class="fl">Confirmer</label><input class="inp" type="password" id="pwd-cf" style="max-width:280px"></div>
-        <button class="btn btn-o btn-sm" onclick="savePwd()"><i class="ti ti-key"></i> Modifier</button>
       </div>
     </div>
-
 
     <!-- ADMIN -->
     <div id="page-admin" class="page">
       <div class="sh"><div><div class="st">🔐 Panel Admin</div><div class="ss">Confirmer les paiements reçus · Accès privé</div></div></div>
       <div class="card" style="margin-bottom:16px;border-color:rgba(245,166,35,.2)">
         <div style="font-weight:700;font-size:14px;margin-bottom:14px;color:var(--amber)"><i class="ti ti-shield-check"></i> Confirmer un virement reçu</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Entre la référence du virement que le client t a communiqué (ex: ZD-AB12CD-EF34GH).</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Entre la référence du virement que le client t'a communiqué (ex: ZD-AB12CD-EF34GH).</div>
         <div class="fgrp"><label class="fl">Référence du virement *</label><input class="inp" id="admin-ref" placeholder="ZD-XXXXXX-XXXXXX" style="font-family:var(--mono);letter-spacing:2px;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
         <div class="fgrp"><label class="fl">Référence banque (optionnel)</label><input class="inp" id="admin-bank-ref" placeholder="Référence reçue de Rawbank"></div>
         <button class="btn btn-g" onclick="adminConfirmWire()"><i class="ti ti-check"></i> Confirmer et activer le compte</button>
         <div id="admin-result" style="margin-top:14px;display:none;border-radius:10px;padding:12px 16px;font-family:var(--mono);font-size:13px"></div>
-      </div>
-      <div class="card">
-        <div style="font-weight:700;font-size:14px;margin-bottom:12px">Comment ca marche</div>
-        <div style="font-size:13px;color:var(--muted);line-height:2.4;font-family:var(--mono)">
-          1. Le client souscrit et reçoit une référence ZD-XXXXXX<br>
-          2. Il vire l argent sur ton compte Rawbank avec cette référence<br>
-          3. Tu reçois l argent sur ton compte Rawbank<br>
-          4. Tu entres la référence ici et son plan s active automatiquement
-        </div>
       </div>
     </div>
 
   </main>
 </div>
 </div>
-
 <!-- BOTTOM NAV MOBILE -->
 <div class="bottom-nav">
   <div class="bottom-nav-inner">
     <div class="bnav-item active" data-bp="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i><span>Home</span></div>
     <div class="bnav-item" data-bp="invoices" onclick="navigate('invoices')"><i class="ti ti-file-invoice"></i><span>Factures</span></div>
-    <div class="bnav-item" data-bp="clients" onclick="navigate('clients')"><i class="ti ti-users"></i><span>Clients</span></div>
-    <div class="bnav-item" data-bp="billing" onclick="navigate('billing')"><i class="ti ti-building-bank"></i><span>Plans</span></div>
-    <div class="bnav-item" data-bp="analytics" onclick="navigate('analytics')"><i class="ti ti-brain"></i><span>IA</span></div>
+    <div class="bnav-item" data-bp="crm" onclick="navigate('crm')"><i class="ti ti-target"></i><span>CRM</span></div>
+    <div class="bnav-item" data-bp="employees" onclick="navigate('employees')"><i class="ti ti-user-check"></i><span>RH</span></div>
+    <div class="bnav-item" data-bp="stock" onclick="navigate('stock')"><i class="ti ti-package"></i><span>Stock</span></div>
     <div class="bnav-item" data-bp="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i><span>Profil</span></div>
   </div>
 </div>
 
-<!-- MODAL CRÉATEUR -->
+<!-- MODALS -->
 <div id="creator-modal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal" style="width:420px">
     <div class="modal-title"><i class="ti ti-shield-star" style="color:var(--gold)"></i> Accès Créateur</div>
-    <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px">Code secret pour activer le plan Ultimate à vie gratuitement.</div>
-    <div class="fgrp"><label class="fl">Code créateur</label><input class="inp" id="creator-input" type="password" placeholder="••••••••••••••••••••" onkeydown="if(event.key==='Enter')activateCreator()"></div>
+    <div class="fgrp"><label class="fl">Code créateur</label><input class="inp" id="creator-input" type="password" onkeydown="if(event.key==='Enter')activateCreator()"></div>
     <div class="modal-footer">
       <button class="btn btn-o btn-sm" onclick="document.getElementById('creator-modal').style.display='none'">Annuler</button>
       <button class="btn btn-sm" style="background:var(--gold);color:#000;font-weight:700" onclick="activateCreator()"><i class="ti ti-shield-check"></i> Activer</button>
@@ -400,10 +535,9 @@ select.inp option{background:var(--card)}
   </div>
 </div>
 
-<!-- MODAL VIREMENT -->
 <div id="wire-modal" class="modal-overlay" onclick="if(event.target===this)closeWireModal()">
   <div class="modal" style="width:600px">
-    <div class="modal-title"><i class="ti ti-building-bank" style="color:var(--cyan)"></i> Instructions de virement bancaire</div>
+    <div class="modal-title"><i class="ti ti-building-bank" style="color:var(--cyan)"></i> Instructions de virement</div>
     <div id="wire-modal-content"></div>
     <div class="modal-footer">
       <button class="btn btn-o btn-sm" onclick="closeWireModal()">Fermer</button>
@@ -412,19 +546,22 @@ select.inp option{background:var(--card)}
   </div>
 </div>
 
-<!-- MODAL FACTURE -->
 <div id="modal-inv" class="modal-overlay" onclick="if(event.target===this)closeInvModal()">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-file-invoice" style="color:var(--green)"></i> Nouvelle facture</div>
+    <div class="fgrp"><label class="fl">Client</label>
+      <select class="inp" id="inv-client"><option value="">Sans client</option></select>
+    </div>
     <div class="fgrp"><label class="fl">Description *</label><input class="inp" id="inv-desc" placeholder="Service ou produit"></div>
     <div class="grid2">
       <div class="fgrp"><label class="fl">Quantité *</label><input class="inp" type="number" id="inv-qty" placeholder="1" min="0.01" step="0.01"></div>
-      <div class="fgrp"><label class="fl">Prix unitaire USD *</label><input class="inp" type="number" id="inv-price" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="fgrp"><label class="fl">Prix unitaire *</label><input class="inp" type="number" id="inv-price" placeholder="0.00" min="0" step="0.01"></div>
     </div>
     <div class="grid2">
       <div class="fgrp"><label class="fl">TVA (%)</label><input class="inp" type="number" id="inv-tax" placeholder="0"></div>
-      <div class="fgrp"><label class="fl">Remise (USD)</label><input class="inp" type="number" id="inv-disc" placeholder="0"></div>
+      <div class="fgrp"><label class="fl">Remise</label><input class="inp" type="number" id="inv-disc" placeholder="0"></div>
     </div>
+    <div class="fgrp"><label class="fl">Notes</label><input class="inp" type="text" id="inv-notes" placeholder="Optionnel"></div>
     <div class="modal-footer">
       <button class="btn btn-o btn-sm" onclick="closeInvModal()">Annuler</button>
       <button class="btn btn-g btn-sm" onclick="submitInvoice()"><i class="ti ti-check"></i> Créer</button>
@@ -432,18 +569,222 @@ select.inp option{background:var(--card)}
   </div>
 </div>
 
-<!-- MODAL CLIENT -->
 <div id="modal-client" class="modal-overlay" onclick="if(event.target===this)closeClientModal()">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-user-plus" style="color:var(--blue)"></i> Nouveau client</div>
-    <div class="fgrp"><label class="fl">Nom *</label><input class="inp" id="cl-name" placeholder="Nom du client"></div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Nom *</label><input class="inp" id="cl-name" placeholder="Nom du client"></div>
+      <div class="fgrp"><label class="fl">Entreprise</label><input class="inp" id="cl-company" placeholder="Nom entreprise"></div>
+    </div>
     <div class="grid2">
       <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="cl-email"></div>
       <div class="fgrp"><label class="fl">Téléphone</label><input class="inp" id="cl-phone" placeholder="+243 81 000 000"></div>
     </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Pays</label><input class="inp" id="cl-country" placeholder="Ex: CD, MA, FR"></div>
+      <div class="fgrp"><label class="fl">ICE / N° fiscal</label><input class="inp" id="cl-ice"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Adresse</label><input class="inp" id="cl-address"></div>
+    <div class="fgrp"><label class="fl">Notes</label><input class="inp" id="cl-notes"></div>
     <div class="modal-footer">
       <button class="btn btn-o btn-sm" onclick="closeClientModal()">Annuler</button>
       <button class="btn btn-g btn-sm" onclick="submitClient()"><i class="ti ti-check"></i> Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-emp" class="modal-overlay" onclick="if(event.target===this)closeEmpModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-user-check" style="color:var(--purple)"></i> Nouvel employé</div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Nom *</label><input class="inp" id="emp-name" placeholder="Nom complet"></div>
+      <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="emp-email"></div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Poste</label><input class="inp" id="emp-position" placeholder="Ex: Comptable"></div>
+      <div class="fgrp"><label class="fl">Département</label><input class="inp" id="emp-dept" placeholder="Ex: Finance"></div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Salaire (USD)</label><input class="inp" type="number" id="emp-salary" placeholder="0.00"></div>
+      <div class="fgrp"><label class="fl">Type contrat</label>
+        <select class="inp" id="emp-contract"><option>CDI</option><option>CDD</option><option>Stage</option><option>Freelance</option></select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Date d'embauche</label><input class="inp" type="date" id="emp-hire"></div>
+      <div class="fgrp"><label class="fl">Solde congés (jours)</label><input class="inp" type="number" id="emp-leave-bal" placeholder="30"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Notes</label><input class="inp" id="emp-notes"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeEmpModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitEmployee()"><i class="ti ti-check"></i> Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-leave" class="modal-overlay" onclick="if(event.target===this)closeLeaveModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-calendar-off" style="color:var(--amber)"></i> Demande de congé</div>
+    <div class="fgrp"><label class="fl">Employé *</label>
+      <select class="inp" id="leave-emp-id"></select>
+    </div>
+    <div class="fgrp"><label class="fl">Type de congé</label>
+      <select class="inp" id="leave-type"><option value="annual">Congé annuel</option><option value="sick">Maladie</option><option value="maternity">Maternité</option><option value="paternity">Paternité</option><option value="unpaid">Sans solde</option></select>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Date début *</label><input class="inp" type="date" id="leave-start"></div>
+      <div class="fgrp"><label class="fl">Date fin *</label><input class="inp" type="date" id="leave-end"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Nombre de jours</label><input class="inp" type="number" id="leave-days" placeholder="1"></div>
+    <div class="fgrp"><label class="fl">Raison</label><input class="inp" id="leave-reason"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeLeaveModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitLeave()"><i class="ti ti-check"></i> Soumettre</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-payslip" class="modal-overlay" onclick="if(event.target===this)closePayslipModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-receipt" style="color:var(--cyan)"></i> Nouvelle fiche de paie</div>
+    <div class="fgrp"><label class="fl">Employé *</label>
+      <select class="inp" id="payslip-emp-id"></select>
+    </div>
+    <div class="fgrp"><label class="fl">Mois (YYYY-MM) *</label><input class="inp" id="payslip-month" placeholder="2026-08"></div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Salaire de base</label><input class="inp" type="number" id="payslip-base" placeholder="0.00"></div>
+      <div class="fgrp"><label class="fl">Primes / Bonus</label><input class="inp" type="number" id="payslip-bonuses" placeholder="0.00"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Déductions (charges, impôts...)</label><input class="inp" type="number" id="payslip-deductions" placeholder="0.00"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closePayslipModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitPayslip()"><i class="ti ti-check"></i> Générer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-product" class="modal-overlay" onclick="if(event.target===this)closeProductModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-package" style="color:var(--cyan)"></i> Nouveau produit</div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Nom *</label><input class="inp" id="prod-name" placeholder="Nom du produit"></div>
+      <div class="fgrp"><label class="fl">SKU / Référence</label><input class="inp" id="prod-sku"></div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Catégorie</label><input class="inp" id="prod-cat" placeholder="Ex: Électronique"></div>
+      <div class="fgrp"><label class="fl">Unité</label>
+        <select class="inp" id="prod-unit"><option>pcs</option><option>kg</option><option>L</option><option>m</option><option>boite</option><option>carton</option></select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Prix de vente</label><input class="inp" type="number" id="prod-price" placeholder="0.00"></div>
+      <div class="fgrp"><label class="fl">Prix de revient</label><input class="inp" type="number" id="prod-cost" placeholder="0.00"></div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Stock initial</label><input class="inp" type="number" id="prod-qty" placeholder="0"></div>
+      <div class="fgrp"><label class="fl">Seuil minimum</label><input class="inp" type="number" id="prod-min" placeholder="0"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Description</label><input class="inp" id="prod-desc"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeProductModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitProduct()"><i class="ti ti-check"></i> Créer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-stock-move" class="modal-overlay" onclick="if(event.target===this)closeStockMoveModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-arrows-exchange" style="color:var(--amber)"></i> Mouvement de stock</div>
+    <div class="fgrp"><label class="fl">Produit *</label><select class="inp" id="move-product-id"></select></div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Type *</label>
+        <select class="inp" id="move-type">
+          <option value="in">Entrée (réception)</option>
+          <option value="out">Sortie (vente/utilisation)</option>
+          <option value="adjustment">Ajustement inventaire</option>
+        </select>
+      </div>
+      <div class="fgrp"><label class="fl">Quantité *</label><input class="inp" type="number" id="move-qty" placeholder="0" min="0.01"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Raison / Référence</label><input class="inp" id="move-reason" placeholder="Ex: Commande #123"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeStockMoveModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitStockMove()"><i class="ti ti-check"></i> Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-opp" class="modal-overlay" onclick="if(event.target===this)closeOppModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-target" style="color:var(--blue)"></i> Nouvelle opportunité</div>
+    <div class="fgrp"><label class="fl">Titre *</label><input class="inp" id="opp-name" placeholder="Ex: Contrat annuel ABC Corp"></div>
+    <div class="fgrp"><label class="fl">Client</label><select class="inp" id="opp-client"><option value="">Sans client</option></select></div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Valeur estimée</label><input class="inp" type="number" id="opp-value" placeholder="0.00"></div>
+      <div class="fgrp"><label class="fl">Probabilité (%)</label><input class="inp" type="number" id="opp-prob" placeholder="20" min="0" max="100"></div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Étape</label>
+        <select class="inp" id="opp-stage">
+          <option value="lead">Lead</option><option value="qualified">Qualifié</option>
+          <option value="proposal">Proposition</option><option value="negotiation">Négociation</option>
+          <option value="won">Gagné</option><option value="lost">Perdu</option>
+        </select>
+      </div>
+      <div class="fgrp"><label class="fl">Date prévue</label><input class="inp" type="date" id="opp-date"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Notes</label><input class="inp" id="opp-notes"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeOppModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitOpportunity()"><i class="ti ti-check"></i> Créer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-quote" class="modal-overlay" onclick="if(event.target===this)closeQuoteModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-file-description" style="color:var(--purple)"></i> Nouveau devis</div>
+    <div class="fgrp"><label class="fl">Client</label><select class="inp" id="quote-client"><option value="">Sans client</option></select></div>
+    <div class="fgrp"><label class="fl">Description *</label><input class="inp" id="quote-desc" placeholder="Service ou produit"></div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Quantité *</label><input class="inp" type="number" id="quote-qty" placeholder="1"></div>
+      <div class="fgrp"><label class="fl">Prix unitaire *</label><input class="inp" type="number" id="quote-price" placeholder="0.00"></div>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">TVA (%)</label><input class="inp" type="number" id="quote-tax" placeholder="0"></div>
+      <div class="fgrp"><label class="fl">Valide jusqu'au</label><input class="inp" type="date" id="quote-valid"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Notes</label><input class="inp" id="quote-notes"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeQuoteModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitQuote()"><i class="ti ti-check"></i> Créer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-expense" class="modal-overlay" onclick="if(event.target===this)closeExpenseModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-credit-card" style="color:var(--red)"></i> Nouvelle dépense</div>
+    <div class="fgrp"><label class="fl">Catégorie *</label>
+      <select class="inp" id="exp-cat">
+        <option>Loyer / Bureau</option><option>Salaires</option><option>Transport</option>
+        <option>Marketing</option><option>Équipement</option><option>Logiciels / Abonnements</option>
+        <option>Fournitures</option><option>Repas / Divertissement</option><option>Taxes / Impôts</option>
+        <option>Assurance</option><option>Formation</option><option>Autre</option>
+      </select>
+    </div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Montant *</label><input class="inp" type="number" id="exp-amount" placeholder="0.00"></div>
+      <div class="fgrp"><label class="fl">Date</label><input class="inp" type="date" id="exp-date"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Description</label><input class="inp" id="exp-desc"></div>
+    <div class="fgrp" style="display:flex;align-items:center;gap:10px">
+      <input type="checkbox" id="exp-deductible" style="width:16px;height:16px">
+      <label for="exp-deductible" style="font-size:13px;cursor:pointer">Charge fiscalement déductible</label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeExpenseModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitExpense()"><i class="ti ti-check"></i> Enregistrer</button>
     </div>
   </div>
 </div>
@@ -469,7 +810,7 @@ async function api(method,path,body=null){
   }
 }
 
-function fmtUSD(a){return"$"+new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(a||0);}
+function fmtUSD(a,cur="USD"){return(cur==="USD"?"$":cur==="EUR"?"€":cur==="XAF"?"XAF ":cur+" ")+new Intl.NumberFormat("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}).format(a||0);}
 function fmtDate(iso){if(!iso)return"—";return new Date(iso).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"numeric"});}
 
 function planBadge(plan){
@@ -477,57 +818,41 @@ function planBadge(plan){
   const labels={trial:"ESSAI 14J",sandbox:"SANDBOX",starter:"STARTER",professional:"PRO",business:"BUSINESS",enterprise:"ENTERPRISE",ultimate:"ULTIMATE"};
   return`<span class="badge ${c[plan]||"bb"}">${labels[plan]||plan?.toUpperCase()}</span>`;
 }
-function statusBadge(s){const m={draft:"badge-gray",sent:"bb",paid:"bg",overdue:"br",cancelled:"badge-gray"};return`<span class="badge ${m[s]||"bb"}">${s}</span>`;}
+function statusBadge(s){
+  const m={draft:"badge-gray",sent:"bb",paid:"bg",overdue:"br",cancelled:"badge-gray",
+            pending:"ba",approved:"bg",rejected:"br",active:"bg",inactive:"badge-gray",on_leave:"ba",
+            lead:"badge-gray",qualified:"bb",proposal:"ba",negotiation:"bp",won:"bg",lost:"br",
+            accepted:"bg",in:"bg",out:"br",adjustment:"ba"};
+  const labels={draft:"Brouillon",sent:"Envoyée",paid:"Payée",overdue:"En retard",cancelled:"Annulée",
+                pending:"En attente",approved:"Approuvé",rejected:"Refusé",active:"Actif",inactive:"Inactif",on_leave:"En congé",
+                lead:"Lead",qualified:"Qualifié",proposal:"Proposition",negotiation:"Négociation",won:"Gagné",lost:"Perdu",
+                accepted:"Accepté",in:"Entrée",out:"Sortie",adjustment:"Ajustement"};
+  return`<span class="badge ${m[s]||"bb"}">${labels[s]||s}</span>`;
+}
 
 function showTrialBar(trial){
   const bar=document.getElementById("trial-bar");
   if(!trial||trial.is_creator){bar.className="trial-bar hidden";return;}
   if(trial.active&&trial.days_remaining!=null){
     bar.className="trial-bar";
-    bar.innerHTML=`⏱ Essai gratuit — <b>${trial.days_remaining} jour(s) restant(s)</b> &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--green);text-decoration:underline">Souscrire maintenant →</a>`;
+    bar.innerHTML=`⏱ Essai gratuit — <b>${trial.days_remaining} jour(s) restant(s)</b> &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--green);text-decoration:underline">Souscrire →</a>`;
   } else if(trial.expired){
     bar.className="trial-bar expired";
     bar.innerHTML=`⚠️ Essai expiré — Souscrivez pour continuer &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--red);text-decoration:underline">Voir les plans →</a>`;
-  } else {
-    bar.className="trial-bar hidden";
-  }
+  } else { bar.className="trial-bar hidden"; }
 }
 
 async function login(email,password){
   const r=await api("POST","/auth/login",{email,password});
   State.token=r.token; State.tenant=r.user;
-  localStorage.setItem("zd_token",State.token);
-  localStorage.setItem("zd_tenant",JSON.stringify(r.user));
-  return r;
+  localStorage.setItem("zd_token",State.token); localStorage.setItem("zd_tenant",JSON.stringify(r.user)); return r;
 }
 async function register(data){
   const r=await api("POST","/auth/register",data);
   State.token=r.token; State.tenant=r.user;
-  localStorage.setItem("zd_token",State.token);
-  localStorage.setItem("zd_tenant",JSON.stringify(r.user));
-  return r;
+  localStorage.setItem("zd_token",State.token); localStorage.setItem("zd_tenant",JSON.stringify(r.user)); return r;
 }
-function logout(){
-  State.token=null; State.tenant=null;
-  localStorage.removeItem("zd_token"); localStorage.removeItem("zd_tenant");
-}
-
-const getDashboard    = ()=>api("GET","/analytics/dashboard");
-const getAIPrediction = ()=>api("GET","/analytics/predict");
-const listInvoices    = (s)=>api("GET","/invoices/"+(s?`?status=${s}`:""));
-const createInvoice   = (d)=>api("POST","/invoices/",d);
-const sendInvoice     = (id)=>api("POST",`/invoices/${id}/send`);
-const markPaid        = (id)=>api("POST",`/invoices/${id}/paid`);
-const listClients     = ()=>api("GET","/clients/");
-const createClient    = (d)=>api("POST","/clients/",d);
-const deleteClient    = (id)=>api("DELETE",`/clients/${id}`);
-const getPlans        = ()=>api("GET","/billing/plans");
-const subscribeToPlan = (plan,cycle)=>api("POST","/billing/subscribe",{plan,billing_cycle:cycle});
-const getReport       = (p)=>api("GET",`/reports/summary?period=${p}`);
-const getProfile      = ()=>api("GET","/profile/");
-const updateProfile   = (d)=>api("PATCH","/profile/",d);
-const updateBank      = (d)=>api("PATCH","/profile/bank",d);
-const changePassword  = (d)=>api("POST","/profile/change-password",d);
+function logout(){State.token=null;State.tenant=null;localStorage.removeItem("zd_token");localStorage.removeItem("zd_tenant");}
 
 function showToast(msg,type="success"){
   document.querySelector(".toast")?.remove();
@@ -535,6 +860,8 @@ function showToast(msg,type="success"){
   document.body.appendChild(t);setTimeout(()=>t.remove(),4500);
 }
 function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent=msg;e.style.display=msg?"block":"none";}}
+function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function setHTML(id,v){const e=document.getElementById(id);if(e)e.innerHTML=v;}
 
 function navigate(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
@@ -547,13 +874,21 @@ function navigate(page){
 }
 async function loadPage(p){
   switch(p){
-    case"dashboard": await loadDashboard();break;
-    case"invoices":  await loadInvoices();break;
-    case"clients":   await loadClients();break;
-    case"billing":   await loadBilling();break;
-    case"analytics": await loadAnalytics();break;
-    case"reports":   await loadReport("month");break;
-    case"profile":   await loadProfile();break;
+    case"dashboard":  await loadDashboard();break;
+    case"invoices":   await loadInvoices();break;
+    case"clients":    await loadClients();break;
+    case"crm":        await loadCRM();break;
+    case"quotes":     await loadQuotes();break;
+    case"employees":  await loadEmployees();break;
+    case"leaves":     await loadLeaves();break;
+    case"payroll":    await loadPayroll();break;
+    case"stock":      await loadStock();break;
+    case"expenses":   await loadExpenses();break;
+    case"pl":         await loadPL("month");break;
+    case"billing":    await loadBilling();break;
+    case"analytics":  await loadAnalytics();break;
+    case"reports":    await loadReport("month");break;
+    case"profile":    await loadProfile();break;
     case"admin":      break;
   }
 }
@@ -563,214 +898,509 @@ async function showAppLayout(){
   document.getElementById("app-screen").style.display="block";
   const t=State.tenant;
   if(t){
-    document.getElementById("topbar-name").textContent=t.name;
+    set("topbar-name",t.name);
     document.getElementById("topbar-av").textContent=t.name?.charAt(0).toUpperCase();
-    document.getElementById("topbar-plan").innerHTML=planBadge(t.plan);
+    setHTML("topbar-plan",planBadge(t.plan));
     if(t.trial) showTrialBar(t.trial);
   }
   navigate("dashboard");
 }
 
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
 async function loadDashboard(){
   try{
-    const s=await getDashboard();
-    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-    set("kpi-invoices",s.invoices_created.toLocaleString());
+    const s=await api("GET","/analytics/dashboard");
     set("kpi-revenue",fmtUSD(s.total_revenue_usd));
-    set("kpi-clients",s.active_clients.toLocaleString());
-    const pe=document.getElementById("kpi-plan");
-    if(pe) pe.innerHTML=planBadge(s.plan);
+    set("kpi-pending",fmtUSD(s.pending_revenue));
+    set("kpi-pipeline",fmtUSD(s.pipeline_value));
+    set("kpi-clients",s.active_clients);
+    set("kpi-employees",s.active_employees);
+    set("kpi-expenses",fmtUSD(s.expenses_30d));
+    set("dash-inv-count",s.invoices_created);
+    set("dash-products",s.products);
+    set("dash-low-stock",s.low_stock_alerts+" alertes");
+    set("dash-opps",s.open_opportunities+" ouvertes");
+    setHTML("dash-plan",planBadge(s.plan));
     if(s.trial) showTrialBar(s.trial);
+    if(s.low_stock_alerts>0){
+      const banner=document.getElementById("stock-alert-banner");
+      if(banner){banner.style.display="block";banner.innerHTML=`<div class="alert-bar"><i class="ti ti-alert-triangle"></i> ${s.low_stock_alerts} produit(s) en rupture ou sous le seuil minimum — <a href="#" onclick="navigate('stock')" style="color:var(--red)">Voir le stock →</a></div>`;}
+      const badge=document.getElementById("stock-alert-badge");
+      if(badge) badge.style.display="inline";
+    }
   }catch(e){console.error(e);}
 }
 
-async function loadInvoices(filter=null){
+// ── FACTURES ─────────────────────────────────────────────────────────────────
+async function loadInvoices(){
   const tbody=document.getElementById("inv-tbody");if(!tbody)return;
   tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr>`;
   try{
-    const invs=await listInvoices(filter);
+    const invs=await api("GET","/invoices/");
     if(!invs?.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Aucune facture. <a href="#" onclick="openInvModal()">Créer →</a></td></tr>`;return;}
     tbody.innerHTML=invs.map(i=>`<tr>
       <td style="font-family:var(--mono);color:var(--blue)">${i.number}</td>
-      <td>${fmtDate(i.created_at)}</td>
-      <td>${statusBadge(i.status)}</td>
+      <td>${fmtDate(i.created_at)}</td><td>${statusBadge(i.status)}</td>
       <td style="font-family:var(--mono);font-weight:700">${fmtUSD(i.total)}</td>
-      <td>${i.blockchain_hash?`<span class="badge bp">🔗 Signé</span>`:"—"}</td>
+      <td>${i.blockchain_hash?`<span class="badge bp">🔗</span>`:"—"}</td>
       <td style="display:flex;gap:5px">
         ${i.status==="draft"?`<button class="btn btn-sm btn-o" onclick="handleSend('${i.id}')">Envoyer</button>`:""}
         ${i.status!=="paid"?`<button class="btn btn-sm btn-g" onclick="handlePaid('${i.id}')">Payée</button>`:""}
+        <button class="btn btn-sm btn-r" onclick="handleDelInv('${i.id}')"><i class="ti ti-trash"></i></button>
       </td></tr>`).join("");
   }catch(e){tbody.innerHTML=`<tr><td colspan="6" style="color:var(--red);padding:20px">${e.message}</td></tr>`;}
 }
-async function handleSend(id){try{await sendInvoice(id);showToast("Envoyée ✓");loadInvoices();}catch(e){showToast(e.message,"error");}}
-async function handlePaid(id){try{await markPaid(id);showToast("Payée ✓");loadInvoices();}catch(e){showToast(e.message,"error");}}
-function openInvModal(){document.getElementById("modal-inv").style.display="flex";}
+async function handleSend(id){try{await api("POST",`/invoices/${id}/send`);showToast("Envoyée ✓");loadInvoices();}catch(e){showToast(e.message,"error");}}
+async function handlePaid(id){try{await api("POST",`/invoices/${id}/paid`);showToast("Payée ✓");loadInvoices();}catch(e){showToast(e.message,"error");}}
+async function handleDelInv(id){if(!confirm("Supprimer cette facture ?"))return;try{await api("DELETE",`/invoices/${id}`);showToast("Supprimée ✓");loadInvoices();}catch(e){showToast(e.message,"error");}}
+function openInvModal(){populateClientSelect("inv-client");document.getElementById("modal-inv").style.display="flex";}
 function closeInvModal(){document.getElementById("modal-inv").style.display="none";}
 async function submitInvoice(){
   const desc=document.getElementById("inv-desc").value;
   const qty=parseFloat(document.getElementById("inv-qty").value);
   const price=parseFloat(document.getElementById("inv-price").value);
-  const tax=parseFloat(document.getElementById("inv-tax").value||0);
-  const disc=parseFloat(document.getElementById("inv-disc").value||0);
   if(!desc||!qty||!price){showToast("Remplissez les champs obligatoires","error");return;}
   try{
-    await createInvoice({items:[{description:desc,qty,unit_price:price,tax_rate:tax}],discount_amount:disc,currency:"USD"});
-    showToast("Facture créée ✓");closeInvModal();
-    ["inv-desc","inv-qty","inv-price"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
-    loadInvoices();
+    await api("POST","/invoices/",{
+      client_id:document.getElementById("inv-client").value||null,
+      items:[{description:desc,qty,unit_price:price,tax_rate:parseFloat(document.getElementById("inv-tax").value||0)}],
+      discount_amount:parseFloat(document.getElementById("inv-disc").value||0),
+      notes:document.getElementById("inv-notes").value||null,currency:"USD"});
+    showToast("Facture créée ✓");closeInvModal();loadInvoices();
   }catch(e){showToast(e.message,"error");}
 }
 
+// ── CLIENTS ───────────────────────────────────────────────────────────────────
+let _clients=[];
 async function loadClients(){
-  const c=document.getElementById("clients-list");if(!c)return;
+  const tbody=document.getElementById("clients-tbody");if(!tbody)return;
   try{
-    const cls=await listClients();
-    if(!cls?.length){c.innerHTML=`<div style="text-align:center;color:var(--muted);padding:32px">Aucun client. <a href="#" onclick="openClientModal()">Ajouter →</a></div>`;return;}
-    c.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Facturé</th><th></th></tr></thead><tbody>
-    ${cls.map(cl=>`<tr><td style="font-weight:600">${cl.name}</td><td style="font-family:var(--mono);font-size:12px">${cl.email||"—"}</td><td style="font-family:var(--mono);font-size:12px">${cl.phone||"—"}</td><td style="font-family:var(--mono);font-weight:700">${fmtUSD(cl.total_invoiced)}</td><td><button class="btn btn-sm btn-r" onclick="handleDelClient('${cl.id}')">Suppr.</button></td></tr>`).join("")}
-    </tbody></table></div>`;
-  }catch(e){c.innerHTML=`<p style="color:var(--red)">${e.message}</p>`;}
+    _clients=await api("GET","/clients/");
+    if(!_clients?.length){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Aucun client.</td></tr>`;return;}
+    tbody.innerHTML=_clients.map(c=>`<tr>
+      <td style="font-weight:600">${c.name}</td>
+      <td style="color:var(--muted)">${c.company||"—"}</td>
+      <td style="font-family:var(--mono);font-size:12px">${c.email||"—"}</td>
+      <td style="font-family:var(--mono);font-size:12px">${c.phone||"—"}</td>
+      <td>${c.country||"—"}</td>
+      <td style="font-family:var(--mono);font-weight:700">${fmtUSD(c.total_invoiced)}</td>
+      <td><button class="btn btn-sm btn-r" onclick="handleDelClient('${c.id}')"><i class="ti ti-trash"></i></button></td>
+    </tr>`).join("");
+  }catch(e){console.error(e);}
 }
-async function handleDelClient(id){if(!confirm("Supprimer ?"))return;try{await deleteClient(id);showToast("Supprimé ✓");loadClients();}catch(e){showToast(e.message,"error");}}
+async function populateClientSelect(id){
+  if(!_clients.length) try{_clients=await api("GET","/clients/");}catch(e){return;}
+  const sel=document.getElementById(id);if(!sel)return;
+  const first=sel.options[0]?.value==""?sel.options[0].outerHTML:"<option value=''>Sans client</option>";
+  sel.innerHTML=first+_clients.map(c=>`<option value="${c.id}">${c.name}${c.company?" — "+c.company:""}</option>`).join("");
+}
+async function handleDelClient(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/clients/${id}`);showToast("Supprimé ✓");loadClients();}catch(e){showToast(e.message,"error");}}
 function openClientModal(){document.getElementById("modal-client").style.display="flex";}
 function closeClientModal(){document.getElementById("modal-client").style.display="none";}
 async function submitClient(){
   const name=document.getElementById("cl-name").value;
   if(!name){showToast("Nom obligatoire","error");return;}
   try{
-    await createClient({name,email:document.getElementById("cl-email").value||null,phone:document.getElementById("cl-phone").value||null});
+    await api("POST","/clients/",{name,company:document.getElementById("cl-company").value||null,
+      email:document.getElementById("cl-email").value||null,phone:document.getElementById("cl-phone").value||null,
+      country:document.getElementById("cl-country").value||null,ice:document.getElementById("cl-ice").value||null,
+      address:document.getElementById("cl-address").value||null,notes:document.getElementById("cl-notes").value||null});
     showToast("Client ajouté ✓");closeClientModal();loadClients();
   }catch(e){showToast(e.message,"error");}
 }
 
-let _plans={};let _subCycle="monthly";let _lastWire=null;
+// ── CRM ───────────────────────────────────────────────────────────────────────
+const STAGES=[{k:"lead",l:"Lead",c:"var(--muted)"},{k:"qualified",l:"Qualifié",c:"var(--blue)"},
+  {k:"proposal",l:"Proposition",c:"var(--purple)"},{k:"negotiation",l:"Négociation",c:"var(--amber)"},
+  {k:"won",l:"Gagné",c:"var(--green)"},{k:"lost",l:"Perdu",c:"var(--red)"}];
+
+async function loadCRM(){
+  const board=document.getElementById("pipeline-board");if(!board)return;
+  try{
+    const opps=await api("GET","/crm/opportunities");
+    board.innerHTML=STAGES.map(s=>`
+      <div class="pipeline-col">
+        <div class="pipeline-col-title" style="color:${s.c}">${s.l}</div>
+        <div id="col-${s.k}">
+          ${opps.filter(o=>o.stage===s.k).map(o=>`
+            <div class="opp-card">
+              <div style="font-weight:600;font-size:13px">${o.name}</div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--green);margin-top:3px">${fmtUSD(o.value)}</div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px">${o.probability}% de probabilité</div>
+              <div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">
+                ${STAGES.filter(st=>st.k!==s.k).map(st=>`<button class="btn btn-sm btn-o" style="font-size:10px;padding:3px 7px" onclick="moveOpp('${o.id}','${st.k}')">${st.l}</button>`).join("")}
+                <button class="btn btn-sm btn-r" style="font-size:10px;padding:3px 7px" onclick="delOpp('${o.id}')"><i class="ti ti-trash"></i></button>
+              </div>
+            </div>`).join("")||`<div style="color:var(--muted);font-size:12px;padding:8px">Aucune</div>`}
+        </div>
+      </div>`).join("");
+  }catch(e){console.error(e);}
+}
+async function moveOpp(id,stage){try{await api("PATCH",`/crm/opportunities/${id}/stage?stage=${stage}`);loadCRM();}catch(e){showToast(e.message,"error");}}
+async function delOpp(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/crm/opportunities/${id}`);loadCRM();}catch(e){showToast(e.message,"error");}}
+function openOppModal(){populateClientSelect("opp-client");document.getElementById("modal-opp").style.display="flex";}
+function closeOppModal(){document.getElementById("modal-opp").style.display="none";}
+async function submitOpportunity(){
+  const name=document.getElementById("opp-name").value;
+  if(!name){showToast("Titre obligatoire","error");return;}
+  try{
+    const d=document.getElementById("opp-date").value;
+    await api("POST","/crm/opportunities",{name,client_id:document.getElementById("opp-client").value||null,
+      stage:document.getElementById("opp-stage").value,value:parseFloat(document.getElementById("opp-value").value||0),
+      probability:parseInt(document.getElementById("opp-prob").value||20),
+      expected_date:d?new Date(d).toISOString():null,notes:document.getElementById("opp-notes").value||null,currency:"USD"});
+    showToast("Opportunité créée ✓");closeOppModal();loadCRM();
+  }catch(e){showToast(e.message,"error");}
+}
+
+// ── DEVIS ─────────────────────────────────────────────────────────────────────
+async function loadQuotes(){
+  const tbody=document.getElementById("quotes-tbody");if(!tbody)return;
+  try{
+    const quotes=await api("GET","/crm/quotes");
+    if(!quotes?.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Aucun devis.</td></tr>`;return;}
+    tbody.innerHTML=quotes.map(q=>`<tr>
+      <td style="font-family:var(--mono);color:var(--purple)">${q.number}</td>
+      <td>${fmtDate(q.created_at)}</td><td>${statusBadge(q.status)}</td>
+      <td style="font-family:var(--mono);font-weight:700">${fmtUSD(q.total)}</td>
+      <td>${fmtDate(q.valid_until)}</td>
+      <td style="display:flex;gap:5px">
+        ${q.status==="draft"||q.status==="sent"?`<button class="btn btn-sm btn-g" onclick="convertQuote('${q.id}')"><i class="ti ti-file-invoice"></i> Convertir</button>`:""}
+      </td></tr>`).join("");
+  }catch(e){console.error(e);}
+}
+async function convertQuote(id){
+  try{const r=await api("PATCH",`/crm/quotes/${id}/convert`);showToast(`Facture ${r.invoice_number} créée ✓`);loadQuotes();}
+  catch(e){showToast(e.message,"error");}
+}
+function openQuoteModal(){populateClientSelect("quote-client");document.getElementById("modal-quote").style.display="flex";}
+function closeQuoteModal(){document.getElementById("modal-quote").style.display="none";}
+async function submitQuote(){
+  const desc=document.getElementById("quote-desc").value;
+  const qty=parseFloat(document.getElementById("quote-qty").value);
+  const price=parseFloat(document.getElementById("quote-price").value);
+  if(!desc||!qty||!price){showToast("Remplissez les champs obligatoires","error");return;}
+  try{
+    const d=document.getElementById("quote-valid").value;
+    await api("POST","/crm/quotes",{client_id:document.getElementById("quote-client").value||null,
+      items:[{description:desc,qty,unit_price:price,tax_rate:parseFloat(document.getElementById("quote-tax").value||0)}],
+      valid_until:d?new Date(d).toISOString():null,notes:document.getElementById("quote-notes").value||null,currency:"USD"});
+    showToast("Devis créé ✓");closeQuoteModal();loadQuotes();
+  }catch(e){showToast(e.message,"error");}
+}
+
+// ── RH ────────────────────────────────────────────────────────────────────────
+let _employees=[];
+async function loadEmployees(){
+  const tbody=document.getElementById("emp-tbody");if(!tbody)return;
+  try{
+    _employees=await api("GET","/hr/employees");
+    if(!_employees?.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Aucun employé.</td></tr>`;return;}
+    tbody.innerHTML=_employees.map(e=>`<tr>
+      <td style="font-weight:600">${e.name}</td>
+      <td style="color:var(--muted)">${e.position||"—"}</td>
+      <td style="color:var(--muted)">${e.department||"—"}</td>
+      <td><span class="badge badge-gray">${e.contract_type}</span></td>
+      <td style="font-family:var(--mono)">${fmtUSD(e.salary)}</td>
+      <td style="font-family:var(--mono)">${e.leave_balance}j</td>
+      <td>${statusBadge(e.status)}</td>
+      <td><button class="btn btn-sm btn-r" onclick="delEmployee('${e.id}')"><i class="ti ti-trash"></i></button></td>
+    </tr>`).join("");
+  }catch(e){console.error(e);}
+}
+async function delEmployee(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/hr/employees/${id}`);showToast("Supprimé ✓");loadEmployees();}catch(e){showToast(e.message,"error");}}
+function openEmpModal(){document.getElementById("modal-emp").style.display="flex";}
+function closeEmpModal(){document.getElementById("modal-emp").style.display="none";}
+async function submitEmployee(){
+  const name=document.getElementById("emp-name").value;
+  if(!name){showToast("Nom obligatoire","error");return;}
+  try{
+    const d=document.getElementById("emp-hire").value;
+    await api("POST","/hr/employees",{name,email:document.getElementById("emp-email").value||null,
+      position:document.getElementById("emp-position").value||null,department:document.getElementById("emp-dept").value||null,
+      salary:parseFloat(document.getElementById("emp-salary").value||0),contract_type:document.getElementById("emp-contract").value,
+      hire_date:d?new Date(d).toISOString():null,leave_balance:parseInt(document.getElementById("emp-leave-bal").value||30),
+      notes:document.getElementById("emp-notes").value||null,currency:"USD"});
+    showToast("Employé ajouté ✓");closeEmpModal();loadEmployees();
+  }catch(e){showToast(e.message,"error");}
+}
+
+function populateEmpSelect(id){
+  const sel=document.getElementById(id);if(!sel)return;
+  sel.innerHTML=_employees.map(e=>`<option value="${e.id}">${e.name}${e.position?" — "+e.position:""}</option>`).join("");
+}
+
+async function loadLeaves(){
+  const tbody=document.getElementById("leaves-tbody");if(!tbody)return;
+  if(!_employees.length) try{_employees=await api("GET","/hr/employees");}catch(e){}
+  try{
+    const leaves=await api("GET","/hr/leaves");
+    if(!leaves?.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Aucune demande.</td></tr>`;return;}
+    tbody.innerHTML=leaves.map(l=>{
+      const emp=_employees.find(e=>e.id===l.employee_id);
+      return`<tr>
+        <td style="font-weight:600">${emp?.name||"—"}</td>
+        <td>${l.type}</td><td>${fmtDate(l.start_date)}</td><td>${fmtDate(l.end_date)}</td>
+        <td style="font-family:var(--mono)">${l.days}j</td>
+        <td style="color:var(--muted)">${l.reason||"—"}</td>
+        <td>${statusBadge(l.status)}</td>
+        <td style="display:flex;gap:5px">
+          ${l.status==="pending"?`<button class="btn btn-sm btn-g" onclick="handleLeave('${l.id}','approve')">✓</button><button class="btn btn-sm btn-r" onclick="handleLeave('${l.id}','reject')">✗</button>`:""}
+        </td></tr>`;}).join("");
+  }catch(e){console.error(e);}
+}
+async function handleLeave(id,action){
+  try{await api("PATCH",`/hr/leaves/${id}/${action}`);showToast(action==="approve"?"Approuvé ✓":"Refusé");loadLeaves();}
+  catch(e){showToast(e.message,"error");}
+}
+function openLeaveModal(){if(!_employees.length){showToast("Chargez d'abord les employés","error");return;}populateEmpSelect("leave-emp-id");document.getElementById("modal-leave").style.display="flex";}
+function closeLeaveModal(){document.getElementById("modal-leave").style.display="none";}
+async function submitLeave(){
+  try{
+    await api("POST","/hr/leaves",{employee_id:document.getElementById("leave-emp-id").value,
+      type:document.getElementById("leave-type").value,
+      start_date:new Date(document.getElementById("leave-start").value).toISOString(),
+      end_date:new Date(document.getElementById("leave-end").value).toISOString(),
+      days:parseInt(document.getElementById("leave-days").value||1),
+      reason:document.getElementById("leave-reason").value||null});
+    showToast("Demande soumise ✓");closeLeaveModal();loadLeaves();
+  }catch(e){showToast(e.message,"error");}
+}
+
+async function loadPayroll(){
+  const tbody=document.getElementById("payroll-tbody");if(!tbody)return;
+  if(!_employees.length) try{_employees=await api("GET","/hr/employees");}catch(e){}
+  try{
+    const slips=await api("GET","/hr/payslips");
+    if(!slips?.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Aucune fiche.</td></tr>`;return;}
+    tbody.innerHTML=slips.map(s=>{
+      const emp=_employees.find(e=>e.id===s.employee_id);
+      return`<tr>
+        <td style="font-weight:600">${emp?.name||"—"}</td>
+        <td style="font-family:var(--mono)">${s.month}</td>
+        <td style="font-family:var(--mono)">${fmtUSD(s.base_salary)}</td>
+        <td style="font-family:var(--mono);color:var(--green)">${fmtUSD(s.bonuses)}</td>
+        <td style="font-family:var(--mono);color:var(--red)">${fmtUSD(s.deductions)}</td>
+        <td style="font-family:var(--mono);font-weight:700">${fmtUSD(s.net_salary)}</td>
+        <td>${s.paid?`<span class="badge bg">Payé</span>`:`<span class="badge ba">En attente</span>`}</td>
+        <td>${!s.paid?`<button class="btn btn-sm btn-g" onclick="payPayslip('${s.id}')">Payer</button>`:fmtDate(s.paid_at)}</td>
+      </tr>`;}).join("");
+  }catch(e){console.error(e);}
+}
+async function payPayslip(id){try{await api("PATCH",`/hr/payslips/${id}/pay`);showToast("Payé ✓");loadPayroll();}catch(e){showToast(e.message,"error");}}
+function openPayslipModal(){if(!_employees.length){showToast("Chargez d'abord les employés","error");return;}populateEmpSelect("payslip-emp-id");document.getElementById("modal-payslip").style.display="flex";}
+function closePayslipModal(){document.getElementById("modal-payslip").style.display="none";}
+async function submitPayslip(){
+  try{
+    await api("POST","/hr/payslips",{employee_id:document.getElementById("payslip-emp-id").value,
+      month:document.getElementById("payslip-month").value,
+      base_salary:parseFloat(document.getElementById("payslip-base").value||0),
+      bonuses:parseFloat(document.getElementById("payslip-bonuses").value||0),
+      deductions:parseFloat(document.getElementById("payslip-deductions").value||0),currency:"USD"});
+    showToast("Fiche générée ✓");closePayslipModal();loadPayroll();
+  }catch(e){showToast(e.message,"error");}
+}
+
+// ── STOCK ─────────────────────────────────────────────────────────────────────
+let _products=[];
+async function loadStock(){
+  const tbody=document.getElementById("stock-tbody");if(!tbody)return;
+  try{
+    _products=await api("GET","/stock/products");
+    const alerts=await api("GET","/stock/alerts");
+    const section=document.getElementById("stock-alerts-section");
+    if(alerts?.length&&section){
+      section.style.display="block";
+      section.innerHTML=`<div class="alert-bar"><i class="ti ti-alert-triangle"></i> <b>${alerts.length} produit(s) sous le seuil minimum :</b> ${alerts.map(a=>`${a.name} (${a.stock_qty}/${a.stock_min})`).join(", ")}</div>`;
+    }
+    if(!_products?.length){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">Aucun produit.</td></tr>`;return;}
+    tbody.innerHTML=_products.map(p=>`<tr>
+      <td style="font-weight:600">${p.name}</td>
+      <td style="font-family:var(--mono);font-size:11px">${p.sku||"—"}</td>
+      <td style="color:var(--muted)">${p.category||"—"}</td>
+      <td style="font-family:var(--mono)">${fmtUSD(p.unit_price)}</td>
+      <td style="font-family:var(--mono)">${fmtUSD(p.cost_price)}</td>
+      <td style="font-family:var(--mono);font-weight:700">${p.stock_qty} ${p.unit}</td>
+      <td style="font-family:var(--mono)">${p.stock_min} ${p.unit}</td>
+      <td>${p.low_stock?`<span class="badge br">⚠ Bas</span>`:`<span class="badge bg">OK</span>`}</td>
+      <td><button class="btn btn-sm btn-r" onclick="delProduct('${p.id}')"><i class="ti ti-trash"></i></button></td>
+    </tr>`).join("");
+  }catch(e){console.error(e);}
+}
+async function delProduct(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/stock/products/${id}`);showToast("Supprimé ✓");loadStock();}catch(e){showToast(e.message,"error");}}
+function openProductModal(){document.getElementById("modal-product").style.display="flex";}
+function closeProductModal(){document.getElementById("modal-product").style.display="none";}
+async function submitProduct(){
+  const name=document.getElementById("prod-name").value;
+  if(!name){showToast("Nom obligatoire","error");return;}
+  try{
+    await api("POST","/stock/products",{name,sku:document.getElementById("prod-sku").value||null,
+      category:document.getElementById("prod-cat").value||null,unit:document.getElementById("prod-unit").value,
+      unit_price:parseFloat(document.getElementById("prod-price").value||0),
+      cost_price:parseFloat(document.getElementById("prod-cost").value||0),
+      stock_qty:parseFloat(document.getElementById("prod-qty").value||0),
+      stock_min:parseFloat(document.getElementById("prod-min").value||0),
+      description:document.getElementById("prod-desc").value||null,currency:"USD"});
+    showToast("Produit créé ✓");closeProductModal();loadStock();
+  }catch(e){showToast(e.message,"error");}
+}
+function openStockMoveModal(){
+  const sel=document.getElementById("move-product-id");if(!sel)return;
+  sel.innerHTML=_products.map(p=>`<option value="${p.id}">${p.name} (${p.stock_qty} ${p.unit})</option>`).join("");
+  document.getElementById("modal-stock-move").style.display="flex";
+}
+function closeStockMoveModal(){document.getElementById("modal-stock-move").style.display="none";}
+async function submitStockMove(){
+  try{
+    const r=await api("POST","/stock/moves",{product_id:document.getElementById("move-product-id").value,
+      type:document.getElementById("move-type").value,
+      qty:parseFloat(document.getElementById("move-qty").value||0),
+      reason:document.getElementById("move-reason").value||null});
+    showToast(`Stock mis à jour : ${r.new_stock}${r.low_stock?" ⚠ Bas":""}`);
+    closeStockMoveModal();loadStock();
+  }catch(e){showToast(e.message,"error");}
+}
+
+// ── DÉPENSES ──────────────────────────────────────────────────────────────────
+async function loadExpenses(){
+  const tbody=document.getElementById("expenses-tbody");if(!tbody)return;
+  try{
+    const exps=await api("GET","/accounting/expenses");
+    if(!exps?.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Aucune dépense.</td></tr>`;return;}
+    tbody.innerHTML=exps.map(e=>`<tr>
+      <td>${fmtDate(e.date)}</td>
+      <td><span class="badge badge-gray">${e.category}</span></td>
+      <td style="color:var(--muted)">${e.description||"—"}</td>
+      <td style="font-family:var(--mono);font-weight:700;color:var(--red)">${fmtUSD(e.amount)}</td>
+      <td>${e.tax_deductible?`<span class="badge bg">✓ Déductible</span>`:"—"}</td>
+      <td><button class="btn btn-sm btn-r" onclick="delExpense('${e.id}')"><i class="ti ti-trash"></i></button></td>
+    </tr>`).join("");
+  }catch(e){console.error(e);}
+}
+async function delExpense(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/accounting/expenses/${id}`);showToast("Supprimée ✓");loadExpenses();}catch(e){showToast(e.message,"error");}}
+function openExpenseModal(){document.getElementById("modal-expense").style.display="flex";}
+function closeExpenseModal(){document.getElementById("modal-expense").style.display="none";}
+async function submitExpense(){
+  try{
+    const d=document.getElementById("exp-date").value;
+    await api("POST","/accounting/expenses",{category:document.getElementById("exp-cat").value,
+      amount:parseFloat(document.getElementById("exp-amount").value||0),
+      description:document.getElementById("exp-desc").value||null,
+      date:d?new Date(d).toISOString():null,
+      tax_deductible:document.getElementById("exp-deductible").checked,currency:"USD"});
+    showToast("Dépense enregistrée ✓");closeExpenseModal();loadExpenses();
+  }catch(e){showToast(e.message,"error");}
+}
+
+// ── P&L ──────────────────────────────────────────────────────────────────────
+let _plPeriod="month";
+async function loadPL(period,btn){
+  _plPeriod=period||"month";
+  if(btn){document.querySelectorAll("[data-pp]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");}
+  try{
+    const [pl,tax]=await Promise.all([api("GET",`/accounting/pl?period=${_plPeriod}`),api("GET","/accounting/tax-summary")]);
+    set("pl-revenue",fmtUSD(pl.revenue));
+    set("pl-expenses",fmtUSD(pl.expenses));
+    set("pl-payroll",fmtUSD(pl.payroll));
+    const profit=document.getElementById("pl-profit");
+    if(profit){profit.textContent=fmtUSD(pl.gross_profit);profit.style.color=pl.gross_profit>=0?"var(--green)":"var(--red)";}
+    const margin=document.getElementById("pl-margin");
+    if(margin){margin.textContent=pl.margin_pct+"%";margin.style.color=pl.margin_pct>=0?"var(--green)":"var(--red)";}
+    set("tax-revenue",fmtUSD(tax.revenue_ytd));
+    set("tax-collected",fmtUSD(tax.tax_collected));
+    set("tax-deductible",fmtUSD(tax.deductible_expenses));
+    set("tax-base",fmtUSD(tax.estimated_tax_base));
+  }catch(e){console.error(e);}
+}
+
+// ── BILLING ───────────────────────────────────────────────────────────────────
+let _subCycle="monthly"; let _lastWire=null;
 async function loadBilling(){
   try{
-    _plans=await getPlans();
-    renderPlans();
-    const tbl=document.getElementById("billing-tbody");
-    if(tbl) tbl.innerHTML=[
-      ["starter","$29","$290","$58","Freelances"],
-      ["professional","$89","$890","$178","Startups"],
-      ["business","$199","$1 990","$398","PME"],
-      ["enterprise","$499","$4 990","$998","Grandes structures"],
-      ["ultimate","$999","$9 990","$1 998","Multi-entités"]
-    ].map(([p,m,a,s,t])=>`<tr><td>${planBadge(p)}</td><td style="font-family:var(--mono)">${m}</td><td style="font-family:var(--mono)">${a}</td><td style="color:var(--green);font-family:var(--mono)">${s}</td><td style="color:var(--muted)">${t}</td></tr>`).join("");
-    const tenant=State.tenant;
-    const info=document.getElementById("trial-billing-info");
-    if(info&&tenant?.trial?.active&&!tenant.trial.is_creator){
-      info.style.display="block";
-      info.innerHTML=`<div style="background:rgba(0,224,128,.07);border:1px solid rgba(0,224,128,.2);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--green)">
-        ⏱ Tu es en essai gratuit — <b>${tenant.trial.days_remaining} jour(s) restant(s)</b>. Souscris avant expiration pour ne pas perdre tes données. <span style="color:var(--amber);font-size:11px;font-family:var(--mono)">⚠️ Note : un remboursement supprime définitivement ton essai gratuit.</span>
-      </div>`;
-    }
+    const plans=await api("GET","/billing/plans");
+    const grid=document.getElementById("plans-grid");if(!grid)return;
+    const order=["starter","professional","business","enterprise","ultimate"];
+    const colors={starter:"var(--green)",professional:"var(--blue)",business:"var(--purple)",enterprise:"var(--amber)",ultimate:"var(--gold)"};
+    grid.innerHTML=order.filter(k=>plans[k]).map(k=>{
+      const p=plans[k];
+      const price=_subCycle==="annual"?p.price_annual:p.price_monthly;
+      return`<div class="plan-card ${k==="professional"?"featured":""}">
+        <div style="font-family:var(--mono);font-size:10px;color:${colors[k]};text-transform:uppercase;margin-bottom:8px">${p.name}</div>
+        <div style="font-size:28px;font-weight:800">$${price}</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">USD/${_subCycle==="annual"?"an":"mois"}</div>
+        <div style="font-size:11px;color:var(--muted);margin:8px 0 12px;font-style:italic">${p.tagline}</div>
+        <button class="btn btn-g" style="width:100%" onclick="initSubscribe('${k}')"><i class="ti ti-building-bank"></i> Souscrire</button>
+      </div>`;}).join("");
   }catch(e){console.error(e);}
 }
 function setSubCycle(cycle){
   _subCycle=cycle;
   document.getElementById("toggle-m").classList.toggle("active",cycle==="monthly");
   document.getElementById("toggle-a").classList.toggle("active",cycle==="annual");
-  renderPlans();
+  loadBilling();
 }
-function renderPlans(){
-  const grid=document.getElementById("plans-grid");if(!grid||!_plans)return;
-  const order=["starter","professional","business","enterprise","ultimate"];
-  const colors={starter:"var(--green)",professional:"var(--blue)",business:"var(--purple)",enterprise:"var(--amber)",ultimate:"var(--gold)"};
-  grid.innerHTML=order.filter(k=>_plans[k]).map(k=>{
-    const p=_plans[k];
-    const price=_subCycle==="annual"?p.price_annual:p.price_monthly;
-    const period=_subCycle==="annual"?"/an":"/mois";
-    return`<div class="plan-card ${k==="professional"?"featured":""}">
-      <div style="font-family:var(--mono);font-size:10px;color:${colors[k]};text-transform:uppercase;margin-bottom:8px">${p.name}</div>
-      <div style="font-size:28px;font-weight:800">$${price}</div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">USD${period}</div>
-      ${_subCycle==="annual"&&p.savings_annual>0?`<div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-top:2px">Économisez $${p.savings_annual}/an</div>`:""}
-      <div style="font-size:11px;color:var(--muted);margin:8px 0 12px;font-style:italic">${p.tagline}</div>
-      <button class="btn btn-g" style="width:100%;justify-content:center" onclick="initSubscribe('${k}')">
-        <i class="ti ti-building-bank"></i> Souscrire
-      </button>
-    </div>`;
-  }).join("");
-}
-async function initSubscribe(plan){
-  try{const r=await subscribeToPlan(plan,_subCycle);_lastWire=r;showWireModal(r);}
-  catch(e){showToast(e.message,"error");}
-}
+async function initSubscribe(plan){try{const r=await api("POST","/billing/subscribe",{plan,billing_cycle:_subCycle});_lastWire=r;showWireModal(r);}catch(e){showToast(e.message,"error");}}
 function showWireModal(r){
   const ins=r.instructions; const nw=ins.national_wire; const iw=ins.international_wire;
-  document.getElementById("wire-modal-content").innerHTML=`
+  setHTML("wire-modal-content",`
     <div style="background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.2);border-radius:10px;padding:14px;margin-bottom:16px">
       <div style="font-weight:700;margin-bottom:4px">${ins.plan} — ${ins.billing_cycle}</div>
-      <div style="font-size:20px;font-weight:800;color:var(--green);margin:6px 0">${fmtUSD(ins.amount_usd)}</div>
+      <div style="font-size:20px;font-weight:800;color:var(--green);margin:6px 0">$${ins.amount_usd.toFixed(2)}</div>
       <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">${ins.refund_policy}</div>
     </div>
     <div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-weight:700;font-size:13px;color:var(--amber)">
       ⚠️ Libellé OBLIGATOIRE : <span style="font-family:var(--mono);letter-spacing:2px">${ins.reference}</span>
     </div>
     <div style="font-weight:700;font-size:14px;margin-bottom:10px;color:var(--green)">🇨🇩 ${nw.label}</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${nw.note}</div>
     <div class="wire-box" style="margin-bottom:16px">
-      <b>Bénéficiaire :</b> ${nw.beneficiary}<br>
-      <b>N° de compte :</b> ${nw.account_number}<br>
-      <b>Réf. complète :</b> ${nw.full_account_reference}<br>
-      <b>Banque :</b> ${nw.bank_name}<br>
-      <b>Adresse :</b> ${nw.bank_address}<br>
-      <b>SWIFT :</b> ${nw.swift_bic}<br>
-      <b>Devise :</b> ${nw.currency}
+      <b>Bénéficiaire :</b> ${nw.beneficiary}<br><b>N° compte :</b> ${nw.account_number}<br>
+      <b>Réf. complète :</b> ${nw.full_account_reference}<br><b>Banque :</b> ${nw.bank_name}<br>
+      <b>SWIFT :</b> ${nw.swift_bic}<br><b>Devise :</b> ${nw.currency}
     </div>
     <div style="font-weight:700;font-size:14px;margin-bottom:10px;color:var(--cyan)">🌍 ${iw.label}</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${iw.note}</div>
     <div class="wire-box">
-      <b>Bénéficiaire :</b> ${iw.beneficiary}<br>
-      <b>Adresse titulaire :</b> ${iw.beneficiary_address}<br>
-      <b>N° de compte :</b> ${iw.account_number}<br>
-      <b>Réf. complète :</b> ${iw.full_account_reference}<br>
-      <b>SWIFT/BIC :</b> ${iw.swift_bic}<br>
-      <b>Banque :</b> ${iw.bank_name}<br>
-      <b>Adresse banque :</b> ${iw.bank_address}<br>
-      <b>Banque correspondante :</b> ${iw.correspondent_bank}<br>
-      <b>SWIFT correspondant :</b> ${iw.correspondent_bic}<br>
+      <b>Bénéficiaire :</b> ${iw.beneficiary}<br><b>Adresse :</b> ${iw.beneficiary_address}<br>
+      <b>N° compte :</b> ${iw.account_number}<br><b>SWIFT/BIC :</b> ${iw.swift_bic}<br>
+      <b>Banque :</b> ${iw.bank_name}<br><b>Correspondant :</b> ${iw.correspondent_bank} (${iw.correspondent_bic})<br>
       <b>Devise :</b> ${iw.currency}
     </div>
-    <div style="margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--muted)">${ins.activation}</div>
     <div style="margin-top:16px;background:rgba(0,224,128,.06);border:1px solid rgba(0,224,128,.2);border-radius:10px;padding:14px">
-      <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--green)">📲 Étape finale — Confirmer votre paiement</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Après avoir effectué le virement, envoyez votre référence par WhatsApp pour activer votre compte.</div>
-      <a href="https://wa.me/212632947286?text=Bonjour%2C%20j%27ai%20effectu%C3%A9%20mon%20virement%20pour%20ZenithDash.%20Ma%20r%C3%A9f%C3%A9rence%20est%20%3A%20${ins.reference}%20-%20Plan%20${ins.plan}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Envoyer la référence par WhatsApp
+      <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--green)">📲 Confirmer votre paiement</div>
+      <a href="https://wa.me/212632947286?text=Bonjour%2C%20j%27ai%20effectu%C3%A9%20mon%20virement%20ZenithDash.%20R%C3%A9f%C3%A9rence%20%3A%20${ins.reference}%20-%20Plan%20${ins.plan}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">
+        <i class="ti ti-brand-whatsapp"></i> Envoyer la référence par WhatsApp
       </a>
-    </div>`;
+    </div>`);
   document.getElementById("wire-modal").style.display="flex";
 }
 function closeWireModal(){document.getElementById("wire-modal").style.display="none";}
 function copyWireDetails(){
   if(!_lastWire)return;
-  const ins=_lastWire.instructions; const nw=ins.national_wire; const iw=ins.international_wire;
-  const text=`VIREMENT ZENITH DASH\nPlan: ${ins.plan} (${ins.billing_cycle})\nMontant: ${fmtUSD(ins.amount_usd)}\nRéférence OBLIGATOIRE: ${ins.reference}\n\nVIREMENT NATIONAL (RDC)\nBénéficiaire: ${nw.beneficiary}\nCompte: ${nw.account_number}\nRéf: ${nw.full_account_reference}\nSWIFT: ${nw.swift_bic}\n\nVIREMENT INTERNATIONAL\nBénéficiaire: ${iw.beneficiary}\nCompte: ${iw.account_number}\nSWIFT: ${iw.swift_bic}\nCorrespondant: ${iw.correspondent_bank} (${iw.correspondent_bic})`;
-  navigator.clipboard.writeText(text).then(()=>showToast("Coordonnées copiées ✓"));
+  const ins=_lastWire.instructions; const nw=ins.national_wire;
+  navigator.clipboard.writeText(`VIREMENT ZENITH DASH\nPlan: ${ins.plan}\nMontant: $${ins.amount_usd}\nRéférence: ${ins.reference}\nBénéficiaire: ${nw.beneficiary}\nCompte: ${nw.account_number}\nSWIFT: ${nw.swift_bic}`)
+    .then(()=>showToast("Copié ✓"));
 }
 
+// ── ANALYTICS ─────────────────────────────────────────────────────────────────
 async function loadAnalytics(){
   try{
-    const p=await getAIPrediction();
-    const set=(id,v,col)=>{const e=document.getElementById(id);if(e){e.textContent=v;if(col)e.style.color=col;}};
+    const p=await api("GET","/analytics/predict");
     set("pred-next-month",fmtUSD(p.predicted_revenue_next_month));
     set("pred-next-quarter",fmtUSD(p.predicted_revenue_next_quarter));
-    set("pred-growth",(p.growth_rate_percent>=0?"+":"")+p.growth_rate_percent+"%",p.growth_rate_percent>=0?"var(--green)":"var(--red)");
+    const ge=document.getElementById("pred-growth");
+    if(ge){ge.textContent=(p.growth_rate_percent>=0?"+":"")+p.growth_rate_percent+"%";ge.style.color=p.growth_rate_percent>=0?"var(--green)":"var(--red)";}
     set("pred-confidence",Math.round(p.confidence*100)+"%");
     const el=document.getElementById("pred-recs");
     if(el) el.innerHTML=p.recommendations.map(r=>`<li style="padding:6px 0;border-bottom:1px solid var(--b);font-size:13px"><span style="color:var(--purple);margin-right:8px">→</span>${r}</li>`).join("");
   }catch(e){console.error(e);}
 }
 
+// ── RAPPORTS ─────────────────────────────────────────────────────────────────
 let _repPeriod="month";
 async function loadReport(period,btn){
   _repPeriod=period||"month";
   if(btn){document.querySelectorAll("[data-rp]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");}
   try{
-    const r=await getReport(_repPeriod);
-    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    const r=await api("GET",`/reports/summary?period=${_repPeriod}`);
     set("rep-paid",fmtUSD(r.revenue?.total_paid));
     set("rep-pending",fmtUSD(r.revenue?.pending));
     set("rep-net",fmtUSD(r.revenue?.net));
@@ -781,29 +1411,37 @@ async function exportCsv(){
   try{
     const r=await fetch(`${API_BASE}/reports/export/csv?period=${_repPeriod}`,{headers:{Authorization:`Bearer ${State.token}`}});
     const csv=await r.text();
-    const blob=new Blob([csv],{type:"text/csv"});
     const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob); a.download=`zenith-${_repPeriod}.csv`; a.click();
+    a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+    a.download=`zenith-${_repPeriod}.csv`; a.click();
     showToast("Export téléchargé ✓");
   }catch(e){showToast(e.message,"error");}
 }
 
+// ── PROFIL ────────────────────────────────────────────────────────────────────
 async function loadProfile(){
   try{
-    const p=await getProfile();
-    const set=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.value=v;};
-    set("prof-name",p.name); set("prof-company",p.company_name);
-    set("prof-phone",p.phone); set("prof-country",p.country);
-    set("bank-name",p.bank?.bank_name); set("bank-account",p.bank?.bank_account);
-    set("bank-swift",p.bank?.bank_swift); set("bank-iban",p.bank?.bank_iban);
+    const p=await api("GET","/profile/");
+    const setVal=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.value=v;};
+    setVal("prof-name",p.name); setVal("prof-company",p.company_name);
+    setVal("prof-phone",p.phone); setVal("prof-country",p.country);
+    setVal("prof-address",p.address); setVal("prof-currency",p.currency);
+    setVal("prof-tax",p.tax_number);
+    setVal("bank-name",p.bank?.bank_name); setVal("bank-account",p.bank?.bank_account);
+    setVal("bank-swift",p.bank?.bank_swift); setVal("bank-iban",p.bank?.bank_iban);
   }catch(e){console.error(e);}
 }
 async function saveProfile(){
   try{
-    const d={};
-    const f={name:"prof-name",company_name:"prof-company",phone:"prof-phone",country:"prof-country"};
-    for(const[k,id] of Object.entries(f)){const e=document.getElementById(id);if(e&&e.value)d[k]=e.value;}
-    await updateProfile(d); showToast("Profil mis à jour ✓");
+    await api("PATCH","/profile/",{
+      name:document.getElementById("prof-name")?.value||undefined,
+      company_name:document.getElementById("prof-company")?.value||undefined,
+      phone:document.getElementById("prof-phone")?.value||undefined,
+      country:document.getElementById("prof-country")?.value||undefined,
+      address:document.getElementById("prof-address")?.value||undefined,
+      currency:document.getElementById("prof-currency")?.value||undefined,
+      tax_number:document.getElementById("prof-tax")?.value||undefined});
+    showToast("Profil mis à jour ✓");
   }catch(e){showToast(e.message,"error");}
 }
 async function saveBank(){
@@ -811,7 +1449,9 @@ async function saveBank(){
   const account=document.getElementById("bank-account")?.value;
   if(!name||!account){showToast("Nom et numéro de compte obligatoires","error");return;}
   try{
-    await updateBank({bank_name:name,bank_account:account,bank_swift:document.getElementById("bank-swift")?.value||null,bank_iban:document.getElementById("bank-iban")?.value||null});
+    await api("PATCH","/profile/bank",{bank_name:name,bank_account:account,
+      bank_swift:document.getElementById("bank-swift")?.value||null,
+      bank_iban:document.getElementById("bank-iban")?.value||null});
     showToast("Coordonnées bancaires enregistrées ✓");
   }catch(e){showToast(e.message,"error");}
 }
@@ -821,10 +1461,28 @@ async function savePwd(){
   const cf=document.getElementById("pwd-cf")?.value;
   if(!cur||!nw||!cf){showToast("Remplissez tous les champs","error");return;}
   if(nw!==cf){showToast("Les mots de passe ne correspondent pas","error");return;}
-  try{await changePassword({current_password:cur,new_password:nw});showToast("Mot de passe modifié ✓");}
+  try{await api("POST","/profile/change-password",{current_password:cur,new_password:nw});showToast("Mot de passe modifié ✓");}
   catch(e){showToast(e.message,"error");}
 }
 
+// ── ADMIN ─────────────────────────────────────────────────────────────────────
+async function adminConfirmWire(){
+  const ref=document.getElementById("admin-ref")?.value.trim();
+  if(!ref){showToast("Entre la référence du virement","error");return;}
+  const bankRef=document.getElementById("admin-bank-ref")?.value.trim();
+  const res=document.getElementById("admin-result");
+  try{
+    const r=await api("POST",`/webhooks/admin/confirm-wire?wire_reference=${encodeURIComponent(ref)}${bankRef?`&bank_reference=${encodeURIComponent(bankRef)}`:""}` );
+    if(res){res.style.display="block";res.style.background="rgba(0,224,128,.08)";res.style.border="1px solid rgba(0,224,128,.2)";res.style.color="var(--green)";
+      res.innerHTML=r.success?`✅ Plan <b>${r.plan_activated}</b> activé pour <b>${r.tenant}</b>`:"❌ Échec — vérifie la référence";}
+    if(r.success) showToast("Compte activé ✓");
+  }catch(e){
+    if(res){res.style.display="block";res.style.background="rgba(255,95,109,.08)";res.style.border="1px solid rgba(255,95,109,.2)";res.style.color="var(--red)";res.innerHTML="❌ "+e.message;}
+    showToast(e.message,"error");
+  }
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
 async function handleLogin(e){
   e.preventDefault();
   const btn=document.getElementById("login-btn");btn.textContent="Connexion...";btn.disabled=true;
@@ -835,7 +1493,8 @@ async function handleRegister(e){
   e.preventDefault();
   const btn=document.getElementById("reg-btn");btn.textContent="Création...";btn.disabled=true;
   try{
-    await register({name:document.getElementById("reg-name").value,email:document.getElementById("reg-email").value,password:document.getElementById("reg-password").value,company_name:document.getElementById("reg-company").value||null});
+    await register({name:document.getElementById("reg-name").value,email:document.getElementById("reg-email").value,
+      password:document.getElementById("reg-password").value,company_name:document.getElementById("reg-company").value||null});
     showAppLayout();
   }catch(err){showErr("reg-err",err.message);btn.innerHTML='<i class="ti ti-user-plus"></i> Commencer l\'essai gratuit';btn.disabled=false;}
 }
@@ -848,10 +1507,7 @@ function showAuthTab(tab){
 function doLogout(){logout();document.getElementById("app-screen").style.display="none";document.getElementById("auth-screen").style.display="flex";}
 
 document.addEventListener("keydown",e=>{
-  if(e.ctrlKey&&e.shiftKey&&e.key==="K"){
-    document.getElementById("creator-modal").style.display="flex";
-    document.getElementById("creator-input").focus();
-  }
+  if(e.ctrlKey&&e.shiftKey&&e.key==="K"){document.getElementById("creator-modal").style.display="flex";document.getElementById("creator-input").focus();}
 });
 async function activateCreator(){
   const code=document.getElementById("creator-input").value.trim();
@@ -860,38 +1516,14 @@ async function activateCreator(){
     const r=await api("POST",`/creator/activate?code=${encodeURIComponent(code)}`);
     showToast(r.message);
     if(State.tenant){State.tenant.plan="ultimate";localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));}
-    document.getElementById("topbar-plan").innerHTML=planBadge("ultimate");
+    setHTML("topbar-plan",planBadge("ultimate"));
     document.getElementById("trial-bar").className="trial-bar hidden";
     document.getElementById("creator-modal").style.display="none";
     document.getElementById("creator-input").value="";
   }catch(e){showToast(e.message,"error");}
 }
 
-async function adminConfirmWire(){
-  const ref=document.getElementById("admin-ref")?.value.trim();
-  if(!ref){showToast("Entre la référence du virement","error");return;}
-  const bankRef=document.getElementById("admin-bank-ref")?.value.trim();
-  const res=document.getElementById("admin-result");
-  try{
-    const url=`/webhooks/admin/confirm-wire?wire_reference=${encodeURIComponent(ref)}${bankRef?`&bank_reference=${encodeURIComponent(bankRef)}`:""}`;
-    const r=await api("POST",url);
-    if(res){
-      res.style.display="block";
-      res.style.background="rgba(0,224,128,.08)";
-      res.style.border="1px solid rgba(0,224,128,.2)";
-      res.style.color="var(--green)";
-      res.innerHTML=r.success?`✅ Plan <b>${r.plan_activated}</b> activé pour <b>${r.tenant}</b>`:"❌ Échec — vérifie la référence";
-    }
-    if(r.success) showToast("Compte activé ✓");
-  }catch(e){
-    if(res){res.style.display="block";res.style.background="rgba(255,95,109,.08)";res.style.border="1px solid rgba(255,95,109,.2)";res.style.color="var(--red)";res.innerHTML="❌ "+e.message;}
-    showToast(e.message,"error");
-  }
-}
-
-document.addEventListener("DOMContentLoaded",()=>{
-  if(State.token&&State.tenant) showAppLayout();
-});
+document.addEventListener("DOMContentLoaded",()=>{if(State.token&&State.tenant) showAppLayout();});
 </script>
 </body>
 </html>
