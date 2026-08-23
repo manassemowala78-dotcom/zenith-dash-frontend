@@ -517,9 +517,24 @@ select.inp option{background:var(--card)}
     <div class="bnav-item active" data-bp="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i><span>Home</span></div>
     <div class="bnav-item" data-bp="invoices" onclick="navigate('invoices')"><i class="ti ti-file-invoice"></i><span>Factures</span></div>
     <div class="bnav-item" data-bp="crm" onclick="navigate('crm')"><i class="ti ti-target"></i><span>CRM</span></div>
-    <div class="bnav-item" data-bp="employees" onclick="navigate('employees')"><i class="ti ti-user-check"></i><span>RH</span></div>
     <div class="bnav-item" data-bp="stock" onclick="navigate('stock')"><i class="ti ti-package"></i><span>Stock</span></div>
     <div class="bnav-item" data-bp="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i><span>Profil</span></div>
+    <div class="bnav-item" onclick="toggleMoreMenu()"><i class="ti ti-dots"></i><span>Plus</span></div>
+  </div>
+</div>
+
+<!-- MORE MENU MOBILE -->
+<div id="more-menu" style="display:none;position:fixed;bottom:70px;left:0;right:0;background:var(--s);border-top:1px solid var(--b);z-index:199;padding:12px 16px">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div onclick="navigate('employees');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-user-check" style="font-size:22px;color:var(--purple)"></i><span style="font-size:10px;font-family:var(--mono)">Employés</span></div>
+    <div onclick="navigate('leaves');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-calendar-off" style="font-size:22px;color:var(--amber)"></i><span style="font-size:10px;font-family:var(--mono)">Congés</span></div>
+    <div onclick="navigate('payroll');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-receipt" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Paie</span></div>
+    <div onclick="navigate('quotes');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-file-description" style="font-size:22px;color:var(--blue)"></i><span style="font-size:10px;font-family:var(--mono)">Devis</span></div>
+    <div onclick="navigate('expenses');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-credit-card" style="font-size:22px;color:var(--red)"></i><span style="font-size:10px;font-family:var(--mono)">Dépenses</span></div>
+    <div onclick="navigate('pl');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-chart-pie" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">P&L</span></div>
+    <div onclick="navigate('analytics');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-brain" style="font-size:22px;color:var(--purple)"></i><span style="font-size:10px;font-family:var(--mono)">IA</span></div>
+    <div onclick="navigate('reports');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-chart-bar" style="font-size:22px;color:var(--blue)"></i><span style="font-size:10px;font-family:var(--mono)">Rapports</span></div>
+    <div onclick="navigate('billing');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-building-bank" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Plans</span></div>
   </div>
 </div>
 
@@ -1521,6 +1536,15 @@ async function activateCreator(){
     document.getElementById("creator-modal").style.display="none";
     document.getElementById("creator-input").value="";
   }catch(e){showToast(e.message,"error");}
+}
+
+function toggleMoreMenu(){
+  const m=document.getElementById("more-menu");
+  if(m) m.style.display=m.style.display==="none"?"block":"none";
+}
+function closeMoreMenu(){
+  const m=document.getElementById("more-menu");
+  if(m) m.style.display="none";
 }
 
 document.addEventListener("DOMContentLoaded",()=>{if(State.token&&State.tenant) showAppLayout();});
