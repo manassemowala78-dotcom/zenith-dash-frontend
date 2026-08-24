@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>Zenith Dash ERP — Gestion d'Entreprise</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
 :root{--bg:#060a10;--s:#0d1320;--card:#121a28;--c2:#182135;--b:rgba(0,220,100,.12);--blue:#4f7aff;--green:#00e080;--red:#ff5f6d;--amber:#f5a623;--purple:#9b6dff;--cyan:#00d4c8;--gold:#ffd700;--pink:#ff6eb4;--text:#e8eaf2;--muted:#5a6282;--mono:'Consolas',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-#auth-screen{display:flex;min-height:100vh;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(0,224,128,.07) 0%,var(--bg) 65%)}
-.auth-wrap{width:100%;max-width:420px;padding:24px}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;-webkit-text-size-adjust:100%}
+#auth-screen{display:flex;min-height:100vh;min-height:100dvh;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(0,224,128,.07) 0%,var(--bg) 65%);overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
+.auth-wrap{width:100%;max-width:420px;padding:24px;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .auth-logo{text-align:center;margin-bottom:28px}
 .auth-logo-icon{font-size:48px;display:block;margin-bottom:10px}
 .auth-logo-title{font-size:24px;font-weight:800}
