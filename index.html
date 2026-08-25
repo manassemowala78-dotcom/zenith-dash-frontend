@@ -928,6 +928,20 @@ async function showAppLayout(){
       if(navAdmin) navAdmin.style.display="flex";
     }
   }
+  // Rafraîchir les données depuis le serveur à chaque connexion
+  try{
+    const fresh=await api("GET","/profile/");
+    if(fresh&&fresh.trial){
+      State.tenant={...State.tenant,...fresh,trial:fresh.trial};
+      localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
+      showTrialBar(fresh.trial);
+      setHTML("topbar-plan",planBadge(fresh.plan));
+      if(fresh.plan==="ultimate"&&fresh.trial?.is_creator){
+        const navAdmin=document.getElementById("nav-admin");
+        if(navAdmin) navAdmin.style.display="flex";
+      }
+    }
+  }catch(_){}
   navigate("dashboard");
 }
 
