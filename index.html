@@ -206,7 +206,7 @@ select.inp option{background:var(--card)}
     </div>
     <div class="nav-g">
       <div class="nav-lbl">Finance</div>
-      <div class="nav-i" data-p="billing" onclick="navigate('billing')"><i class="ti ti-building-bank"></i>Abonnements</div>
+      <div class="nav-i" data-p="billing" id="nav-billing" onclick="navigate('billing')"><i class="ti ti-building-bank"></i>Abonnements</div>
       <div class="nav-i" data-p="analytics" onclick="navigate('analytics')"><i class="ti ti-brain"></i>IA Analytics</div>
       <div class="nav-i" data-p="reports" onclick="navigate('reports')"><i class="ti ti-chart-bar"></i>Rapports</div>
     </div>
@@ -926,6 +926,8 @@ async function showAppLayout(){
     if(t.plan==="ultimate"&&t.trial&&t.trial.is_creator){
       const navAdmin=document.getElementById("nav-admin");
       if(navAdmin) navAdmin.style.display="flex";
+      const navBilling=document.getElementById("nav-billing");
+      if(navBilling) navBilling.style.display="none";
     }
   }
   // Rafraîchir les données depuis le serveur à chaque connexion
@@ -939,6 +941,8 @@ async function showAppLayout(){
       if(fresh.plan==="ultimate"&&fresh.trial?.is_creator){
         const navAdmin=document.getElementById("nav-admin");
         if(navAdmin) navAdmin.style.display="flex";
+        const navBilling=document.getElementById("nav-billing");
+        if(navBilling) navBilling.style.display="none";
       }
     }
   }catch(_){}
