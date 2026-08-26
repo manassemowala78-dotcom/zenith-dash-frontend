@@ -159,7 +159,7 @@ select.inp option{background:var(--card)}
       <div class="fgrp"><label class="fl">Entreprise</label><input class="inp" type="text" id="reg-company" placeholder="Optionnel" style="font-size:16px"></div>
       <div class="fgrp"><label class="fl">Mot de passe</label><input class="inp" type="password" id="reg-password" placeholder="Min. 8 caractères" style="font-size:16px" autocomplete="new-password"></div>
       <div class="err-box" id="reg-err"></div>
-      <button class="btn btn-g" id="reg-btn" onclick="handleRegister2()" style="width:100%;margin-top:4px;font-size:16px;min-height:48px"><i class="ti ti-user-plus"></i> Commencer l'essai gratuit</button>
+      <button class="btn btn-g" id="reg-btn" onclick="handleRegister2()" style="width:100%;margin-top:4px;font-size:16px;min-height:48px"><i class="ti ti-user-plus"></i> Commencer l&#39;essai gratuit</button>
     </div>
   </div>
 </div>
@@ -1069,7 +1069,7 @@ async function loadDashboard(){
     set("dash-opps",s.open_opportunities+" ouvertes");
     setHTML("dash-plan",planBadge(s.plan));
     if(s.trial) showTrialBar(s.trial);
-    // Afficher les limites d'usage
+    // Afficher les limites usage
     if(s.limits_usage){
       const invUsage=document.getElementById("inv-usage");
       const cliUsage=document.getElementById("cli-usage");
@@ -1320,7 +1320,7 @@ async function handleLeave(id,action){
   try{await api("PATCH",`/hr/leaves/${id}/${action}`);showToast(action==="approve"?"Approuvé ✓":"Refusé");loadLeaves();}
   catch(e){showToast(e.message,"error");}
 }
-function openLeaveModal(){if(!_employees.length){showToast("Chargez d'abord les employés","error");return;}populateEmpSelect("leave-emp-id");document.getElementById("modal-leave").style.display="flex";}
+function openLeaveModal(){if(!_employees.length){showToast("Chargez les employes dabord","error");return;}populateEmpSelect("leave-emp-id");document.getElementById("modal-leave").style.display="flex";}
 function closeLeaveModal(){document.getElementById("modal-leave").style.display="none";}
 async function submitLeave(){
   try{
@@ -1355,7 +1355,7 @@ async function loadPayroll(){
   }catch(e){console.error(e);}
 }
 async function payPayslip(id){try{await api("PATCH",`/hr/payslips/${id}/pay`);showToast("Payé ✓");loadPayroll();}catch(e){showToast(e.message,"error");}}
-function openPayslipModal(){if(!_employees.length){showToast("Chargez d'abord les employés","error");return;}populateEmpSelect("payslip-emp-id");document.getElementById("modal-payslip").style.display="flex";}
+function openPayslipModal(){if(!_employees.length){showToast("Chargez les employes dabord","error");return;}populateEmpSelect("payslip-emp-id");document.getElementById("modal-payslip").style.display="flex";}
 function closePayslipModal(){document.getElementById("modal-payslip").style.display="none";}
 async function submitPayslip(){
   try{
@@ -1696,7 +1696,7 @@ async function handleRegister2(){
     await showAppLayout();
   }catch(err){
     showErr("reg-err",err.message);
-    btn.innerHTML='<i class="ti ti-user-plus"></i> Commencer l\'essai gratuit';
+    btn.innerHTML='<i class="ti ti-user-plus"></i> Commencer essai gratuit';
     btn.disabled=false;
   }
 }
@@ -1950,12 +1950,12 @@ document.addEventListener("DOMContentLoaded",async ()=>{
     try{
       await showAppLayout();
     }catch(e){
-      // Token invalide — rester sur l'écran de connexion
+      // Token invalide — rester sur ecran connexion
       State.token=null; State.tenant=null;
       localStorage.removeItem("zd_token"); localStorage.removeItem("zd_tenant");
     }
   }
-  // Sinon rester sur l'écran auth — ne rien faire
+  // Sinon rester sur ecran auth
 });
 </script>
 </body>
