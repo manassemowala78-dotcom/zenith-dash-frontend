@@ -148,22 +148,18 @@ select.inp option{background:var(--card)}
       <button class="auth-tab" data-tab="register" onclick="showAuthTab('register')">Créer un compte</button>
     </div>
     <div id="tab-login" class="auth-tab-content active">
-      <form onsubmit="handleLogin(event)">
-        <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="login-email" placeholder="vous@exemple.com" required></div>
-        <div class="fgrp"><label class="fl">Mot de passe</label><input class="inp" type="password" id="login-password" placeholder="••••••••" required></div>
-        <div class="err-box" id="login-err"></div>
-        <button class="btn btn-g" id="login-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-login"></i> Se connecter</button>
-      </form>
+      <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="login-email" placeholder="vous@exemple.com" style="font-size:16px" autocomplete="email"></div>
+      <div class="fgrp"><label class="fl">Mot de passe</label><input class="inp" type="password" id="login-password" placeholder="••••••••" style="font-size:16px" autocomplete="current-password"></div>
+      <div class="err-box" id="login-err"></div>
+      <button class="btn btn-g" id="login-btn" onclick="handleLogin2()" style="width:100%;margin-top:4px;font-size:16px;min-height:48px"><i class="ti ti-login"></i> Se connecter</button>
     </div>
     <div id="tab-register" class="auth-tab-content">
-      <form onsubmit="handleRegister(event)">
-        <div class="fgrp"><label class="fl">Nom complet</label><input class="inp" type="text" id="reg-name" placeholder="Votre nom" required></div>
-        <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="reg-email" placeholder="vous@exemple.com" required></div>
-        <div class="fgrp"><label class="fl">Entreprise</label><input class="inp" type="text" id="reg-company" placeholder="Optionnel"></div>
-        <div class="fgrp"><label class="fl">Mot de passe</label><input class="inp" type="password" id="reg-password" placeholder="Min. 8 caractères" required></div>
-        <div class="err-box" id="reg-err"></div>
-        <button class="btn btn-g" id="reg-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-user-plus"></i> Commencer l'essai gratuit</button>
-      </form>
+      <div class="fgrp"><label class="fl">Nom complet</label><input class="inp" type="text" id="reg-name" placeholder="Votre nom" style="font-size:16px" autocomplete="name"></div>
+      <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="reg-email" placeholder="vous@exemple.com" style="font-size:16px" autocomplete="email"></div>
+      <div class="fgrp"><label class="fl">Entreprise</label><input class="inp" type="text" id="reg-company" placeholder="Optionnel" style="font-size:16px"></div>
+      <div class="fgrp"><label class="fl">Mot de passe</label><input class="inp" type="password" id="reg-password" placeholder="Min. 8 caractères" style="font-size:16px" autocomplete="new-password"></div>
+      <div class="err-box" id="reg-err"></div>
+      <button class="btn btn-g" id="reg-btn" onclick="handleRegister2()" style="width:100%;margin-top:4px;font-size:16px;min-height:48px"><i class="ti ti-user-plus"></i> Commencer l'essai gratuit</button>
     </div>
   </div>
 </div>
@@ -1023,33 +1019,29 @@ async function loadNotifBadge(){
 }
 
 async function showAppLayout(){
-  try{
-    document.getElementById("auth-screen").style.display="none";
-    document.getElementById("app-screen").style.display="block";
-    const bnav=document.getElementById("bottom-nav-bar");
-    if(bnav) bnav.style.display="block";
+  document.getElementById("auth-screen").style.display="none";
+  document.getElementById("app-screen").style.display="block";
   const t=State.tenant;
   if(t){
     set("topbar-name",t.name);
-    document.getElementById("topbar-av").textContent=t.name?.charAt(0).toUpperCase();
+    document.getElementById("topbar-av").textContent=t.name?.charAt(0).toUpperCase()||"?";
     setHTML("topbar-plan",planBadge(t.plan));
     if(t.trial) showTrialBar(t.trial);
-    if(t.plan==="ultimate"&&t.trial&&t.trial.is_creator){
+    if(t.is_creator||( t.plan==="ultimate"&&t.trial&&t.trial.is_creator)){
       const navAdmin=document.getElementById("nav-admin");
       if(navAdmin) navAdmin.style.display="flex";
       const navBilling=document.getElementById("nav-billing");
       if(navBilling) navBilling.style.display="none";
     }
   }
-  // Rafraîchir les données depuis le serveur à chaque connexion
   try{
     const fresh=await api("GET","/profile/");
-    if(fresh&&fresh.trial){
-      State.tenant={...State.tenant,...fresh,trial:fresh.trial};
+    if(fresh){
+      State.tenant={...State.tenant,...fresh};
       localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
-      showTrialBar(fresh.trial);
+      if(fresh.trial) showTrialBar(fresh.trial);
       setHTML("topbar-plan",planBadge(fresh.plan));
-      if(fresh.plan==="ultimate"&&fresh.trial?.is_creator){
+      if(fresh.is_creator||(fresh.plan==="ultimate"&&fresh.trial?.is_creator)){
         const navAdmin=document.getElementById("nav-admin");
         if(navAdmin) navAdmin.style.display="flex";
         const navBilling=document.getElementById("nav-billing");
@@ -1057,13 +1049,8 @@ async function showAppLayout(){
       }
     }
   }catch(_){}
-    navigate("dashboard");
-    loadNotifBadge();
-  }catch(e){
-    // Ne pas déconnecter si c'est juste une erreur réseau
-    console.warn("showAppLayout error:", e);
-    navigate("dashboard");
-  }
+  navigate("dashboard");
+  loadNotifBadge();
 }
 
 // ── DASHBOARD ────────────────────────────────────────────────────────────────
@@ -1675,12 +1662,15 @@ async function adminConfirmWire(){
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
-async function handleLogin(e){
-  e.preventDefault();
-  const btn=document.getElementById("login-btn");btn.textContent="Connexion...";btn.disabled=true;
+async function handleLogin(e){ if(e) e.preventDefault(); await handleLogin2(); }
+async function handleLogin2(){
+  const email=document.getElementById("login-email").value.trim();
+  const pwd=document.getElementById("login-password").value;
+  if(!email||!pwd){showErr("login-err","Remplissez tous les champs");return;}
+  const btn=document.getElementById("login-btn");
+  btn.innerHTML="Connexion...";btn.disabled=true;
   try{
-    const r=await login(document.getElementById("login-email").value,document.getElementById("login-password").value);
-    // Sauvegarder immédiatement — persistant entre les mises à jour
+    await login(email,pwd);
     localStorage.setItem("zd_token",State.token);
     localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
     await showAppLayout();
@@ -1690,13 +1680,17 @@ async function handleLogin(e){
     btn.disabled=false;
   }
 }
-async function handleRegister(e){
-  e.preventDefault();
-  const btn=document.getElementById("reg-btn");btn.textContent="Création...";btn.disabled=true;
+async function handleRegister(e){ if(e) e.preventDefault(); await handleRegister2(); }
+async function handleRegister2(){
+  const name=document.getElementById("reg-name").value.trim();
+  const email=document.getElementById("reg-email").value.trim();
+  const pwd=document.getElementById("reg-password").value;
+  if(!name||!email||!pwd){showErr("reg-err","Remplissez tous les champs obligatoires");return;}
+  if(pwd.length<8){showErr("reg-err","Mot de passe minimum 8 caractères");return;}
+  const btn=document.getElementById("reg-btn");
+  btn.innerHTML="Création...";btn.disabled=true;
   try{
-    await register({name:document.getElementById("reg-name").value,email:document.getElementById("reg-email").value,
-      password:document.getElementById("reg-password").value,company_name:document.getElementById("reg-company").value||null});
-    // Sauvegarder immédiatement
+    await register({name,email,password:pwd,company_name:document.getElementById("reg-company").value||null});
     localStorage.setItem("zd_token",State.token);
     localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
     await showAppLayout();
