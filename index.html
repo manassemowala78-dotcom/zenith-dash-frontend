@@ -966,6 +966,22 @@ function checkFeature(features, feature) {
   return features[feature] === true;
 }
 
+// Limites par plan côté frontend — miroir du backend
+const PLAN_LIMITS_JS = {
+  trial:        {invoices:50,clients:10,employees:0,products:0,crm:true,hr:false,stock:false,accounting:true,analytics:true,csv:true,api:false,multi_currency:false,objectives:true,calendar:true,projects:false,ai_assistant:false,invoice_templates:false,qr_code:false,notifications:true,custom_reports:false,email_clients:true},
+  sandbox:      {invoices:5,clients:3,employees:0,products:0,crm:false,hr:false,stock:false,accounting:false,analytics:false,csv:false,api:false,multi_currency:false,objectives:false,calendar:false,projects:false,ai_assistant:false,invoice_templates:false,qr_code:false,notifications:false,custom_reports:false,email_clients:false},
+  starter:      {invoices:50,clients:10,employees:0,products:0,crm:false,hr:false,stock:false,accounting:true,analytics:false,csv:true,api:false,multi_currency:false,objectives:false,calendar:false,projects:false,ai_assistant:false,invoice_templates:false,qr_code:false,notifications:false,custom_reports:false,email_clients:true},
+  professional: {invoices:-1,clients:100,employees:0,products:50,crm:true,hr:false,stock:false,accounting:true,analytics:true,csv:true,api:false,multi_currency:true,objectives:true,calendar:true,projects:false,ai_assistant:false,invoice_templates:true,qr_code:true,notifications:true,custom_reports:false,email_clients:true},
+  business:     {invoices:-1,clients:-1,employees:20,products:-1,crm:true,hr:true,stock:true,accounting:true,analytics:true,csv:true,api:false,multi_currency:true,objectives:true,calendar:true,projects:true,ai_assistant:true,invoice_templates:true,qr_code:true,notifications:true,custom_reports:false,email_clients:true},
+  enterprise:   {invoices:-1,clients:-1,employees:-1,products:-1,crm:true,hr:true,stock:true,accounting:true,analytics:true,csv:true,api:true,multi_currency:true,objectives:true,calendar:true,projects:true,ai_assistant:true,invoice_templates:true,qr_code:true,notifications:true,custom_reports:true,email_clients:true},
+  ultimate:     {invoices:-1,clients:-1,employees:-1,products:-1,crm:true,hr:true,stock:true,accounting:true,analytics:true,csv:true,api:true,multi_currency:true,objectives:true,calendar:true,projects:true,ai_assistant:true,invoice_templates:true,qr_code:true,notifications:true,custom_reports:true,email_clients:true},
+};
+
+function getLimits(){
+  const plan = State.tenant?.plan || 'trial';
+  return PLAN_LIMITS_JS[plan] || PLAN_LIMITS_JS['trial'];
+}
+
 function showToast(msg,type="success"){
   document.querySelector(".toast")?.remove();
   const t=Object.assign(document.createElement("div"),{className:`toast t${type==="error"?"r":type==="info"?"i":"g"}`,textContent:msg});
@@ -1253,7 +1269,7 @@ async function submitQuote(){
 let _employees=[];
 async function loadEmployees(){
   const tbody=document.getElementById("emp-tbody");if(!tbody)return;
-  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  const features=getLimits();
   if(!checkFeature(features,'hr')){
     const card=tbody.closest('.card');
     if(card) showUpgradeBanner(card.parentElement,'hr');
@@ -1372,7 +1388,7 @@ async function submitPayslip(){
 let _products=[];
 async function loadStock(){
   const tbody=document.getElementById("stock-tbody");if(!tbody)return;
-  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  const features=getLimits();
   if(!checkFeature(features,'stock')){
     tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--amber);padding:24px">🔒 Disponible à partir du plan Business</td></tr>';
     return;
@@ -1554,7 +1570,7 @@ function copyWireDetails(){
 
 // ── ANALYTICS ─────────────────────────────────────────────────────────────────
 async function loadAnalytics(){
-  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  const features=getLimits();
   if(!checkFeature(features,'analytics')){
     const el=document.getElementById("pred-recs");
     if(el) el.innerHTML='<div style="padding:20px"><div class="upgrade-banner"><i class="ti ti-lock"></i><div><div style="font-weight:700;color:var(--amber)">IA Analytics</div><div style="color:var(--muted);font-size:12px">Plan Professional requis</div></div></div></div>';
@@ -1721,7 +1737,7 @@ document.addEventListener("keydown",e=>{
 // ── OBJECTIFS ──────────────────────────────────────────────────────────────
 async function loadObjectives(){
   const container=document.getElementById("objectives-list");if(!container)return;
-  const limits=State.tenant?.limits||{};
+  const limits=getLimits();
   if(!limits.objectives){showUpgradeBanner(container,'objectives');return;}
   try{
     const objs=await api("GET","/objectives");
@@ -1775,7 +1791,7 @@ async function submitObjective(){
 // ── PROJETS ───────────────────────────────────────────────────────────────────
 async function loadProjects(){
   const container=document.getElementById("projects-list");if(!container)return;
-  const limits=State.tenant?.limits||{};
+  const limits=getLimits();
   if(!limits.projects){showUpgradeBanner(container,'projects');return;}
   try{
     const projs=await api("GET","/projects");
@@ -1816,7 +1832,7 @@ async function submitProject(){
 
 // ── CALENDRIER ────────────────────────────────────────────────────────────────
 async function loadCalendar(){
-  const limits=State.tenant?.limits||{};
+  const limits=getLimits();
   if(!limits.calendar){
     const c=document.getElementById("cal-upcoming");if(c)showUpgradeBanner(c,'calendar');return;
   }
@@ -1874,7 +1890,7 @@ async function markAllNotifsRead(){try{await api("PATCH","/notifications/read-al
 // ── ASSISTANT IA ──────────────────────────────────────────────────────────────
 async function loadAI(){
   const container=document.getElementById("ai-content");if(!container)return;
-  const limits=State.tenant?.limits||{};
+  const limits=getLimits();
   if(!limits.ai_assistant){showUpgradeBanner(container,'ai_assistant');return;}
   container.innerHTML=`<div style="text-align:center;padding:20px;color:var(--muted)"><i class="ti ti-robot" style="font-size:32px"></i><div style="margin-top:8px">Analyse en cours...</div></div>`;
   try{
