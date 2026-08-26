@@ -102,6 +102,12 @@ select.inp option{background:var(--card)}
 .pipeline-col-title{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
 .opp-card{background:var(--card);border:1px solid var(--b);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:all .15s}
 .opp-card:hover{border-color:rgba(0,224,128,.3)}
+.locked{position:relative;opacity:0.5;pointer-events:none}
+.locked::after{content:'🔒 Plan supérieur requis';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(6,10,16,.85);color:var(--amber);font-size:12px;font-family:var(--mono);border-radius:inherit;pointer-events:all}
+.upgrade-banner{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.upgrade-banner i{color:var(--amber);font-size:20px;flex-shrink:0}
+.usage-bar{height:4px;border-radius:2px;background:var(--b);margin-top:6px;overflow:hidden}
+.usage-bar-fill{height:100%;border-radius:2px;transition:width .3s}
 .alert-bar{background:rgba(255,95,109,.08);border:1px solid rgba(255,95,109,.2);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--s);border-top:1px solid var(--b);z-index:200;padding:6px 0 10px}
 .bottom-nav-inner{display:flex;justify-content:space-around;align-items:center}
@@ -205,9 +211,17 @@ select.inp option{background:var(--card)}
       <div class="nav-i" data-p="pl" onclick="navigate('pl')"><i class="ti ti-chart-pie"></i>P&L</div>
     </div>
     <div class="nav-g">
+      <div class="nav-lbl">Outils</div>
+      <div class="nav-i" data-p="objectives" onclick="navigate('objectives')"><i class="ti ti-target-arrow"></i>Objectifs & KPIs</div>
+      <div class="nav-i" data-p="projects" onclick="navigate('projects')"><i class="ti ti-briefcase"></i>Projets</div>
+      <div class="nav-i" data-p="calendar" onclick="navigate('calendar')"><i class="ti ti-calendar"></i>Calendrier</div>
+      <div class="nav-i" data-p="notifications" onclick="navigate('notifications')"><i class="ti ti-bell"></i>Notifications <span class="nav-badge" id="notif-badge" style="display:none">0</span></div>
+    </div>
+    <div class="nav-g">
       <div class="nav-lbl">Finance</div>
       <div class="nav-i" data-p="billing" id="nav-billing" onclick="navigate('billing')"><i class="ti ti-building-bank"></i>Abonnements</div>
       <div class="nav-i" data-p="analytics" onclick="navigate('analytics')"><i class="ti ti-brain"></i>IA Analytics</div>
+      <div class="nav-i" data-p="ai" onclick="navigate('ai')"><i class="ti ti-robot"></i>Assistant IA</div>
       <div class="nav-i" data-p="reports" onclick="navigate('reports')"><i class="ti ti-chart-bar"></i>Rapports</div>
     </div>
     <div class="nav-g">
@@ -414,6 +428,7 @@ select.inp option{background:var(--card)}
           <div><div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-bottom:4px">↩️ REMBOURSEMENT</div><div style="color:var(--muted)">14 jours · 1 seul par compte</div></div>
         </div>
       </div>
+      <div id="whats-new-section" style="display:none;margin-bottom:16px"></div>
       <div class="billing-toggle">
         <button class="toggle-btn active" id="toggle-m" onclick="setSubCycle('monthly')">Mensuel</button>
         <button class="toggle-btn" id="toggle-a" onclick="setSubCycle('annual')">Annuel <span style="color:var(--green);font-size:11px">~17% de réduction</span></button>
@@ -498,6 +513,55 @@ select.inp option{background:var(--card)}
           <button class="btn btn-o btn-sm" onclick="savePwd()"><i class="ti ti-key"></i> Modifier</button>
         </div>
       </div>
+    </div>
+
+    <!-- OBJECTIFS -->
+    <div id="page-objectives" class="page">
+      <div class="sh"><div><div class="st">Objectifs & KPIs</div><div class="ss">Définissez et suivez vos objectifs business</div></div>
+        <button class="btn btn-g btn-sm" onclick="openObjModal()"><i class="ti ti-plus"></i> Nouvel objectif</button>
+      </div>
+      <div id="objectives-list"></div>
+    </div>
+
+    <!-- PROJETS -->
+    <div id="page-projects" class="page">
+      <div class="sh"><div><div class="st">Gestion de Projets</div><div class="ss">Projets, tâches et suivi d'avancement</div></div>
+        <button class="btn btn-g btn-sm" onclick="openProjectModal()"><i class="ti ti-plus"></i> Nouveau projet</button>
+      </div>
+      <div id="projects-list"></div>
+    </div>
+
+    <!-- CALENDRIER -->
+    <div id="page-calendar" class="page">
+      <div class="sh"><div><div class="st">Calendrier des Paiements</div><div class="ss">Factures à venir et en retard</div></div>
+        <button class="btn btn-o btn-sm" onclick="loadCalendar()"><i class="ti ti-refresh"></i></button>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:12px;color:var(--amber)">⚠️ Factures en retard</div>
+          <div id="cal-overdue"><div style="color:var(--muted);font-size:13px">Chargement...</div></div>
+        </div>
+        <div class="card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:12px;color:var(--blue)">📅 À venir</div>
+          <div id="cal-upcoming"><div style="color:var(--muted);font-size:13px">Chargement...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="page-notifications" class="page">
+      <div class="sh"><div><div class="st">Notifications</div></div>
+        <button class="btn btn-o btn-sm" onclick="markAllNotifsRead()"><i class="ti ti-check"></i> Tout lire</button>
+      </div>
+      <div id="notifs-list" class="card"></div>
+    </div>
+
+    <!-- ASSISTANT IA -->
+    <div id="page-ai" class="page">
+      <div class="sh"><div><div class="st">Assistant IA Business</div><div class="ss">Conseils personnalisés basés sur vos données</div></div>
+        <button class="btn btn-o btn-sm" onclick="loadAI()"><i class="ti ti-refresh"></i></button>
+      </div>
+      <div id="ai-content"></div>
     </div>
 
     <!-- ADMIN -->
@@ -875,6 +939,34 @@ async function register(data){
 }
 function logout(){State.token=null;State.tenant=null;localStorage.removeItem("zd_token");localStorage.removeItem("zd_tenant");}
 
+function showUpgradeBanner(container, feature, requiredPlan) {
+  const plans = {crm:"Professional",hr:"Business",stock:"Business",analytics:"Professional",csv:"Starter",api:"Enterprise"};
+  const required = plans[feature] || requiredPlan || "supérieur";
+  if (!container) return;
+  container.innerHTML = `<div class="upgrade-banner">
+    <i class="ti ti-lock"></i>
+    <div>
+      <div style="font-weight:700;color:var(--amber);font-size:13px">Fonctionnalité verrouillée</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:2px">Disponible à partir du plan <b style="color:var(--text)">${required}</b> — <a href="#" onclick="navigate('billing')" style="color:var(--amber)">Voir les plans →</a></div>
+    </div>
+  </div>`;
+}
+
+function showUsageBar(id, current, max) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const pct = max === -1 ? 0 : Math.min(100, (current/max)*100);
+  const color = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--amber)' : 'var(--green)';
+  el.innerHTML = `<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:3px">
+    <span>Utilisé</span><span style="color:${color}">${current}/${max===-1?'∞':max}</span>
+  </div><div class="usage-bar"><div class="usage-bar-fill" style="width:${pct}%;background:${color}"></div></div>`;
+}
+
+function checkFeature(features, feature) {
+  if (!features) return true;
+  return features[feature] === true;
+}
+
 function showToast(msg,type="success"){
   document.querySelector(".toast")?.remove();
   const t=Object.assign(document.createElement("div"),{className:`toast t${type==="error"?"r":type==="info"?"i":"g"}`,textContent:msg});
@@ -910,8 +1002,21 @@ async function loadPage(p){
     case"analytics":  await loadAnalytics();break;
     case"reports":    await loadReport("month");break;
     case"profile":    await loadProfile();break;
+    case"objectives": await loadObjectives();break;
+    case"projects":   await loadProjects();break;
+    case"calendar":   await loadCalendar();break;
+    case"notifications": await loadNotifications();break;
+    case"ai":         await loadAI();break;
     case"admin":      break;
   }
+}
+
+async function loadNotifBadge(){
+  try{
+    const notifs=await api("GET","/notifications?unread_only=true");
+    const badge=document.getElementById("notif-badge");
+    if(badge){badge.textContent=notifs.length;badge.style.display=notifs.length>0?"inline":"none";}
+  }catch(_){}
 }
 
 async function showAppLayout(){
@@ -947,6 +1052,7 @@ async function showAppLayout(){
     }
   }catch(_){}
   navigate("dashboard");
+  loadNotifBadge();
 }
 
 // ── DASHBOARD ────────────────────────────────────────────────────────────────
@@ -965,6 +1071,13 @@ async function loadDashboard(){
     set("dash-opps",s.open_opportunities+" ouvertes");
     setHTML("dash-plan",planBadge(s.plan));
     if(s.trial) showTrialBar(s.trial);
+    // Afficher les limites d'usage
+    if(s.limits_usage){
+      const invUsage=document.getElementById("inv-usage");
+      const cliUsage=document.getElementById("cli-usage");
+      if(invUsage) invUsage.textContent=s.limits_usage.invoices;
+      if(cliUsage) cliUsage.textContent=s.limits_usage.clients;
+    }
     if(s.low_stock_alerts>0){
       const banner=document.getElementById("stock-alert-banner");
       if(banner){banner.style.display="block";banner.innerHTML=`<div class="alert-bar"><i class="ti ti-alert-triangle"></i> ${s.low_stock_alerts} produit(s) en rupture ou sous le seuil minimum — <a href="#" onclick="navigate('stock')" style="color:var(--red)">Voir le stock →</a></div>`;}
@@ -1059,6 +1172,12 @@ const STAGES=[{k:"lead",l:"Lead",c:"var(--muted)"},{k:"qualified",l:"Qualifié",
 
 async function loadCRM(){
   const board=document.getElementById("pipeline-board");if(!board)return;
+  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  if(!checkFeature(features,'crm')){
+    board.innerHTML='';
+    showUpgradeBanner(board,'crm');
+    return;
+  }
   try{
     const opps=await api("GET","/crm/opportunities");
     board.innerHTML=STAGES.map(s=>`
@@ -1136,6 +1255,13 @@ async function submitQuote(){
 let _employees=[];
 async function loadEmployees(){
   const tbody=document.getElementById("emp-tbody");if(!tbody)return;
+  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  if(!checkFeature(features,'hr')){
+    const card=tbody.closest('.card');
+    if(card) showUpgradeBanner(card.parentElement,'hr');
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--amber);padding:24px">🔒 Disponible à partir du plan Business</td></tr>';
+    return;
+  }
   try{
     _employees=await api("GET","/hr/employees");
     if(!_employees?.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Aucun employé.</td></tr>`;return;}
@@ -1248,6 +1374,11 @@ async function submitPayslip(){
 let _products=[];
 async function loadStock(){
   const tbody=document.getElementById("stock-tbody");if(!tbody)return;
+  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  if(!checkFeature(features,'stock')){
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--amber);padding:24px">🔒 Disponible à partir du plan Business</td></tr>';
+    return;
+  }
   try{
     _products=await api("GET","/stock/products");
     const alerts=await api("GET","/stock/alerts");
@@ -1425,6 +1556,13 @@ function copyWireDetails(){
 
 // ── ANALYTICS ─────────────────────────────────────────────────────────────────
 async function loadAnalytics(){
+  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  if(!checkFeature(features,'analytics')){
+    const el=document.getElementById("pred-recs");
+    if(el) el.innerHTML='<div style="padding:20px"><div class="upgrade-banner"><i class="ti ti-lock"></i><div><div style="font-weight:700;color:var(--amber)">IA Analytics verrouillée</div><div style="color:var(--muted);font-size:12px">Disponible à partir du plan <b style="color:var(--text)">Professional</b> — <a href="#" onclick="navigate('billing')" style="color:var(--amber)">Voir les plans →</a></div></div></div></div>';
+    ['pred-next-month','pred-next-quarter','pred-growth','pred-confidence'].forEach(id=>set(id,'🔒'));
+    return;
+  }
   try{
     const p=await api("GET","/analytics/predict");
     set("pred-next-month",fmtUSD(p.predicted_revenue_next_month));
@@ -1552,6 +1690,188 @@ function doLogout(){logout();document.getElementById("app-screen").style.display
 document.addEventListener("keydown",e=>{
   if(e.ctrlKey&&e.shiftKey&&e.key==="K"){document.getElementById("creator-modal").style.display="flex";document.getElementById("creator-input").focus();}
 });
+// ── OBJECTIFS ──────────────────────────────────────────────────────────────
+async function loadObjectives(){
+  const container=document.getElementById("objectives-list");if(!container)return;
+  const limits=State.tenant?.limits||{};
+  if(!limits.objectives){showUpgradeBanner(container,'objectives');return;}
+  try{
+    const objs=await api("GET","/objectives");
+    if(!objs?.length){container.innerHTML=`<div class="card" style="text-align:center;padding:32px;color:var(--muted)"><i class="ti ti-target-arrow" style="font-size:40px;display:block;margin-bottom:12px"></i>Aucun objectif. <a href="#" onclick="openObjModal()">Créer →</a></div>`;return;}
+    container.innerHTML=objs.map(o=>{
+      const pct=Math.min(100,Math.round((o.current_value/o.target_value)*100));
+      const color=pct>=100?'var(--green)':pct>=70?'var(--blue)':pct>=40?'var(--amber)':'var(--muted)';
+      return`<div class="card" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div><div style="font-weight:700;font-size:14px">${o.title}</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${o.category}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:20px;font-weight:800;color:${color}">${pct}%</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${o.current_value}/${o.target_value} ${o.unit}</div>
+          </div>
+        </div>
+        <div style="height:8px;background:var(--s);border-radius:4px;overflow:hidden;margin-bottom:10px">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:width .5s"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="inp" type="number" placeholder="Mise à jour valeur" id="obj-update-${o.id}" style="font-size:12px">
+          <button class="btn btn-g btn-sm" onclick="updateObjective('${o.id}')">Mettre à jour</button>
+          <button class="btn btn-r btn-sm" onclick="deleteObj('${o.id}')"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){container.innerHTML=`<div class="card" style="color:var(--red)">${e.message}</div>`;}
+}
+async function updateObjective(id){
+  const val=parseFloat(document.getElementById(`obj-update-${id}`)?.value||0);
+  try{await api("PATCH",`/objectives/${id}/progress`,{current_value:val});showToast("Mis à jour ✓");loadObjectives();loadNotifications();}
+  catch(e){showToast(e.message,"error");}
+}
+async function deleteObj(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/objectives/${id}`);loadObjectives();}catch(e){showToast(e.message,"error");}}
+function openObjModal(){document.getElementById("modal-obj").style.display="flex";}
+function closeObjModal(){document.getElementById("modal-obj").style.display="none";}
+async function submitObjective(){
+  const title=document.getElementById("obj-title").value;
+  const target=parseFloat(document.getElementById("obj-target").value);
+  if(!title||!target){showToast("Titre et valeur cible obligatoires","error");return;}
+  try{
+    const d=document.getElementById("obj-deadline").value;
+    await api("POST","/objectives",{title,target_value:target,unit:document.getElementById("obj-unit").value,
+      category:document.getElementById("obj-cat").value,description:document.getElementById("obj-desc").value||null,
+      deadline:d?new Date(d).toISOString():null});
+    showToast("Objectif créé ✓");closeObjModal();loadObjectives();
+  }catch(e){showToast(e.message,"error");}
+}
+
+// ── PROJETS ───────────────────────────────────────────────────────────────────
+async function loadProjects(){
+  const container=document.getElementById("projects-list");if(!container)return;
+  const limits=State.tenant?.limits||{};
+  if(!limits.projects){showUpgradeBanner(container,'projects');return;}
+  try{
+    const projs=await api("GET","/projects");
+    if(!projs?.length){container.innerHTML=`<div class="card" style="text-align:center;padding:32px;color:var(--muted)"><i class="ti ti-briefcase" style="font-size:40px;display:block;margin-bottom:12px"></i>Aucun projet. <a href="#" onclick="openProjectModal()">Créer →</a></div>`;return;}
+    container.innerHTML=projs.map(p=>{
+      const statusColors={active:"var(--green)",completed:"var(--blue)",on_hold:"var(--amber)",cancelled:"var(--red)"};
+      return`<div class="card" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div><div style="font-weight:700;font-size:14px">${p.name}</div>
+            <div style="font-size:12px;color:var(--muted)">${p.description||"—"}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge" style="background:${statusColors[p.status]}22;color:${statusColors[p.status]};border:1px solid ${statusColors[p.status]}44">${p.status}</span>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px">${fmtUSD(p.budget)}</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;height:6px;background:var(--s);border-radius:3px"><div style="height:100%;width:${p.progress}%;background:var(--blue);border-radius:3px"></div></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px">${p.progress}% complété</div>
+      </div>`;
+    }).join("");
+  }catch(e){container.innerHTML=`<div class="card" style="color:var(--red)">${e.message}</div>`;}
+}
+function openProjectModal(){populateClientSelect("proj-client-p");document.getElementById("modal-project").style.display="flex";}
+function closeProjectModal(){document.getElementById("modal-project").style.display="none";}
+async function submitProject(){
+  const name=document.getElementById("proj-name-p").value;
+  if(!name){showToast("Nom obligatoire","error");return;}
+  try{
+    const s=document.getElementById("proj-start").value;
+    const e=document.getElementById("proj-end").value;
+    await api("POST","/projects",{name,description:document.getElementById("proj-desc-p").value||null,
+      client_id:document.getElementById("proj-client-p").value||null,
+      budget:parseFloat(document.getElementById("proj-budget").value||0),
+      start_date:s?new Date(s).toISOString():null,end_date:e?new Date(e).toISOString():null,currency:"USD"});
+    showToast("Projet créé ✓");closeProjectModal();loadProjects();
+  }catch(e){showToast(e.message,"error");}
+}
+
+// ── CALENDRIER ────────────────────────────────────────────────────────────────
+async function loadCalendar(){
+  const limits=State.tenant?.limits||{};
+  if(!limits.calendar){
+    const c=document.getElementById("cal-upcoming");if(c)showUpgradeBanner(c,'calendar');return;
+  }
+  try{
+    const d=await api("GET","/accounting/calendar");
+    const overdue=document.getElementById("cal-overdue");
+    const upcoming=document.getElementById("cal-upcoming");
+    if(overdue){
+      if(!d.overdue?.length){overdue.innerHTML=`<div style="color:var(--green);font-size:13px">✅ Aucune facture en retard</div>`;}
+      else{overdue.innerHTML=d.overdue.map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--b)">
+        <div style="font-weight:600;font-size:13px">${i.number}</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--red)">${fmtUSD(i.total)} — En retard</div>
+      </div>`).join("");}
+    }
+    if(upcoming){
+      if(!d.upcoming?.length){upcoming.innerHTML=`<div style="color:var(--muted);font-size:13px">Aucune facture à venir</div>`;}
+      else{upcoming.innerHTML=d.upcoming.map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--b)">
+        <div style="font-weight:600;font-size:13px">${i.number}</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--blue)">${fmtUSD(i.total)} — ${fmtDate(i.due_date)}</div>
+      </div>`).join("");}
+    }
+  }catch(e){console.error(e);}
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+async function loadNotifications(){
+  try{
+    const notifs=await api("GET","/notifications");
+    const container=document.getElementById("notifs-list");
+    const badge=document.getElementById("notif-badge");
+    const unread=notifs.filter(n=>!n.is_read).length;
+    if(badge){badge.textContent=unread;badge.style.display=unread>0?"inline":"none";}
+    if(!container)return;
+    if(!notifs?.length){container.innerHTML=`<div style="text-align:center;padding:32px;color:var(--muted)">Aucune notification</div>`;return;}
+    container.innerHTML=notifs.map(n=>{
+      const colors={info:"var(--blue)",warning:"var(--amber)",success:"var(--green)",error:"var(--red)"};
+      const c=colors[n.type]||"var(--blue)";
+      return`<div style="padding:12px;border-bottom:1px solid var(--b);background:${!n.is_read?c+'0D':'transparent'};border-radius:8px;margin-bottom:4px">
+        <div style="display:flex;align-items:start;gap:10px">
+          <div style="width:8px;height:8px;border-radius:50%;background:${c};margin-top:5px;flex-shrink:0;${n.is_read?'opacity:0.3':''}"></div>
+          <div style="flex:1">
+            <div style="font-weight:${n.is_read?'500':'700'};font-size:13px;color:var(--text)">${n.title}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">${n.message}</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px">${fmtDate(n.created_at)}</div>
+          </div>
+          ${!n.is_read?`<button class="btn btn-sm btn-o" style="font-size:10px;padding:3px 8px" onclick="markNotifRead('${n.id}')">Lu</button>`:""}
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){console.error(e);}
+}
+async function markNotifRead(id){try{await api("PATCH",`/notifications/${id}/read`);loadNotifications();}catch(e){}}
+async function markAllNotifsRead(){try{await api("PATCH","/notifications/read-all");showToast("Tout lu ✓");loadNotifications();}catch(e){showToast(e.message,"error");}}
+
+// ── ASSISTANT IA ──────────────────────────────────────────────────────────────
+async function loadAI(){
+  const container=document.getElementById("ai-content");if(!container)return;
+  const limits=State.tenant?.limits||{};
+  if(!limits.ai_assistant){showUpgradeBanner(container,'ai_assistant');return;}
+  container.innerHTML=`<div style="text-align:center;padding:20px;color:var(--muted)"><i class="ti ti-robot" style="font-size:32px"></i><div style="margin-top:8px">Analyse en cours...</div></div>`;
+  try{
+    const d=await api("POST","/ai/advice");
+    const priorityColors={high:"var(--red)",medium:"var(--amber)",low:"var(--green)"};
+    container.innerHTML=`
+      <div class="kgrid" style="margin-bottom:20px">
+        <div class="kpi g"><div class="kl">Revenus totaux</div><div class="kv">${fmtUSD(d.summary?.revenue||0)}</div></div>
+        <div class="kpi b"><div class="kl">En attente</div><div class="kv">${fmtUSD(d.summary?.pending||0)}</div></div>
+        <div class="kpi p"><div class="kl">Clients</div><div class="kv">${d.summary?.clients||0}</div></div>
+        <div class="kpi r"><div class="kl">Dépenses</div><div class="kv">${fmtUSD(d.summary?.expenses||0)}</div></div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;font-size:15px;margin-bottom:14px"><i class="ti ti-robot" style="color:var(--purple)"></i> Conseils personnalisés</div>
+        ${d.advice.map(a=>`<div style="padding:12px;margin-bottom:10px;border-radius:10px;background:${priorityColors[a.priority]}11;border:1px solid ${priorityColors[a.priority]}33">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span class="badge" style="background:${priorityColors[a.priority]}22;color:${priorityColors[a.priority]};border:1px solid ${priorityColors[a.priority]}44;font-size:9px">${a.priority.toUpperCase()}</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${a.category}</span>
+          </div>
+          <div style="font-size:13px;color:var(--text)">${a.text}</div>
+        </div>`).join("")}
+      </div>`;
+  }catch(e){container.innerHTML=`<div class="card" style="color:var(--red)">${e.message}</div>`;}
+}
+
 async function activateCreator(){
   const code=document.getElementById("creator-input").value.trim();
   if(!code){showToast("Entre le code","error");return;}
