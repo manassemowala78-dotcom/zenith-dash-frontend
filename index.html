@@ -1557,7 +1557,7 @@ async function loadAnalytics(){
   const features=State.tenant?.features?.features||State.tenant?.features||{};
   if(!checkFeature(features,'analytics')){
     const el=document.getElementById("pred-recs");
-    if(el) el.innerHTML="<div style='padding:20px'><div class='upgrade-banner'><i class='ti ti-lock'></i><div><div style='font-weight:700;color:var(--amber)'>IA Analytics verrouillée</div><div style='color:var(--muted);font-size:12px'>Disponible à partir du plan <b style='color:var(--text)'>Professional</b> — <a href='#' onclick='navigate("billing")' style='color:var(--amber)'>Voir les plans →</a></div></div></div></div>";
+    if(el) el.innerHTML='<div style="padding:20px"><div class="upgrade-banner"><i class="ti ti-lock"></i><div><div style="font-weight:700;color:var(--amber)">IA Analytics</div><div style="color:var(--muted);font-size:12px">Plan Professional requis</div></div></div></div>';
     ['pred-next-month','pred-next-quarter','pred-growth','pred-confidence'].forEach(id=>set(id,'🔒'));
     return;
   }
