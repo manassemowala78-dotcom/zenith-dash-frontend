@@ -919,10 +919,10 @@ function showTrialBar(trial){
   if(!trial||trial.is_creator){bar.className="trial-bar hidden";return;}
   if(trial.active&&trial.days_remaining!=null){
     bar.className="trial-bar";
-    bar.innerHTML=`⏱ Essai gratuit — <b>${trial.days_remaining} jour(s) restant(s)</b> &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--green);text-decoration:underline">Souscrire →</a>`;
+    bar.innerHTML=`⏱ Essai gratuit — <b style="color:${color}">${trial.days_remaining} jour(s) restant(s)</b> sur 14 &nbsp;·&nbsp; <a href="#" onclick="navigate(&quot;billing&quot;)" style="color:var(--green);text-decoration:underline">Souscrire →</a>`;
   } else if(trial.expired){
     bar.className="trial-bar expired";
-    bar.innerHTML=`⚠️ Essai expiré — Souscrivez pour continuer &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--red);text-decoration:underline">Voir les plans →</a>`;
+    bar.innerHTML=`⚠️ Essai expiré — Souscrivez pour continuer &nbsp;·&nbsp; <a href="#" onclick="navigate(&quot;billing&quot;)" style="color:var(--red);text-decoration:underline">Voir les plans →</a>`;
   } else { bar.className="trial-bar hidden"; }
 }
 
@@ -945,8 +945,8 @@ function showUpgradeBanner(container, feature, requiredPlan) {
   container.innerHTML = `<div class="upgrade-banner">
     <i class="ti ti-lock"></i>
     <div>
-      <div style="font-weight:700;color:var(--amber);font-size:13px">Fonctionnalité verrouillée</div>
-      <div style="color:var(--muted);font-size:12px;margin-top:2px">Disponible à partir du plan <b style="color:var(--text)">${required}</b> — <a href="#" onclick="navigate('billing')" style="color:var(--amber)">Voir les plans →</a></div>
+      <div style="font-weight:700;color:var(--amber);font-size:13px">Fonctionnalite verrouillee</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:2px">Disponible a partir du plan <b style="color:var(--text)">${required}</b> — <a href="#" onclick="navigate(&quot;billing&quot;)" style="color:var(--amber)">Voir les plans</a></div>
     </div>
   </div>`;
 }
@@ -1078,7 +1078,7 @@ async function loadDashboard(){
     }
     if(s.low_stock_alerts>0){
       const banner=document.getElementById("stock-alert-banner");
-      if(banner){banner.style.display="block";banner.innerHTML=`<div class="alert-bar"><i class="ti ti-alert-triangle"></i> ${s.low_stock_alerts} produit(s) en rupture ou sous le seuil minimum — <a href="#" onclick="navigate('stock')" style="color:var(--red)">Voir le stock →</a></div>`;}
+      if(banner){banner.style.display="block";banner.innerHTML=`<div class="alert-bar"><i class="ti ti-alert-triangle"></i> ${s.low_stock_alerts} produit(s) en rupture ou sous le seuil minimum — <a href="#" onclick="navigate(&quot;stock&quot;)" style="color:var(--red)">Voir le stock →</a></div>`;}
       const badge=document.getElementById("stock-alert-badge");
       if(badge) badge.style.display="inline";
     }
