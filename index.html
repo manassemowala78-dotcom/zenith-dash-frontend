@@ -109,7 +109,7 @@ select.inp option{background:var(--card)}
 .usage-bar{height:4px;border-radius:2px;background:var(--b);margin-top:6px;overflow:hidden}
 .usage-bar-fill{height:100%;border-radius:2px;transition:width .3s}
 .alert-bar{background:rgba(255,95,109,.08);border:1px solid rgba(255,95,109,.2);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--s);border-top:1px solid var(--b);z-index:200;padding:6px 0 10px}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--s);border-top:1px solid var(--b);z-index:200;padding:6px 0 10px;padding-bottom:calc(6px + env(safe-area-inset-bottom))}
 .bottom-nav-inner{display:flex;justify-content:space-around;align-items:center}
 .bnav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;color:var(--muted);cursor:pointer;font-size:10px;font-weight:600;transition:all .15s;border-radius:8px;min-width:40px}
 .bnav-item i{font-size:18px}
@@ -121,7 +121,8 @@ select.inp option{background:var(--card)}
   .btn-g[type="submit"]{position:relative;z-index:10}
 }
 @media(max-width:768px){
-  .layout{grid-template-columns:1fr!important}.sidebar{display:none!important}.bottom-nav{display:block}
+  .layout{grid-template-columns:1fr!important}.sidebar{display:none!important}
+  #app-screen .bottom-nav{display:block}
   .main{padding:12px;padding-bottom:80px}.kgrid{grid-template-columns:1fr 1fr}
   .grid2,.grid3{grid-template-columns:1fr}.plans-grid{grid-template-columns:1fr}
   .topbar{padding:0 12px;height:52px}.logo{font-size:15px}
@@ -581,7 +582,7 @@ select.inp option{background:var(--card)}
 </div>
 </div>
 <!-- BOTTOM NAV MOBILE -->
-<div class="bottom-nav">
+<div class="bottom-nav" id="bottom-nav-bar">
   <div class="bottom-nav-inner">
     <div class="bnav-item active" data-bp="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i><span>Home</span></div>
     <div class="bnav-item" data-bp="invoices" onclick="navigate('invoices')"><i class="ti ti-file-invoice"></i><span>Factures</span></div>
@@ -607,6 +608,8 @@ select.inp option{background:var(--card)}
     <div onclick="navigate('clients');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-users" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Clients</span></div>
   </div>
 </div>
+</div>
+<!-- fin app-screen -->
 
 <!-- MODALS -->
 <div id="creator-modal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
@@ -1023,6 +1026,8 @@ async function showAppLayout(){
   try{
     document.getElementById("auth-screen").style.display="none";
     document.getElementById("app-screen").style.display="block";
+    const bnav=document.getElementById("bottom-nav-bar");
+    if(bnav) bnav.style.display="block";
   const t=State.tenant;
   if(t){
     set("topbar-name",t.name);
@@ -1711,6 +1716,8 @@ function doLogout(){
   logout();
   document.getElementById("app-screen").style.display="none";
   document.getElementById("auth-screen").style.display="flex";
+  const bnav=document.getElementById("bottom-nav-bar");
+  if(bnav) bnav.style.display="none";
   showAuthTab("login");
 }
 
