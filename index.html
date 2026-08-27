@@ -130,15 +130,22 @@ select.inp option{background:var(--card)}
   .btn-g[type="submit"]{position:relative;z-index:10}
 }
 @media(max-width:768px){
-  .layout{grid-template-columns:1fr!important}.sidebar{display:none!important}
-  #app-screen .bottom-nav{display:block}
-  .main{padding:12px}.kgrid{grid-template-columns:1fr 1fr}
+  .layout{grid-template-columns:52px 1fr}.sidebar{width:52px;overflow:hidden}
+  .bottom-nav{display:none}
+  .main{padding:10px}.kgrid{grid-template-columns:1fr 1fr}
   .grid2,.grid3{grid-template-columns:1fr}.plans-grid{grid-template-columns:1fr}
   .topbar{padding:0 12px;height:52px}.logo{font-size:15px}
   .logo-icon{width:28px;height:28px;font-size:13px}#topbar-name{display:none}
   .trial-bar{font-size:10px;padding:6px 12px;flex-wrap:wrap;gap:4px}
   .kpi{padding:12px 14px}.kv{font-size:20px}.card{padding:14px}
   .modal{padding:18px}.wire-box{font-size:11px;line-height:2}.sh{margin-bottom:12px}
+
+  .nav-lbl{display:none!important}
+  .nav-i>span:not(.nav-badge){display:none!important}
+  .nav-i{justify-content:center!important;padding:8px 0!important}
+  .nav-i i{margin:0!important;font-size:20px!important}
+  .logo span,.logo-text{display:none!important}
+  .sidebar>div:last-child{display:none!important}
 }
 </style>
 </head>
