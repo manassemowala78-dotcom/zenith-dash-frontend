@@ -33,14 +33,13 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#000}
 .sidebar{background:var(--s);border-right:1px solid var(--b);padding:14px 0;overflow-y:auto;display:block}
 @media(max-width:768px){
-  .layout{grid-template-columns:60px 1fr}
-  .sidebar{width:60px;overflow:hidden}
-  .nav-lbl{display:none}
-  .nav-i span:not(.nav-badge){display:none}
-  .nav-i{justify-content:center;padding:10px}
-  .nav-i i{font-size:20px}
-  .sidebar .logo-text{display:none}
-  .sidebar>div:last-child{display:none}
+  .layout{grid-template-columns:52px 1fr}
+  .sidebar{width:52px;min-width:52px;overflow:hidden}
+  .nav-lbl,.nav-i>span:not(.nav-badge),.sidebar-logo-text,.sidebar-user{display:none!important}
+  .nav-i{justify-content:center;padding:8px 0;margin-bottom:2px}
+  .nav-i i{font-size:22px;margin:0}
+  .logo span,.logo-text{display:none}
+  .main{padding:10px}
 }
 .nav-g{padding:0 10px;margin-bottom:4px}
 .nav-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:8px 8px 4px}
