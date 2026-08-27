@@ -88,6 +88,10 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .bc{background:rgba(0,212,200,.1);color:var(--cyan);border:1px solid rgba(0,212,200,.2)}
 .badge-gray{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--b)}
 .badge-trial{background:rgba(0,224,128,.1);color:var(--green);border:1px solid rgba(0,224,128,.25)}
+#auth-screen{display:flex}
+#app-screen{display:none}
+.modal-overlay{display:none!important}
+.modal-overlay[style*="flex"]{display:flex!important}
 .inp{width:100%;background:var(--s);border:1px solid var(--b);border-radius:8px;color:var(--text);padding:10px 14px;font-size:13px;font-family:var(--mono);transition:border-color .15s}
 .inp:focus{outline:none;border-color:var(--green)}
 .fl{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
@@ -615,6 +619,9 @@ select.inp option{background:var(--card)}
   </div>
 </div>
 
+<!-- OVERLAY POUR FERMER LE MENU -->
+<div id="more-overlay" onclick="closeMoreMenu()" style="display:none!important;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:198" hidden></div>
+
 <!-- MORE MENU MOBILE -->
 <div id="more-menu" style="display:none;position:fixed;bottom:68px;left:0;right:0;background:var(--s);border-top:1px solid var(--b);z-index:199;padding:14px 16px;max-height:70vh;overflow-y:auto">
   <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Toutes les fonctionnalités</div>
@@ -1024,6 +1031,7 @@ function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
 function setHTML(id,v){const e=document.getElementById(id);if(e)e.innerHTML=v;}
 
 function navigate(page){
+  closeMoreMenu();
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".nav-i").forEach(n=>n.classList.remove("active"));
   document.querySelectorAll(".bnav-item").forEach(n=>n.classList.remove("active"));
@@ -1966,11 +1974,16 @@ async function activateCreator(){
 
 function toggleMoreMenu(){
   const m=document.getElementById("more-menu");
-  if(m) m.style.display=m.style.display==="none"?"block":"none";
+  const o=document.getElementById("more-overlay");
+  const isOpen=m&&m.style.display==="block";
+  if(m) m.style.display=isOpen?"none":"block";
+  if(o){o.removeAttribute("hidden");o.style.cssText=isOpen?"display:none!important;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:198":"display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:198";}
 }
 function closeMoreMenu(){
   const m=document.getElementById("more-menu");
+  const o=document.getElementById("more-overlay");
   if(m) m.style.display="none";
+  if(o){o.style.display="none";o.setAttribute("hidden","");}
 }
 
 // Fix iPhone — scroll vers le bouton après remplissage
@@ -1989,6 +2002,7 @@ document.querySelectorAll('input').forEach(inp => {
 });
 
 document.addEventListener("DOMContentLoaded",async ()=>{
+  closeMoreMenu();
   const token=localStorage.getItem("zd_token");
   const tenant=localStorage.getItem("zd_tenant");
   if(token&&tenant){
