@@ -1535,16 +1535,23 @@ async function loadBilling(){
     grid.innerHTML=order.filter(k=>plans[k]).map(k=>{
       const p=plans[k];
       const price=_subCycle==="annual"?p.price_annual:p.price_monthly;
+      const matrix=p.feature_matrix||[];
       return`<div class="plan-card ${k==="professional"?"featured":""}">
         <div style="font-family:var(--mono);font-size:10px;color:${colors[k]};text-transform:uppercase;margin-bottom:8px">${p.name}</div>
         <div style="font-size:28px;font-weight:800">$${price}</div>
         <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">USD/${_subCycle==="annual"?"an":"mois"}</div>
         <div style="font-size:11px;color:var(--muted);margin:8px 0 12px;font-style:italic">${p.tagline}</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+          ${matrix.map(f=>`<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:${f.included?"var(--text)":"var(--muted)"}">
+            <i class="ti ${f.included?"ti-check":"ti-lock"}" style="color:${f.included?"var(--green)":"var(--muted)"};font-size:13px"></i>
+            <span>${f.label}${!f.included?` <span style="opacity:.6">(${f.required_plan})</span>`:""}</span>
+          </div>`).join("")}
+        </div>
         <button class="btn btn-g" style="width:100%" onclick="initSubscribe('${k}')"><i class="ti ti-building-bank"></i> Souscrire</button>
       </div>`;}).join("");
   }catch(e){console.error(e);}
 }
-function setSubCycle(cycle){
+  function setSubCycle(cycle){
   _subCycle=cycle;
   document.getElementById("toggle-m").classList.toggle("active",cycle==="monthly");
   document.getElementById("toggle-a").classList.toggle("active",cycle==="annual");
