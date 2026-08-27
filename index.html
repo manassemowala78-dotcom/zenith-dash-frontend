@@ -32,25 +32,6 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .logo span{color:var(--green)}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#000}
 .sidebar{background:var(--s);border-right:1px solid var(--b);padding:14px 0;overflow-y:auto;display:block}
-@media(max-width:768px){
-  .layout{grid-template-columns:1fr}
-  .sidebar{display:none!important}
-  .bottom-nav{display:block!important}
-  .main{padding:12px;padding-bottom:80px}
-  .kgrid{grid-template-columns:1fr 1fr}
-  .grid2,.grid3{grid-template-columns:1fr}
-  .plans-grid{grid-template-columns:1fr}
-  .topbar{padding:0 12px;height:52px}
-  .logo{font-size:15px}
-  .logo-icon{width:28px;height:28px;font-size:13px}
-  #topbar-name{display:none}
-  .trial-bar{font-size:10px;padding:6px 12px;flex-wrap:wrap;gap:4px}
-  .kpi{padding:12px 14px}
-  .kv{font-size:20px}
-  .card{padding:14px}
-  .modal{padding:18px}
-  .sh{margin-bottom:12px}
-}
 .nav-g{padding:0 10px;margin-bottom:4px}
 .nav-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:8px 8px 4px}
 .nav-i{display:flex;align-items:center;gap:9px;padding:8px 10px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;border-radius:8px;margin-bottom:1px}
@@ -144,22 +125,24 @@ select.inp option{background:var(--card)}
   .btn-g[type="submit"]{position:relative;z-index:10}
 }
 @media(max-width:768px){
-  .layout{grid-template-columns:52px 1fr}.sidebar{width:52px;overflow:hidden}
-  .bottom-nav{display:none}
-  .main{padding:10px}.kgrid{grid-template-columns:1fr 1fr}
-  .grid2,.grid3{grid-template-columns:1fr}.plans-grid{grid-template-columns:1fr}
-  .topbar{padding:0 12px;height:52px}.logo{font-size:15px}
-  .logo-icon{width:28px;height:28px;font-size:13px}#topbar-name{display:none}
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .bottom-nav{display:block}
+  .main{padding:12px;padding-bottom:80px}
+  .kgrid{grid-template-columns:1fr 1fr}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .plans-grid{grid-template-columns:1fr}
+  .topbar{padding:0 12px;height:52px}
+  .logo{font-size:15px}
+  .logo-icon{width:28px;height:28px;font-size:13px}
+  #topbar-name{display:none}
   .trial-bar{font-size:10px;padding:6px 12px;flex-wrap:wrap;gap:4px}
-  .kpi{padding:12px 14px}.kv{font-size:20px}.card{padding:14px}
-  .modal{padding:18px}.wire-box{font-size:11px;line-height:2}.sh{margin-bottom:12px}
-
-  .nav-lbl{display:none!important}
-  .nav-i>span:not(.nav-badge){display:none!important}
-  .nav-i{justify-content:center!important;padding:8px 0!important}
-  .nav-i i{margin:0!important;font-size:20px!important}
-  .logo span,.logo-text{display:none!important}
-  .sidebar>div:last-child{display:none!important}
+  .kpi{padding:12px 14px}
+  .kv{font-size:20px}
+  .card{padding:14px}
+  .modal{padding:18px}
+  .wire-box{font-size:11px;line-height:2}
+  .sh{margin-bottom:12px}
 }
 </style>
 </head>
@@ -958,6 +941,7 @@ function showTrialBar(trial){
   if(!trial||trial.is_creator){bar.className="trial-bar hidden";return;}
   if(trial.active&&trial.days_remaining!=null){
     bar.className="trial-bar";
+    const color="var(--green)";
     bar.innerHTML=`⏱ Essai gratuit — <b style="color:${color}">${trial.days_remaining} jour(s) restant(s)</b> sur 14 &nbsp;·&nbsp; <a href="#" onclick="navigate(&quot;billing&quot;)" style="color:var(--green);text-decoration:underline">Souscrire →</a>`;
   } else if(trial.expired){
     bar.className="trial-bar expired";
@@ -1125,7 +1109,6 @@ async function loadDashboard(){
     set("dash-opps",s.open_opportunities+" ouvertes");
     setHTML("dash-plan",planBadge(s.plan));
     if(s.trial) showTrialBar(s.trial);
-    // Afficher les limites usage
     if(s.limits_usage){
       const invUsage=document.getElementById("inv-usage");
       const cliUsage=document.getElementById("cli-usage");
@@ -1986,7 +1969,6 @@ function closeMoreMenu(){
   if(o){o.style.display="none";o.setAttribute("hidden","");}
 }
 
-// Fix iPhone — scroll vers le bouton après remplissage
 document.querySelectorAll('.inp').forEach(inp => {
   inp.addEventListener('blur', () => {
     setTimeout(() => {
@@ -1996,7 +1978,6 @@ document.querySelectorAll('.inp').forEach(inp => {
   });
 });
 
-// Fix iPhone — empêcher le zoom sur les inputs
 document.querySelectorAll('input').forEach(inp => {
   inp.style.fontSize = '16px';
 });
@@ -2008,16 +1989,13 @@ document.addEventListener("DOMContentLoaded",async ()=>{
   if(token&&tenant){
     State.token=token;
     State.tenant=JSON.parse(tenant);
-    // Vérifier que le token est encore valide
     try{
       await showAppLayout();
     }catch(e){
-      // Token invalide — rester sur ecran connexion
       State.token=null; State.tenant=null;
       localStorage.removeItem("zd_token"); localStorage.removeItem("zd_tenant");
     }
   }
-  // Sinon rester sur ecran auth
 });
 </script>
 </body>
