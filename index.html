@@ -1308,7 +1308,7 @@ const STAGES=[{k:"lead",l:"Lead",c:"var(--muted)"},{k:"qualified",l:"Qualifié",
 
 async function loadCRM(){
   const board=document.getElementById("pipeline-board");if(!board)return;
-  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  const features=State.tenant?.limits||{};
   if(!checkFeature(features,'crm')){
     board.innerHTML='';
     showUpgradeBanner(board,'crm');
@@ -1391,7 +1391,7 @@ async function submitQuote(){
 let _employees=[];
 async function loadEmployees(){
   const tbody=document.getElementById("emp-tbody");if(!tbody)return;
-  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  const features=State.tenant?.limits||{};
   if(!checkFeature(features,'hr')){
     const card=tbody.closest('.card');
     if(card) showUpgradeBanner(card.parentElement,'hr');
@@ -1510,7 +1510,7 @@ async function submitPayslip(){
 let _products=[];
 async function loadStock(){
   const tbody=document.getElementById("stock-tbody");if(!tbody)return;
-  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  const features=State.tenant?.limits||{};
   if(!checkFeature(features,'stock')){
     tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--amber);padding:24px">🔒 Disponible à partir du plan Business</td></tr>';
     return;
@@ -1699,7 +1699,7 @@ function copyWireDetails(){
 
 // ── ANALYTICS ─────────────────────────────────────────────────────────────────
 async function loadAnalytics(){
-  const features=State.tenant?.features?.features||State.tenant?.features||{};
+  const features=State.tenant?.limits||{};
   if(!checkFeature(features,'analytics')){
     const el=document.getElementById("pred-recs");
     if(el) el.innerHTML='<div style="padding:20px"><div class="upgrade-banner"><i class="ti ti-lock"></i><div><div style="font-weight:700;color:var(--amber)">IA Analytics verrouillée</div><div style="color:var(--muted);font-size:12px">Disponible à partir du plan <b style="color:var(--text)">Professional</b> — <a href="#" onclick="navigate(\'billing\')" style="color:var(--amber)">Voir les plans →</a></div></div></div></div>';
@@ -2184,13 +2184,16 @@ async function activateCreator(){
   try{
     const r=await api("POST",`/creator/activate?code=${encodeURIComponent(code)}`);
     showToast(r.message);
-    if(State.tenant){State.tenant.plan="ultimate";localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));}
-    setHTML("topbar-plan",planBadge("ultimate"));
+    const fresh=await api("GET","/profile/");
+    State.tenant=fresh;
+    localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
+    setHTML("topbar-plan",planBadge(fresh.plan));
     document.getElementById("trial-bar").className="trial-bar hidden";
     document.getElementById("creator-modal").style.display="none";
     document.getElementById("creator-input").value="";
     const navAdmin=document.getElementById("nav-admin");
     if(navAdmin) navAdmin.style.display="flex";
+    navigate("dashboard");
   }catch(e){showToast(e.message,"error");}
 }
 
