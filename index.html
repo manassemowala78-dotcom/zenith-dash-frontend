@@ -1032,8 +1032,8 @@ function fmtUSD(a,cur="USD"){return(cur==="USD"?"$":cur==="EUR"?"€":cur==="XAF
 function fmtDate(iso){if(!iso)return"—";return new Date(iso).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"numeric"});}
 
 function planBadge(plan){
-  const c={trial:"badge-trial",sandbox:"badge-gray",starter:"bg",professional:"bb",business:"bp",enterprise:"ba",ultimate:"bgold"};
-  const labels={trial:"ESSAI 14J",sandbox:"SANDBOX",starter:"STARTER",professional:"PRO",business:"BUSINESS",enterprise:"ENTERPRISE",ultimate:"ULTIMATE"};
+  const c={trial:"badge-trial",sandbox:"badge-gray",starter:"bg",professional:"bb",business:"bp",enterprise:"ba"};
+  const labels={trial:"ESSAI 14J",sandbox:"SANDBOX",starter:"STARTER",professional:"PRO",business:"BUSINESS",enterprise:"ENTERPRISE"};
   return`<span class="badge ${c[plan]||"bb"}">${labels[plan]||plan?.toUpperCase()}</span>`;
 }
 function statusBadge(s){
@@ -1164,7 +1164,7 @@ async function showAppLayout(){
     document.getElementById("topbar-av").textContent=displayName?.charAt(0).toUpperCase();
     setHTML("topbar-plan",planBadge(t.plan));
     if(t.trial) showTrialBar(t.trial);
-    if(t.plan==="ultimate"&&t.trial&&t.trial.is_creator){
+    if(t.is_creator){
       const navAdmin=document.getElementById("nav-admin");
       if(navAdmin) navAdmin.style.display="flex";
       const navBilling=document.getElementById("nav-billing");
@@ -1179,7 +1179,7 @@ async function showAppLayout(){
       localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
       showTrialBar(fresh.trial);
       setHTML("topbar-plan",planBadge(fresh.plan));
-      if(fresh.plan==="ultimate"&&fresh.trial?.is_creator){
+      if(fresh.is_creator){
         const navAdmin=document.getElementById("nav-admin");
         if(navAdmin) navAdmin.style.display="flex";
         const navBilling=document.getElementById("nav-billing");
@@ -1629,8 +1629,8 @@ async function loadBilling(){
   try{
     const plans=await api("GET","/billing/plans");
     const grid=document.getElementById("plans-grid");if(!grid)return;
-    const order=["starter","professional","business","enterprise","ultimate"];
-    const colors={starter:"var(--green)",professional:"var(--blue)",business:"var(--purple)",enterprise:"var(--amber)",ultimate:"var(--gold)"};
+    const order=["starter","professional","business","enterprise"];
+    const colors={starter:"var(--green)",professional:"var(--blue)",business:"var(--purple)",enterprise:"var(--amber)"};
     grid.innerHTML=order.filter(k=>plans[k]).map(k=>{
       const p=plans[k];
       const price=_subCycle==="annual"?p.price_annual:p.price_monthly;
