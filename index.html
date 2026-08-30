@@ -1005,6 +1005,46 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
   </div>
 </div>
 
+<div id="modal-obj" class="modal-overlay" onclick="if(event.target===this)closeObjModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-target-arrow" style="color:var(--green)"></i> Nouvel objectif</div>
+    <div class="fgrp"><label class="fl">Titre *</label><input class="inp" id="obj-title" placeholder="Ex: Atteindre 10 000$ de CA"></div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Valeur cible *</label><input class="inp" type="number" id="obj-target" placeholder="10000"></div>
+      <div class="fgrp"><label class="fl">Unité</label>
+        <select class="inp" id="obj-unit"><option value="USD">USD</option><option value="clients">Clients</option><option value="factures">Factures</option><option value="%">%</option><option value="unités">Unités</option></select>
+      </div>
+    </div>
+    <div class="fgrp"><label class="fl">Catégorie</label>
+      <select class="inp" id="obj-cat"><option value="revenue">Revenus</option><option value="clients">Clients</option><option value="croissance">Croissance</option><option value="operations">Opérations</option></select>
+    </div>
+    <div class="fgrp"><label class="fl">Échéance</label><input class="inp" type="date" id="obj-deadline"></div>
+    <div class="fgrp"><label class="fl">Description</label><input class="inp" id="obj-desc" placeholder="Optionnel"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeObjModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitObjective()"><i class="ti ti-check"></i> Créer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-project" class="modal-overlay" onclick="if(event.target===this)closeProjectModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-briefcase" style="color:var(--purple)"></i> Nouveau projet</div>
+    <div class="fgrp"><label class="fl">Nom *</label><input class="inp" id="proj-name-p" placeholder="Nom du projet"></div>
+    <div class="fgrp"><label class="fl">Client</label><select class="inp" id="proj-client-p"><option value="">Sans client</option></select></div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Budget (USD)</label><input class="inp" type="number" id="proj-budget" placeholder="0.00"></div>
+      <div class="fgrp"><label class="fl">Date de début</label><input class="inp" type="date" id="proj-start"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Date de fin</label><input class="inp" type="date" id="proj-end"></div>
+    <div class="fgrp"><label class="fl">Description</label><input class="inp" id="proj-desc-p" placeholder="Optionnel"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeProjectModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitProject()"><i class="ti ti-check"></i> Créer</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const API_BASE = window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1"
   ? "http://localhost:8000/v1"
