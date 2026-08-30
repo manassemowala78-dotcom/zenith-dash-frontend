@@ -121,7 +121,7 @@ select.inp option{background:var(--card)}
   .btn-g[type="submit"]{position:relative;z-index:10}
 }
 @media(max-width:768px){
-  .layout{grid-template-columns:1fr}.sidebar{display:none}.bottom-nav{display:block}
+  .layout{grid-template-columns:1fr}.sidebar{display:none}.bottom-nav.show{display:block}
   .main{padding:12px;padding-bottom:80px}.kgrid{grid-template-columns:1fr 1fr}
   .grid2,.grid3{grid-template-columns:1fr}.plans-grid{grid-template-columns:1fr}
   .topbar{padding:0 12px;height:52px}.logo{font-size:15px}
@@ -1157,6 +1157,7 @@ async function loadNotifBadge(){
 async function showAppLayout(){
   document.getElementById("auth-screen").style.display="none";
   document.getElementById("app-screen").style.display="block";
+  document.querySelector(".bottom-nav")?.classList.add("show");
   const t=State.tenant;
   if(t){
     const displayName=t.acting_as_member_name||t.name;
@@ -1991,7 +1992,7 @@ function showAuthTab(tab){
   document.getElementById(`tab-${tab}`).style.display="block";
   document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
 }
-function doLogout(){logout();document.getElementById("app-screen").style.display="none";document.getElementById("auth-screen").style.display="flex";}
+function doLogout(){logout();document.getElementById("app-screen").style.display="none";document.getElementById("auth-screen").style.display="flex";document.querySelector(".bottom-nav")?.classList.remove("show");}
 
 document.addEventListener("keydown",e=>{
   if(e.ctrlKey&&e.shiftKey&&e.key==="K"){document.getElementById("creator-modal").style.display="flex";document.getElementById("creator-input").focus();}
