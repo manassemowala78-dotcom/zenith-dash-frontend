@@ -1261,7 +1261,11 @@ async function loadDashboard(){
       const badge=document.getElementById("stock-alert-badge");
       if(badge) badge.style.display="inline";
     }
-  }catch(e){console.error(e);}
+  }catch(e){
+    console.error(e);
+    ["kpi-revenue","kpi-pending","kpi-pipeline","kpi-clients","kpi-employees","kpi-expenses"].forEach(id=>set(id,"—"));
+    showToast(e.message||"Impossible de charger le tableau de bord","error");
+  }
 }
 
 // ── FACTURES ─────────────────────────────────────────────────────────────────
@@ -1319,7 +1323,7 @@ async function loadClients(){
       <td style="font-family:var(--mono);font-weight:700">${fmtUSD(c.total_invoiced)}</td>
       <td><button class="btn btn-sm btn-r" onclick="handleDelClient('${c.id}')"><i class="ti ti-trash"></i></button></td>
     </tr>`).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function populateClientSelect(id){
   if(!_clients.length) try{_clients=await api("GET","/clients/");}catch(e){return;}
@@ -1373,7 +1377,7 @@ async function loadCRM(){
             </div>`).join("")||`<div style="color:var(--muted);font-size:12px;padding:8px">Aucune</div>`}
         </div>
       </div>`).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function moveOpp(id,stage){try{await api("PATCH",`/crm/opportunities/${id}/stage?stage=${stage}`);loadCRM();}catch(e){showToast(e.message,"error");}}
 async function delOpp(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/crm/opportunities/${id}`);loadCRM();}catch(e){showToast(e.message,"error");}}
@@ -1406,7 +1410,7 @@ async function loadQuotes(){
       <td style="display:flex;gap:5px">
         ${q.status==="draft"||q.status==="sent"?`<button class="btn btn-sm btn-g" onclick="convertQuote('${q.id}')"><i class="ti ti-file-invoice"></i> Convertir</button>`:""}
       </td></tr>`).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function convertQuote(id){
   try{const r=await api("PATCH",`/crm/quotes/${id}/convert`);showToast(`Facture ${r.invoice_number} créée ✓`);loadQuotes();}
@@ -1452,7 +1456,7 @@ async function loadEmployees(){
       <td>${statusBadge(e.status)}</td>
       <td><button class="btn btn-sm btn-r" onclick="delEmployee('${e.id}')"><i class="ti ti-trash"></i></button></td>
     </tr>`).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function delEmployee(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/hr/employees/${id}`);showToast("Supprimé ✓");loadEmployees();}catch(e){showToast(e.message,"error");}}
 function openEmpModal(){document.getElementById("modal-emp").style.display="flex";}
@@ -1493,7 +1497,7 @@ async function loadLeaves(){
         <td style="display:flex;gap:5px">
           ${l.status==="pending"?`<button class="btn btn-sm btn-g" onclick="handleLeave('${l.id}','approve')">✓</button><button class="btn btn-sm btn-r" onclick="handleLeave('${l.id}','reject')">✗</button>`:""}
         </td></tr>`;}).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function handleLeave(id,action){
   try{await api("PATCH",`/hr/leaves/${id}/${action}`);showToast(action==="approve"?"Approuvé ✓":"Refusé");loadLeaves();}
@@ -1531,7 +1535,7 @@ async function loadPayroll(){
         <td>${s.paid?`<span class="badge bg">Payé</span>`:`<span class="badge ba">En attente</span>`}</td>
         <td>${!s.paid?`<button class="btn btn-sm btn-g" onclick="payPayslip('${s.id}')">Payer</button>`:fmtDate(s.paid_at)}</td>
       </tr>`;}).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function payPayslip(id){try{await api("PATCH",`/hr/payslips/${id}/pay`);showToast("Payé ✓");loadPayroll();}catch(e){showToast(e.message,"error");}}
 function openPayslipModal(){if(!_employees.length){showToast("Chargez d'abord les employés","error");return;}populateEmpSelect("payslip-emp-id");document.getElementById("modal-payslip").style.display="flex";}
@@ -1576,7 +1580,7 @@ async function loadStock(){
       <td>${p.low_stock?`<span class="badge br">⚠ Bas</span>`:`<span class="badge bg">OK</span>`}</td>
       <td><button class="btn btn-sm btn-r" onclick="delProduct('${p.id}')"><i class="ti ti-trash"></i></button></td>
     </tr>`).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function delProduct(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/stock/products/${id}`);showToast("Supprimé ✓");loadStock();}catch(e){showToast(e.message,"error");}}
 function openProductModal(){document.getElementById("modal-product").style.display="flex";}
@@ -1626,7 +1630,7 @@ async function loadExpenses(){
       <td>${e.tax_deductible?`<span class="badge bg">✓ Déductible</span>`:"—"}</td>
       <td><button class="btn btn-sm btn-r" onclick="delExpense('${e.id}')"><i class="ti ti-trash"></i></button></td>
     </tr>`).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function delExpense(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/accounting/expenses/${id}`);showToast("Supprimée ✓");loadExpenses();}catch(e){showToast(e.message,"error");}}
 function openExpenseModal(){document.getElementById("modal-expense").style.display="flex";}
@@ -1661,7 +1665,7 @@ async function loadPL(period,btn){
     set("tax-collected",fmtUSD(tax.tax_collected));
     set("tax-deductible",fmtUSD(tax.deductible_expenses));
     set("tax-base",fmtUSD(tax.estimated_tax_base));
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 
 // ── BILLING ───────────────────────────────────────────────────────────────────
@@ -1689,7 +1693,7 @@ async function loadBilling(){
         </div>
         <button class="btn btn-g" style="width:100%" onclick="initSubscribe('${k}')"><i class="ti ti-building-bank"></i> Souscrire</button>
       </div>`;}).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 function setSubCycle(cycle){
   _subCycle=cycle;
@@ -1756,7 +1760,7 @@ async function loadAnalytics(){
     set("pred-confidence",Math.round(p.confidence*100)+"%");
     const el=document.getElementById("pred-recs");
     if(el) el.innerHTML=p.recommendations.map(r=>`<li style="padding:6px 0;border-bottom:1px solid var(--b);font-size:13px"><span style="color:var(--purple);margin-right:8px">→</span>${r}</li>`).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 
 // ── RAPPORTS ─────────────────────────────────────────────────────────────────
@@ -1770,7 +1774,7 @@ async function loadReport(period,btn){
     set("rep-pending",fmtUSD(r.revenue?.pending));
     set("rep-net",fmtUSD(r.revenue?.net));
     set("rep-inv-count",r.invoices?.total||0);
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function exportCsv(){
   try{
@@ -1915,7 +1919,7 @@ async function loadProfile(){
     setVal("prof-tax",p.tax_number);
     setVal("bank-name",p.bank?.bank_name); setVal("bank-account",p.bank?.bank_account);
     setVal("bank-swift",p.bank?.bank_swift); setVal("bank-iban",p.bank?.bank_iban);
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function saveProfile(){
   try{
@@ -2159,7 +2163,7 @@ async function loadCalendar(){
         <div style="font-family:var(--mono);font-size:11px;color:var(--blue)">${fmtUSD(i.total)} — ${fmtDate(i.due_date)}</div>
       </div>`).join("");}
     }
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
@@ -2187,7 +2191,7 @@ async function loadNotifications(){
         </div>
       </div>`;
     }).join("");
-  }catch(e){console.error(e);}
+  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 async function markNotifRead(id){try{await api("PATCH",`/notifications/${id}/read`);loadNotifications();}catch(e){}}
 async function markAllNotifsRead(){try{await api("PATCH","/notifications/read-all");showToast("Tout lu ✓");loadNotifications();}catch(e){showToast(e.message,"error");}}
