@@ -149,11 +149,21 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
 <!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-wrap">
+    <div style="text-align:right;margin-bottom:8px">
+      <select id="lang-selector" class="inp" style="width:auto;display:inline-block;padding:6px 10px;font-size:12px" onchange="applyLanguage(this.value)">
+        <option value="fr">🇫🇷 Français</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="ar">🇸🇦 العربية</option>
+        <option value="sw">🇹🇿 Kiswahili</option>
+        <option value="ln">🇨🇩 Lingála</option>
+      </select>
+    </div>
     <div class="auth-logo">
       <span class="auth-logo-icon">⚡</span>
       <div class="auth-logo-title">Zenith<span>Dash</span></div>
-      <div class="auth-logo-sub">ERP · Facturation · RH · Stock · CRM · Comptabilité</div>
-      <div class="trial-badge">✦ Essai gratuit 14 jours — sans carte bancaire</div>
+      <div class="auth-logo-sub" data-i18n="app_tagline">ERP · Facturation · RH · Stock · CRM · Comptabilité</div>
+      <div class="trial-badge" data-i18n="trial_badge">✦ Essai gratuit 14 jours — sans carte bancaire</div>
     </div>
     <div id="invite-accept-panel" style="display:none">
       <div style="font-size:14px;color:var(--muted);margin-bottom:16px;text-align:center">Vous avez été invité(e) à rejoindre<br><b style="color:var(--green)" id="invite-company-name">—</b></div>
@@ -166,25 +176,26 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       </form>
     </div>
     <div class="auth-tabs-nav" id="auth-tabs-nav">
-      <button class="auth-tab active" data-tab="login" onclick="showAuthTab('login')">Se connecter</button>
-      <button class="auth-tab" data-tab="register" onclick="showAuthTab('register')">Créer un compte</button>
+      <button class="auth-tab active" data-tab="login" data-i18n="tab_login" onclick="showAuthTab('login')">Se connecter</button>
+      <button class="auth-tab" data-tab="register" data-i18n="tab_register" onclick="showAuthTab('register')">Créer un compte</button>
     </div>
     <div id="tab-login" class="auth-tab-content active">
       <form onsubmit="handleLogin(event)">
-        <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="login-email" placeholder="vous@exemple.com" required></div>
-        <div class="fgrp"><label class="fl">Mot de passe</label><input class="inp" type="password" id="login-password" placeholder="••••••••" required></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_email">Email</label><input class="inp" type="email" id="login-email" placeholder="vous@exemple.com" required></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_password">Mot de passe</label><input class="inp" type="password" id="login-password" placeholder="••••••••" required></div>
         <div class="err-box" id="login-err"></div>
-        <button class="btn btn-g" id="login-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-login"></i> Se connecter</button>
+        <button class="btn btn-g" id="login-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-login"></i> <span data-i18n="btn_login">Se connecter</span></button>
       </form>
     </div>
     <div id="tab-register" class="auth-tab-content">
       <form onsubmit="handleRegister(event)">
-        <div class="fgrp"><label class="fl">Nom complet</label><input class="inp" type="text" id="reg-name" placeholder="Votre nom" required></div>
-        <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="reg-email" placeholder="vous@exemple.com" required></div>
-        <div class="fgrp"><label class="fl">Entreprise</label><input class="inp" type="text" id="reg-company" placeholder="Optionnel"></div>
-        <div class="fgrp"><label class="fl">Mot de passe</label><input class="inp" type="password" id="reg-password" placeholder="Min. 8 caractères" required></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_fullname">Nom complet</label><input class="inp" type="text" id="reg-name" placeholder="Votre nom" required></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_email">Email</label><input class="inp" type="email" id="reg-email" placeholder="vous@exemple.com" required></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_company">Entreprise</label><input class="inp" type="text" id="reg-company" data-i18n="lbl_company_ph" data-i18n-placeholder placeholder="Optionnel"></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_referral">Code de parrainage</label><input class="inp" type="text" id="reg-referral" data-i18n="lbl_referral_ph" data-i18n-placeholder placeholder="Optionnel — +15 jours d'essai" style="text-transform:uppercase"></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_password">Mot de passe</label><input class="inp" type="password" id="reg-password" data-i18n="lbl_password_min" data-i18n-placeholder placeholder="Min. 8 caractères" required></div>
         <div class="err-box" id="reg-err"></div>
-        <button class="btn btn-g" id="reg-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-user-plus"></i> Commencer l'essai gratuit</button>
+        <button class="btn btn-g" id="reg-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-user-plus"></i> <span data-i18n="btn_register">Commencer l'essai gratuit</span></button>
       </form>
     </div>
   </div>
@@ -205,92 +216,93 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
   </header>
   <aside class="sidebar">
     <div class="nav-g">
-      <div class="nav-lbl">Principal</div>
-      <div class="nav-i active" data-p="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+      <div class="nav-lbl" data-i18n="nav_principal">Principal</div>
+      <div class="nav-i active" data-p="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i><span data-i18n="nav_dashboard">Dashboard</span></div>
     </div>
     <div class="nav-g">
-      <div class="nav-lbl">Facturation</div>
-      <div class="nav-i" data-p="invoices" onclick="navigate('invoices')"><i class="ti ti-file-invoice"></i>Factures</div>
-      <div class="nav-i" data-p="clients" onclick="navigate('clients')"><i class="ti ti-users"></i>Clients</div>
+      <div class="nav-lbl" data-i18n="nav_facturation">Facturation</div>
+      <div class="nav-i" data-p="invoices" onclick="navigate('invoices')"><i class="ti ti-file-invoice"></i><span data-i18n="nav_factures">Factures</span></div>
+      <div class="nav-i" data-p="clients" onclick="navigate('clients')"><i class="ti ti-users"></i><span data-i18n="nav_clients">Clients</span></div>
     </div>
     <div class="nav-g">
-      <div class="nav-lbl">CRM</div>
-      <div class="nav-i" data-p="crm" onclick="navigate('crm')"><i class="ti ti-target"></i>Pipeline</div>
-      <div class="nav-i" data-p="quotes" onclick="navigate('quotes')"><i class="ti ti-file-description"></i>Devis</div>
+      <div class="nav-lbl" data-i18n="nav_crm">CRM</div>
+      <div class="nav-i" data-p="crm" onclick="navigate('crm')"><i class="ti ti-target"></i><span data-i18n="nav_pipeline">Pipeline</span></div>
+      <div class="nav-i" data-p="quotes" onclick="navigate('quotes')"><i class="ti ti-file-description"></i><span data-i18n="nav_devis">Devis</span></div>
     </div>
     <div class="nav-g">
-      <div class="nav-lbl">Ressources Humaines</div>
-      <div class="nav-i" data-p="employees" onclick="navigate('employees')"><i class="ti ti-user-check"></i>Employés</div>
-      <div class="nav-i" data-p="leaves" onclick="navigate('leaves')"><i class="ti ti-calendar-off"></i>Congés</div>
-      <div class="nav-i" data-p="payroll" onclick="navigate('payroll')"><i class="ti ti-receipt"></i>Paie</div>
+      <div class="nav-lbl" data-i18n="nav_rh">Ressources Humaines</div>
+      <div class="nav-i" data-p="employees" onclick="navigate('employees')"><i class="ti ti-user-check"></i><span data-i18n="nav_employes">Employés</span></div>
+      <div class="nav-i" data-p="leaves" onclick="navigate('leaves')"><i class="ti ti-calendar-off"></i><span data-i18n="nav_conges">Congés</span></div>
+      <div class="nav-i" data-p="payroll" onclick="navigate('payroll')"><i class="ti ti-receipt"></i><span data-i18n="nav_paie">Paie</span></div>
     </div>
     <div class="nav-g">
-      <div class="nav-lbl">Stock & Produits</div>
-      <div class="nav-i" data-p="stock" onclick="navigate('stock')"><i class="ti ti-package"></i>Inventaire <span class="nav-badge" id="stock-alert-badge" style="display:none">!</span></div>
+      <div class="nav-lbl" data-i18n="nav_stock_grp">Stock & Produits</div>
+      <div class="nav-i" data-p="stock" onclick="navigate('stock')"><i class="ti ti-package"></i><span data-i18n="nav_inventaire">Inventaire</span> <span class="nav-badge" id="stock-alert-badge" style="display:none">!</span></div>
     </div>
     <div class="nav-g">
-      <div class="nav-lbl">Comptabilité</div>
-      <div class="nav-i" data-p="expenses" onclick="navigate('expenses')"><i class="ti ti-credit-card"></i>Dépenses</div>
-      <div class="nav-i" data-p="pl" onclick="navigate('pl')"><i class="ti ti-chart-pie"></i>P&L</div>
+      <div class="nav-lbl" data-i18n="nav_compta">Comptabilité</div>
+      <div class="nav-i" data-p="expenses" onclick="navigate('expenses')"><i class="ti ti-credit-card"></i><span data-i18n="nav_depenses">Dépenses</span></div>
+      <div class="nav-i" data-p="pl" onclick="navigate('pl')"><i class="ti ti-chart-pie"></i><span data-i18n="nav_pl">P&L</span></div>
+      <div class="nav-i" data-p="margin" onclick="navigate('margin')"><i class="ti ti-calculator"></i><span data-i18n="nav_marge">Marge & Rentabilité</span></div>
     </div>
     <div class="nav-g">
-      <div class="nav-lbl">Outils</div>
-      <div class="nav-i" data-p="objectives" onclick="navigate('objectives')"><i class="ti ti-target-arrow"></i>Objectifs & KPIs</div>
-      <div class="nav-i" data-p="projects" onclick="navigate('projects')"><i class="ti ti-briefcase"></i>Projets</div>
-      <div class="nav-i" data-p="calendar" onclick="navigate('calendar')"><i class="ti ti-calendar"></i>Calendrier</div>
-      <div class="nav-i" data-p="notifications" onclick="navigate('notifications')"><i class="ti ti-bell"></i>Notifications <span class="nav-badge" id="notif-badge" style="display:none">0</span></div>
+      <div class="nav-lbl" data-i18n="nav_outils">Outils</div>
+      <div class="nav-i" data-p="objectives" onclick="navigate('objectives')"><i class="ti ti-target-arrow"></i><span data-i18n="nav_objectifs">Objectifs & KPIs</span></div>
+      <div class="nav-i" data-p="projects" onclick="navigate('projects')"><i class="ti ti-briefcase"></i><span data-i18n="nav_projets">Projets</span></div>
+      <div class="nav-i" data-p="calendar" onclick="navigate('calendar')"><i class="ti ti-calendar"></i><span data-i18n="nav_calendrier">Calendrier</span></div>
+      <div class="nav-i" data-p="notifications" onclick="navigate('notifications')"><i class="ti ti-bell"></i><span data-i18n="nav_notifications">Notifications</span> <span class="nav-badge" id="notif-badge" style="display:none">0</span></div>
     </div>
     <div class="nav-g">
-      <div class="nav-lbl">Finance</div>
-      <div class="nav-i" data-p="billing" id="nav-billing" onclick="navigate('billing')"><i class="ti ti-building-bank"></i>Abonnements</div>
-      <div class="nav-i" data-p="analytics" onclick="navigate('analytics')"><i class="ti ti-brain"></i>IA Analytics</div>
-      <div class="nav-i" data-p="ai" onclick="navigate('ai')"><i class="ti ti-robot"></i>Assistant IA</div>
-      <div class="nav-i" data-p="reports" onclick="navigate('reports')"><i class="ti ti-chart-bar"></i>Rapports</div>
+      <div class="nav-lbl" data-i18n="nav_finance">Finance</div>
+      <div class="nav-i" data-p="billing" id="nav-billing" onclick="navigate('billing')"><i class="ti ti-building-bank"></i><span data-i18n="nav_abonnements">Abonnements</span></div>
+      <div class="nav-i" data-p="analytics" onclick="navigate('analytics')"><i class="ti ti-brain"></i><span data-i18n="nav_analytics">IA Analytics</span></div>
+      <div class="nav-i" data-p="ai" onclick="navigate('ai')"><i class="ti ti-robot"></i><span data-i18n="nav_ia">Assistant IA</span></div>
+      <div class="nav-i" data-p="reports" onclick="navigate('reports')"><i class="ti ti-chart-bar"></i><span data-i18n="nav_rapports">Rapports</span></div>
     </div>
     <div class="nav-g">
-      <div class="nav-lbl">Compte</div>
-      <div class="nav-i" data-p="team" onclick="navigate('team')"><i class="ti ti-users-group"></i>Équipe</div>
-      <div class="nav-i" data-p="integrations" onclick="navigate('integrations')"><i class="ti ti-plug"></i>Intégrations</div>
-      <div class="nav-i" data-p="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i>Profil & Banque</div>
-      <div class="nav-i" data-p="admin" id="nav-admin" onclick="navigate('admin')" style="display:none"><i class="ti ti-shield"></i>Admin</div>
+      <div class="nav-lbl" data-i18n="nav_compte">Compte</div>
+      <div class="nav-i" data-p="team" onclick="navigate('team')"><i class="ti ti-users-group"></i><span data-i18n="nav_equipe">Équipe</span></div>
+      <div class="nav-i" data-p="integrations" onclick="navigate('integrations')"><i class="ti ti-plug"></i><span data-i18n="nav_integrations">Intégrations</span></div>
+      <div class="nav-i" data-p="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i><span data-i18n="nav_profil">Profil & Banque</span></div>
+      <div class="nav-i" data-p="admin" id="nav-admin" onclick="navigate('admin')" style="display:none"><i class="ti ti-shield"></i><span data-i18n="nav_admin">Admin</span></div>
     </div>
   </aside>
   <main class="main">
 
     <!-- DASHBOARD -->
     <div id="page-dashboard" class="page active">
-      <div class="sh"><div><div class="st">Dashboard ERP</div><div class="ss">Vue globale de votre entreprise</div></div>
+      <div class="sh"><div><div class="st" data-i18n="dash_title">Dashboard ERP</div><div class="ss" data-i18n="dash_sub">Vue globale de votre entreprise</div></div>
         <button class="btn btn-o btn-sm" onclick="loadDashboard()"><i class="ti ti-refresh"></i></button>
       </div>
       <div id="stock-alert-banner" style="display:none"></div>
       <div class="kgrid">
-        <div class="kpi g"><div class="kl">Revenus (USD)</div><div class="kv" id="kpi-revenue"><span class="skel" style="display:inline-block;width:70px;height:22px"></span></div></div>
-        <div class="kpi b"><div class="kl">En attente</div><div class="kv" id="kpi-pending"><span class="skel" style="display:inline-block;width:70px;height:22px"></span></div></div>
-        <div class="kpi p"><div class="kl">Pipeline CRM</div><div class="kv" id="kpi-pipeline"><span class="skel" style="display:inline-block;width:70px;height:22px"></span></div></div>
-        <div class="kpi c"><div class="kl">Clients</div><div class="kv" id="kpi-clients"><span class="skel" style="display:inline-block;width:40px;height:22px"></span></div></div>
-        <div class="kpi a"><div class="kl">Employés actifs</div><div class="kv" id="kpi-employees"><span class="skel" style="display:inline-block;width:40px;height:22px"></span></div></div>
-        <div class="kpi r"><div class="kl">Dépenses (30j)</div><div class="kv" id="kpi-expenses"><span class="skel" style="display:inline-block;width:70px;height:22px"></span></div></div>
+        <div class="kpi g"><div class="kl" data-i18n="kpi_revenue">Revenus (USD)</div><div class="kv" id="kpi-revenue"><span class="skel" style="display:inline-block;width:70px;height:22px"></span></div></div>
+        <div class="kpi b"><div class="kl" data-i18n="kpi_pending">En attente</div><div class="kv" id="kpi-pending"><span class="skel" style="display:inline-block;width:70px;height:22px"></span></div></div>
+        <div class="kpi p"><div class="kl" data-i18n="kpi_pipeline">Pipeline CRM</div><div class="kv" id="kpi-pipeline"><span class="skel" style="display:inline-block;width:70px;height:22px"></span></div></div>
+        <div class="kpi c"><div class="kl" data-i18n="kpi_clients">Clients</div><div class="kv" id="kpi-clients"><span class="skel" style="display:inline-block;width:40px;height:22px"></span></div></div>
+        <div class="kpi a"><div class="kl" data-i18n="kpi_employees">Employés actifs</div><div class="kv" id="kpi-employees"><span class="skel" style="display:inline-block;width:40px;height:22px"></span></div></div>
+        <div class="kpi r"><div class="kl" data-i18n="kpi_expenses">Dépenses (30j)</div><div class="kv" id="kpi-expenses"><span class="skel" style="display:inline-block;width:70px;height:22px"></span></div></div>
       </div>
       <div class="grid2">
         <div class="card">
-          <div style="font-weight:700;font-size:14px;margin-bottom:14px">Actions rapides</div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:14px" data-i18n="dash_quick">Actions rapides</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <button class="btn btn-g" onclick="navigate('invoices');openInvModal()"><i class="ti ti-plus"></i> Nouvelle facture</button>
-            <button class="btn btn-o" onclick="navigate('clients');openClientModal()"><i class="ti ti-user-plus"></i> Nouveau client</button>
-            <button class="btn btn-o" onclick="navigate('crm');openOppModal()"><i class="ti ti-target"></i> Nouvelle opportunité</button>
-            <button class="btn btn-o" onclick="navigate('employees');openEmpModal()"><i class="ti ti-user-check"></i> Nouvel employé</button>
-            <button class="btn btn-o" onclick="navigate('stock');openProductModal()"><i class="ti ti-package"></i> Nouveau produit</button>
-            <button class="btn btn-o" onclick="navigate('expenses');openExpenseModal()"><i class="ti ti-credit-card"></i> Nouvelle dépense</button>
+            <button class="btn btn-g" onclick="navigate('invoices');openInvModal()"><i class="ti ti-plus"></i> <span data-i18n="qa_invoice">Nouvelle facture</span></button>
+            <button class="btn btn-o" onclick="navigate('clients');openClientModal()"><i class="ti ti-user-plus"></i> <span data-i18n="qa_client">Nouveau client</span></button>
+            <button class="btn btn-o" onclick="navigate('crm');openOppModal()"><i class="ti ti-target"></i> <span data-i18n="qa_opp">Nouvelle opportunité</span></button>
+            <button class="btn btn-o" onclick="navigate('employees');openEmpModal()"><i class="ti ti-user-check"></i> <span data-i18n="qa_employee">Nouvel employé</span></button>
+            <button class="btn btn-o" onclick="navigate('stock');openProductModal()"><i class="ti ti-package"></i> <span data-i18n="qa_product">Nouveau produit</span></button>
+            <button class="btn btn-o" onclick="navigate('expenses');openExpenseModal()"><i class="ti ti-credit-card"></i> <span data-i18n="qa_expense">Nouvelle dépense</span></button>
           </div>
         </div>
         <div class="card">
-          <div style="font-weight:700;font-size:14px;margin-bottom:14px">Résumé financier</div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:14px" data-i18n="dash_summary">Résumé financier</div>
           <div style="font-family:var(--mono);font-size:13px;line-height:2.8;color:var(--muted)">
-            Factures : <b id="dash-inv-count" style="color:var(--text)">—</b><br>
-            Produits : <b id="dash-products" style="color:var(--text)">—</b><br>
-            Alertes stock : <b id="dash-low-stock" style="color:var(--red)">—</b><br>
-            Opportunités : <b id="dash-opps" style="color:var(--text)">—</b><br>
-            Plan actuel : <span id="dash-plan">—</span>
+            <span data-i18n="sum_invoices">Factures</span> : <b id="dash-inv-count" style="color:var(--text)">—</b><br>
+            <span data-i18n="sum_products">Produits</span> : <b id="dash-products" style="color:var(--text)">—</b><br>
+            <span data-i18n="sum_lowstock">Alertes stock</span> : <b id="dash-low-stock" style="color:var(--red)">—</b><br>
+            <span data-i18n="sum_opps">Opportunités</span> : <b id="dash-opps" style="color:var(--text)">—</b><br>
+            <span data-i18n="sum_plan">Plan actuel</span> : <span id="dash-plan">—</span>
           </div>
         </div>
       </div>
@@ -442,10 +454,48 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       </div>
     </div>
 
+    <!-- MARGE & RENTABILITÉ -->
+    <div id="page-margin" class="page">
+      <div class="sh"><div><div class="st">Marge & Rentabilité</div><div class="ss">Calcule la rentabilité réelle d'un projet ou d'une prestation</div></div></div>
+      <div class="grid2">
+        <div class="card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:14px">Nouveau calcul</div>
+          <div class="fgrp"><label class="fl">Nom du projet/prestation *</label><input class="inp" id="margin-name" placeholder="Ex: Rénovation bureau X"></div>
+          <div class="fgrp"><label class="fl">Chiffre d'affaires (revenus) *</label><input class="inp" type="number" id="margin-revenue" placeholder="0.00"></div>
+          <div class="grid2">
+            <div class="fgrp"><label class="fl">Coût matière</label><input class="inp" type="number" id="margin-material" placeholder="0.00"></div>
+            <div class="fgrp"><label class="fl">Autres coûts</label><input class="inp" type="number" id="margin-other" placeholder="0.00"></div>
+          </div>
+          <div class="grid2">
+            <div class="fgrp"><label class="fl">Heures de main d'œuvre</label><input class="inp" type="number" id="margin-hours" placeholder="0"></div>
+            <div class="fgrp"><label class="fl">Taux horaire</label><input class="inp" type="number" id="margin-rate" placeholder="0.00"></div>
+          </div>
+          <div class="grid2">
+            <div class="fgrp"><label class="fl">Frais généraux (%)</label><input class="inp" type="number" id="margin-overhead" placeholder="15" value="15"></div>
+            <div class="fgrp"><label class="fl">Taux d'imposition (%)</label><input class="inp" type="number" id="margin-tax" placeholder="20" value="20"></div>
+          </div>
+          <div class="fgrp" style="display:flex;align-items:center;gap:10px">
+            <input type="checkbox" id="margin-ask-ai" style="width:16px;height:16px">
+            <label for="margin-ask-ai" style="font-size:13px;cursor:pointer">Demander une analyse IA (recommandations personnalisées)</label>
+          </div>
+          <button class="btn btn-g" style="width:100%" onclick="submitMarginCalc()"><i class="ti ti-calculator"></i> Calculer</button>
+        </div>
+        <div class="card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:14px">Résultat</div>
+          <div id="margin-result"><div style="text-align:center;color:var(--muted);padding:32px 0"><i class="ti ti-calculator" style="font-size:40px;display:block;margin-bottom:12px"></i>Remplis le formulaire et clique sur Calculer</div></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:12px">Historique des calculs</div>
+        <div id="margin-history"><div style="color:var(--muted);font-size:13px">Chargement...</div></div>
+      </div>
+    </div>
+
     <!-- ABONNEMENTS -->
     <div id="page-billing" class="page">
       <div class="sh"><div><div class="st">Abonnements</div><div class="ss">Virement Rawbank RDC · SWIFT international</div></div></div>
       <div id="trial-billing-info" style="display:none;margin-bottom:16px"></div>
+      <div id="refund-section" style="display:none;margin-bottom:16px"></div>
       <div class="card" style="margin-bottom:16px;border-color:rgba(0,212,200,.2)">
         <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px">
           <div><div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:4px">🇨🇩 NATIONAL (Rawbank RDC)</div><div style="color:var(--muted)">Pour les clients en RDC</div></div>
@@ -499,6 +549,27 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <!-- PROFIL -->
     <div id="page-profile" class="page">
       <div class="sh"><div><div class="st">Profil & Paramètres</div></div></div>
+      <div class="card" style="margin-bottom:16px;border-color:rgba(0,224,128,.2)">
+        <div style="font-weight:700;font-size:14px;margin-bottom:6px"><i class="ti ti-gift" style="color:var(--green)"></i> Parraine et gagne des jours d'essai</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Partage ton code — toi et ton filleul recevez chacun 15 jours d'essai en plus.</div>
+        <div id="referral-box" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div style="font-family:var(--mono);font-size:18px;font-weight:800;letter-spacing:3px;background:var(--s);padding:8px 16px;border-radius:8px;border:1px solid var(--b)" id="referral-code-display">—</div>
+          <button class="btn btn-o btn-sm" onclick="copyReferralLink()"><i class="ti ti-copy"></i> Copier le lien</button>
+          <a id="referral-whatsapp-btn" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:7px 14px;border-radius:8px;font-weight:700;font-size:12px;text-decoration:none"><i class="ti ti-brand-whatsapp"></i> WhatsApp</a>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--muted)" id="referral-bonus-label"></span>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:10px"><i class="ti ti-language" style="color:var(--blue)"></i> Langue de l'interface</div>
+        <select class="inp" id="lang-selector-app" style="max-width:260px" onchange="applyLanguage(this.value)">
+          <option value="fr">🇫🇷 Français</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="ar">🇸🇦 العربية</option>
+          <option value="sw">🇹🇿 Kiswahili</option>
+          <option value="ln">🇨🇩 Lingála</option>
+        </select>
+      </div>
       <div class="grid2">
         <div class="card">
           <div style="font-weight:700;font-size:14px;margin-bottom:14px"><i class="ti ti-user"></i> Profil entreprise</div>
@@ -652,12 +723,12 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
 <!-- BOTTOM NAV MOBILE -->
 <div class="bottom-nav">
   <div class="bottom-nav-inner">
-    <div class="bnav-item active" data-bp="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i><span>Home</span></div>
-    <div class="bnav-item" data-bp="invoices" onclick="navigate('invoices')"><i class="ti ti-file-invoice"></i><span>Factures</span></div>
-    <div class="bnav-item" data-bp="crm" onclick="navigate('crm')"><i class="ti ti-target"></i><span>CRM</span></div>
-    <div class="bnav-item" data-bp="stock" onclick="navigate('stock')"><i class="ti ti-package"></i><span>Stock</span></div>
-    <div class="bnav-item" data-bp="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i><span>Profil</span></div>
-    <div class="bnav-item" onclick="toggleMoreMenu()"><i class="ti ti-dots"></i><span>Plus</span></div>
+    <div class="bnav-item active" data-bp="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i><span data-i18n="bnav_home">Home</span></div>
+    <div class="bnav-item" data-bp="invoices" onclick="navigate('invoices')"><i class="ti ti-file-invoice"></i><span data-i18n="bnav_invoices">Factures</span></div>
+    <div class="bnav-item" data-bp="crm" onclick="navigate('crm')"><i class="ti ti-target"></i><span data-i18n="bnav_crm">CRM</span></div>
+    <div class="bnav-item" data-bp="stock" onclick="navigate('stock')"><i class="ti ti-package"></i><span data-i18n="bnav_stock">Stock</span></div>
+    <div class="bnav-item" data-bp="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i><span data-i18n="bnav_profile">Profil</span></div>
+    <div class="bnav-item" onclick="toggleMoreMenu()"><i class="ti ti-dots"></i><span data-i18n="bnav_more">Plus</span></div>
   </div>
 </div>
 
@@ -671,6 +742,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <div onclick="navigate('payroll');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-receipt" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Paie</span></div>
     <div onclick="navigate('expenses');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-credit-card" style="font-size:22px;color:var(--red)"></i><span style="font-size:10px;font-family:var(--mono)">Dépenses</span></div>
     <div onclick="navigate('pl');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-chart-pie" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">P&L</span></div>
+    <div onclick="navigate('margin');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-calculator" style="font-size:22px;color:var(--amber)"></i><span style="font-size:10px;font-family:var(--mono)">Marge</span></div>
     <div onclick="navigate('objectives');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-target-arrow" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Objectifs</span></div>
     <div onclick="navigate('projects');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-briefcase" style="font-size:22px;color:var(--purple)"></i><span style="font-size:10px;font-family:var(--mono)">Projets</span></div>
     <div onclick="navigate('calendar');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-calendar" style="font-size:22px;color:var(--blue)"></i><span style="font-size:10px;font-family:var(--mono)">Calendrier</span></div>
@@ -1050,7 +1122,145 @@ const API_BASE = window.location.hostname==="localhost"||window.location.hostnam
   ? "http://localhost:8000/v1"
   : "https://zenith-dash-production.up.railway.app/v1";
 
-const State={token:localStorage.getItem("zd_token"),tenant:JSON.parse(localStorage.getItem("zd_tenant")||"null")};
+const I18N={
+fr:{app_tagline:"ERP · Facturation · RH · Stock · CRM · Comptabilité",trial_badge:"✦ Essai gratuit 14 jours — sans carte bancaire",
+tab_login:"Se connecter",tab_register:"Créer un compte",lbl_email:"Email",lbl_password:"Mot de passe",lbl_fullname:"Nom complet",
+lbl_company:"Entreprise",lbl_company_ph:"Optionnel",lbl_referral:"Code de parrainage",lbl_referral_ph:"Optionnel — +15 jours d'essai",
+lbl_password_min:"Min. 8 caractères",btn_login:"Se connecter",btn_register:"Commencer l'essai gratuit",
+nav_principal:"Principal",nav_dashboard:"Dashboard",nav_facturation:"Facturation",nav_factures:"Factures",nav_clients:"Clients",
+nav_crm:"CRM",nav_pipeline:"Pipeline",nav_devis:"Devis",nav_rh:"Ressources Humaines",nav_employes:"Employés",nav_conges:"Congés",
+nav_paie:"Paie",nav_stock_grp:"Stock & Produits",nav_inventaire:"Inventaire",nav_compta:"Comptabilité",nav_depenses:"Dépenses",
+nav_pl:"P&L",nav_marge:"Marge & Rentabilité",nav_outils:"Outils",nav_objectifs:"Objectifs & KPIs",nav_projets:"Projets",
+nav_calendrier:"Calendrier",nav_notifications:"Notifications",nav_finance:"Finance",nav_abonnements:"Abonnements",
+nav_analytics:"IA Analytics",nav_ia:"Assistant IA",nav_rapports:"Rapports",nav_compte:"Compte",nav_profil:"Profil & Banque",
+nav_equipe:"Équipe",nav_integrations:"Intégrations",nav_admin:"Admin",
+dash_title:"Dashboard ERP",dash_sub:"Vue globale de votre entreprise",kpi_revenue:"Revenus (USD)",kpi_pending:"En attente",
+kpi_pipeline:"Pipeline CRM",kpi_clients:"Clients",kpi_employees:"Employés actifs",kpi_expenses:"Dépenses (30j)",
+dash_quick:"Actions rapides",qa_invoice:"Nouvelle facture",qa_client:"Nouveau client",qa_opp:"Nouvelle opportunité",
+qa_employee:"Nouvel employé",qa_product:"Nouveau produit",qa_expense:"Nouvelle dépense",dash_summary:"Résumé financier",
+sum_invoices:"Factures",sum_products:"Produits",sum_lowstock:"Alertes stock",sum_opps:"Opportunités",sum_plan:"Plan actuel",
+btn_cancel:"Annuler",btn_create:"Créer",btn_save:"Enregistrer",btn_add:"Ajouter",btn_delete:"Supprimer",btn_close:"Fermer",
+btn_copy:"Copier",btn_edit:"Modifier",bnav_home:"Home",bnav_invoices:"Factures",bnav_crm:"CRM",bnav_stock:"Stock",bnav_profile:"Profil",bnav_more:"Plus"},
+en:{app_tagline:"ERP · Invoicing · HR · Stock · CRM · Accounting",trial_badge:"✦ 14-day free trial — no credit card",
+tab_login:"Log in",tab_register:"Create account",lbl_email:"Email",lbl_password:"Password",lbl_fullname:"Full name",
+lbl_company:"Company",lbl_company_ph:"Optional",lbl_referral:"Referral code",lbl_referral_ph:"Optional — +15 trial days",
+lbl_password_min:"Min. 8 characters",btn_login:"Log in",btn_register:"Start free trial",
+nav_principal:"Main",nav_dashboard:"Dashboard",nav_facturation:"Invoicing",nav_factures:"Invoices",nav_clients:"Clients",
+nav_crm:"CRM",nav_pipeline:"Pipeline",nav_devis:"Quotes",nav_rh:"Human Resources",nav_employes:"Employees",nav_conges:"Leave",
+nav_paie:"Payroll",nav_stock_grp:"Stock & Products",nav_inventaire:"Inventory",nav_compta:"Accounting",nav_depenses:"Expenses",
+nav_pl:"P&L",nav_marge:"Margin & Profitability",nav_outils:"Tools",nav_objectifs:"Goals & KPIs",nav_projets:"Projects",
+nav_calendrier:"Calendar",nav_notifications:"Notifications",nav_finance:"Finance",nav_abonnements:"Subscription",
+nav_analytics:"AI Analytics",nav_ia:"AI Assistant",nav_rapports:"Reports",nav_compte:"Account",nav_profil:"Profile & Bank",
+nav_equipe:"Team",nav_integrations:"Integrations",nav_admin:"Admin",
+dash_title:"ERP Dashboard",dash_sub:"Overview of your business",kpi_revenue:"Revenue (USD)",kpi_pending:"Pending",
+kpi_pipeline:"CRM Pipeline",kpi_clients:"Clients",kpi_employees:"Active employees",kpi_expenses:"Expenses (30d)",
+dash_quick:"Quick actions",qa_invoice:"New invoice",qa_client:"New client",qa_opp:"New opportunity",
+qa_employee:"New employee",qa_product:"New product",qa_expense:"New expense",dash_summary:"Financial summary",
+sum_invoices:"Invoices",sum_products:"Products",sum_lowstock:"Stock alerts",sum_opps:"Opportunities",sum_plan:"Current plan",
+btn_cancel:"Cancel",btn_create:"Create",btn_save:"Save",btn_add:"Add",btn_delete:"Delete",btn_close:"Close",
+btn_copy:"Copy",btn_edit:"Edit",bnav_home:"Home",bnav_invoices:"Invoices",bnav_crm:"CRM",bnav_stock:"Stock",bnav_profile:"Profile",bnav_more:"More"},
+es:{app_tagline:"ERP · Facturación · RRHH · Stock · CRM · Contabilidad",trial_badge:"✦ Prueba gratis 14 días — sin tarjeta",
+tab_login:"Iniciar sesión",tab_register:"Crear cuenta",lbl_email:"Correo",lbl_password:"Contraseña",lbl_fullname:"Nombre completo",
+lbl_company:"Empresa",lbl_company_ph:"Opcional",lbl_referral:"Código de referido",lbl_referral_ph:"Opcional — +15 días de prueba",
+lbl_password_min:"Mín. 8 caracteres",btn_login:"Iniciar sesión",btn_register:"Comenzar prueba gratis",
+nav_principal:"Principal",nav_dashboard:"Panel",nav_facturation:"Facturación",nav_factures:"Facturas",nav_clients:"Clientes",
+nav_crm:"CRM",nav_pipeline:"Pipeline",nav_devis:"Presupuestos",nav_rh:"Recursos Humanos",nav_employes:"Empleados",nav_conges:"Ausencias",
+nav_paie:"Nómina",nav_stock_grp:"Stock y Productos",nav_inventaire:"Inventario",nav_compta:"Contabilidad",nav_depenses:"Gastos",
+nav_pl:"P&L",nav_marge:"Margen y Rentabilidad",nav_outils:"Herramientas",nav_objectifs:"Objetivos y KPIs",nav_projets:"Proyectos",
+nav_calendrier:"Calendario",nav_notifications:"Notificaciones",nav_finance:"Finanzas",nav_abonnements:"Suscripción",
+nav_analytics:"IA Analytics",nav_ia:"Asistente IA",nav_rapports:"Informes",nav_compte:"Cuenta",nav_profil:"Perfil y Banco",
+nav_equipe:"Equipo",nav_integrations:"Integraciones",nav_admin:"Admin",
+dash_title:"Panel ERP",dash_sub:"Vista global de tu empresa",kpi_revenue:"Ingresos (USD)",kpi_pending:"Pendiente",
+kpi_pipeline:"Pipeline CRM",kpi_clients:"Clientes",kpi_employees:"Empleados activos",kpi_expenses:"Gastos (30d)",
+dash_quick:"Acciones rápidas",qa_invoice:"Nueva factura",qa_client:"Nuevo cliente",qa_opp:"Nueva oportunidad",
+qa_employee:"Nuevo empleado",qa_product:"Nuevo producto",qa_expense:"Nuevo gasto",dash_summary:"Resumen financiero",
+sum_invoices:"Facturas",sum_products:"Productos",sum_lowstock:"Alertas de stock",sum_opps:"Oportunidades",sum_plan:"Plan actual",
+btn_cancel:"Cancelar",btn_create:"Crear",btn_save:"Guardar",btn_add:"Añadir",btn_delete:"Eliminar",btn_close:"Cerrar",
+btn_copy:"Copiar",btn_edit:"Editar",bnav_home:"Inicio",bnav_invoices:"Facturas",bnav_crm:"CRM",bnav_stock:"Stock",bnav_profile:"Perfil",bnav_more:"Más"},
+ar:{app_tagline:"إدارة الفواتير · الموارد البشرية · المخزون · العملاء · المحاسبة",trial_badge:"✦ تجربة مجانية 14 يومًا — بدون بطاقة ائتمان",
+tab_login:"تسجيل الدخول",tab_register:"إنشاء حساب",lbl_email:"البريد الإلكتروني",lbl_password:"كلمة المرور",lbl_fullname:"الاسم الكامل",
+lbl_company:"الشركة",lbl_company_ph:"اختياري",lbl_referral:"رمز الإحالة",lbl_referral_ph:"اختياري — +15 يومًا تجريبيًا",
+lbl_password_min:"8 أحرف على الأقل",btn_login:"تسجيل الدخول",btn_register:"ابدأ التجربة المجانية",
+nav_principal:"الرئيسية",nav_dashboard:"لوحة التحكم",nav_facturation:"الفواتير",nav_factures:"الفواتير",nav_clients:"العملاء",
+nav_crm:"إدارة العملاء",nav_pipeline:"مسار المبيعات",nav_devis:"عروض الأسعار",nav_rh:"الموارد البشرية",nav_employes:"الموظفون",nav_conges:"الإجازات",
+nav_paie:"الرواتب",nav_stock_grp:"المخزون والمنتجات",nav_inventaire:"المخزون",nav_compta:"المحاسبة",nav_depenses:"المصروفات",
+nav_pl:"الأرباح والخسائر",nav_marge:"الهامش والربحية",nav_outils:"الأدوات",nav_objectifs:"الأهداف والمؤشرات",nav_projets:"المشاريع",
+nav_calendrier:"التقويم",nav_notifications:"الإشعارات",nav_finance:"المالية",nav_abonnements:"الاشتراك",
+nav_analytics:"تحليلات الذكاء الاصطناعي",nav_ia:"مساعد الذكاء الاصطناعي",nav_rapports:"التقارير",nav_compte:"الحساب",nav_profil:"الملف الشخصي والبنك",
+nav_equipe:"الفريق",nav_integrations:"التكاملات",nav_admin:"الإدارة",
+dash_title:"لوحة تحكم إدارة الموارد",dash_sub:"نظرة عامة على شركتك",kpi_revenue:"الإيرادات (USD)",kpi_pending:"قيد الانتظار",
+kpi_pipeline:"مسار العملاء المحتملين",kpi_clients:"العملاء",kpi_employees:"الموظفون النشطون",kpi_expenses:"المصروفات (30 يومًا)",
+dash_quick:"إجراءات سريعة",qa_invoice:"فاتورة جديدة",qa_client:"عميل جديد",qa_opp:"فرصة جديدة",
+qa_employee:"موظف جديد",qa_product:"منتج جديد",qa_expense:"مصروف جديد",dash_summary:"الملخص المالي",
+sum_invoices:"الفواتير",sum_products:"المنتجات",sum_lowstock:"تنبيهات المخزون",sum_opps:"الفرص",sum_plan:"الخطة الحالية",
+btn_cancel:"إلغاء",btn_create:"إنشاء",btn_save:"حفظ",btn_add:"إضافة",btn_delete:"حذف",btn_close:"إغلاق",
+btn_copy:"نسخ",btn_edit:"تعديل",bnav_home:"الرئيسية",bnav_invoices:"الفواتير",bnav_crm:"العملاء",bnav_stock:"المخزون",bnav_profile:"الملف",bnav_more:"المزيد"},
+sw:{app_tagline:"ERP · Ankara · Rasilimali Watu · Bidhaa · CRM · Uhasibu",trial_badge:"✦ Jaribio bila malipo siku 14 — hakuna kadi",
+tab_login:"Ingia",tab_register:"Fungua akaunti",lbl_email:"Barua pepe",lbl_password:"Nenosiri",lbl_fullname:"Jina kamili",
+lbl_company:"Kampuni",lbl_company_ph:"Si lazima",lbl_referral:"Msimbo wa mwaliko",lbl_referral_ph:"Si lazima — +siku 15 za jaribio",
+lbl_password_min:"Angalau herufi 8",btn_login:"Ingia",btn_register:"Anza jaribio bila malipo",
+nav_principal:"Kuu",nav_dashboard:"Dashibodi",nav_facturation:"Ankara",nav_factures:"Ankara",nav_clients:"Wateja",
+nav_crm:"CRM",nav_pipeline:"Pipeline",nav_devis:"Makadirio",nav_rh:"Rasilimali Watu",nav_employes:"Wafanyakazi",nav_conges:"Likizo",
+nav_paie:"Mishahara",nav_stock_grp:"Bidhaa",nav_inventaire:"Bidhaa Ghalani",nav_compta:"Uhasibu",nav_depenses:"Matumizi",
+nav_pl:"P&L",nav_marge:"Faida na Ufanisi",nav_outils:"Zana",nav_objectifs:"Malengo na KPI",nav_projets:"Miradi",
+nav_calendrier:"Kalenda",nav_notifications:"Arifa",nav_finance:"Fedha",nav_abonnements:"Usajili",
+nav_analytics:"Uchambuzi wa AI",nav_ia:"Msaidizi wa AI",nav_rapports:"Ripoti",nav_compte:"Akaunti",nav_profil:"Wasifu na Benki",
+nav_equipe:"Timu",nav_integrations:"Muunganisho",nav_admin:"Msimamizi",
+dash_title:"Dashibodi ya ERP",dash_sub:"Muhtasari wa biashara yako",kpi_revenue:"Mapato (USD)",kpi_pending:"Inasubiri",
+kpi_pipeline:"Pipeline ya CRM",kpi_clients:"Wateja",kpi_employees:"Wafanyakazi hai",kpi_expenses:"Matumizi (siku 30)",
+dash_quick:"Vitendo vya haraka",qa_invoice:"Ankara mpya",qa_client:"Mteja mpya",qa_opp:"Fursa mpya",
+qa_employee:"Mfanyakazi mpya",qa_product:"Bidhaa mpya",qa_expense:"Matumizi mapya",dash_summary:"Muhtasari wa fedha",
+sum_invoices:"Ankara",sum_products:"Bidhaa",sum_lowstock:"Arifa za bidhaa",sum_opps:"Fursa",sum_plan:"Mpango wa sasa",
+btn_cancel:"Ghairi",btn_create:"Unda",btn_save:"Hifadhi",btn_add:"Ongeza",btn_delete:"Futa",btn_close:"Funga",
+btn_copy:"Nakili",btn_edit:"Hariri",bnav_home:"Nyumbani",bnav_invoices:"Ankara",bnav_crm:"CRM",bnav_stock:"Bidhaa",bnav_profile:"Wasifu",bnav_more:"Zaidi"},
+ln:{app_tagline:"ERP · Fakture · Basali · Biloko · CRM · Comptabilité",trial_badge:"✦ Essai ya ofele mikolo 14 — kozanga carte",
+tab_login:"Kokota",tab_register:"Kofungola compte",lbl_email:"Email",lbl_password:"Password",lbl_fullname:"Nkombo mobimba",
+lbl_company:"Société",lbl_company_ph:"Ezali na motindo te",lbl_referral:"Code ya parrainage",lbl_referral_ph:"Ezali na motindo te — +mikolo 15",
+lbl_password_min:"Ata baletele 8",btn_login:"Kokota",btn_register:"Banda essai ya ofele",
+nav_principal:"Ya libosó",nav_dashboard:"Dashboard",nav_facturation:"Fakture",nav_factures:"Fakture",nav_clients:"Baklient",
+nav_crm:"CRM",nav_pipeline:"Pipeline",nav_devis:"Devis",nav_rh:"Basali",nav_employes:"Basali",nav_conges:"Congé",
+nav_paie:"Lifuti",nav_stock_grp:"Biloko na Magazini",nav_inventaire:"Biloko",nav_compta:"Comptabilité",nav_depenses:"Mimbongo Ebimi",
+nav_pl:"P&L",nav_marge:"Litomba na Rentabilité",nav_outils:"Bisaleli",nav_objectifs:"Ba Objectifs na KPI",nav_projets:"Ba Projet",
+nav_calendrier:"Kalandriye",nav_notifications:"Ba Notification",nav_finance:"Mbongo",nav_abonnements:"Abonnement",
+nav_analytics:"IA Analytics",nav_ia:"Assistant IA",nav_rapports:"Ba Rapport",nav_compte:"Compte",nav_profil:"Profil na Banki",
+nav_equipe:"Ekipe",nav_integrations:"Ba Intégration",nav_admin:"Admin",
+dash_title:"Dashboard ERP",dash_sub:"Vue ya mobimba ya société na yo",kpi_revenue:"Mbongo Ekoti (USD)",kpi_pending:"Ezali kozela",
+kpi_pipeline:"Pipeline CRM",kpi_clients:"Baklient",kpi_employees:"Basali oyo bazali kosala",kpi_expenses:"Mimbongo Ebimi (mikolo 30)",
+dash_quick:"Misala ya mbangu",qa_invoice:"Fakture ya sika",qa_client:"Client ya sika",qa_opp:"Opportunité ya sika",
+qa_employee:"Mosali ya sika",qa_product:"Eloko ya sika",qa_expense:"Mbongo ebimi ya sika",dash_summary:"Muhtasari ya mbongo",
+sum_invoices:"Fakture",sum_products:"Biloko",sum_lowstock:"Alerte ya stock",sum_opps:"Ba Opportunité",sum_plan:"Plan ya sika oyo",
+btn_cancel:"Kotika",btn_create:"Kosala",btn_save:"Kobomba",btn_add:"Kobakisa",btn_delete:"Kolongola",btn_close:"Kokanga",
+btn_copy:"Kokopi",btn_edit:"Kobongisa",bnav_home:"Ndako",bnav_invoices:"Fakture",bnav_crm:"CRM",bnav_stock:"Biloko",bnav_profile:"Profil",bnav_more:"Mingi"},
+};
+const RTL_LANGS=["ar"];
+const LANG_NAMES={fr:"Français",en:"English",es:"Español",ar:"العربية",sw:"Kiswahili",ln:"Lingála"};
+
+function t(key){
+  const lang=State.lang||"fr";
+  return (I18N[lang]&&I18N[lang][key])||I18N.fr[key]||key;
+}
+function applyLanguage(lang){
+  if(!I18N[lang]) lang="fr";
+  State.lang=lang;
+  localStorage.setItem("zd_lang",lang);
+  document.documentElement.lang=lang;
+  document.documentElement.dir=RTL_LANGS.includes(lang)?"rtl":"ltr";
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key=el.getAttribute("data-i18n");
+    const val=t(key);
+    if(el.hasAttribute("data-i18n-placeholder")) el.placeholder=val;
+    else el.textContent=val;
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    el.placeholder=t(el.getAttribute("data-i18n-ph"));
+  });
+  const sel=document.getElementById("lang-selector");
+  if(sel) sel.value=lang;
+  const selApp=document.getElementById("lang-selector-app");
+  if(selApp) selApp.value=lang;
+}
+
+const State={token:localStorage.getItem("zd_token"),tenant:JSON.parse(localStorage.getItem("zd_tenant")||"null"),lang:localStorage.getItem("zd_lang")||"fr"};
 
 async function api(method,path,body=null){
   const h={"Content-Type":"application/json"};
@@ -1171,6 +1381,7 @@ async function loadPage(p){
     case"stock":      await loadStock();break;
     case"expenses":   await loadExpenses();break;
     case"pl":         await loadPL("month");break;
+    case"margin":     await loadMarginHistory();break;
     case"billing":    await loadBilling();break;
     case"analytics":  await loadAnalytics();break;
     case"reports":    await loadReport("month");break;
@@ -1668,12 +1879,80 @@ async function loadPL(period,btn){
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
 
-// ── BILLING ───────────────────────────────────────────────────────────────────
+// ── MARGE & RENTABILITÉ ──────────────────────────────────────────────────────
+async function submitMarginCalc(){
+  const name=document.getElementById("margin-name").value.trim();
+  const revenue=parseFloat(document.getElementById("margin-revenue").value);
+  if(!name||!revenue){showToast("Nom et chiffre d'affaires obligatoires","error");return;}
+  const box=document.getElementById("margin-result");
+  box.innerHTML=`<div style="text-align:center;color:var(--muted);padding:32px 0"><i class="ti ti-loader-2" style="font-size:32px;display:block;margin-bottom:8px"></i>Calcul en cours...</div>`;
+  try{
+    const r=await api("POST","/margin/calculate",{
+      name,revenue,
+      material_cost:parseFloat(document.getElementById("margin-material").value||0),
+      other_costs:parseFloat(document.getElementById("margin-other").value||0),
+      labor_hours:parseFloat(document.getElementById("margin-hours").value||0),
+      hourly_rate:parseFloat(document.getElementById("margin-rate").value||0),
+      overhead_pct:parseFloat(document.getElementById("margin-overhead").value||15)/100,
+      tax_rate:parseFloat(document.getElementById("margin-tax").value||20)/100,
+      ask_ai:document.getElementById("margin-ask-ai").checked,
+    });
+    renderMarginResult(r);
+    loadMarginHistory();
+  }catch(e){
+    box.innerHTML=`<div style="color:var(--red);padding:20px">${esc(e.message)}</div>`;
+    showToast(e.message,"error");
+  }
+}
+function renderMarginResult(r){
+  const box=document.getElementById("margin-result");
+  const color=r.net_margin_pct>20?"var(--green)":r.net_margin_pct>10?"var(--amber)":r.net_margin_pct>0?"var(--purple)":"var(--red)";
+  box.innerHTML=`
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:15px;font-weight:700">${esc(r.verdict)}</div>
+      <div style="font-size:36px;font-weight:800;color:${color};margin-top:4px">${r.net_margin_pct}%</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">marge nette</div>
+    </div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="card2"><div class="kl">Bénéfice net</div><div style="font-size:18px;font-weight:700;margin-top:4px">${fmtUSD(r.net_profit)}</div></div>
+      <div class="card2"><div class="kl">Marge brute</div><div style="font-size:18px;font-weight:700;margin-top:4px">${r.gross_margin_pct}%</div></div>
+      <div class="card2"><div class="kl">Seuil de rentabilité</div><div style="font-size:18px;font-weight:700;margin-top:4px">${fmtUSD(r.break_even)}</div></div>
+      <div class="card2"><div class="kl">ROI</div><div style="font-size:18px;font-weight:700;margin-top:4px">${r.roi}%</div></div>
+    </div>
+    <div style="font-weight:700;font-size:13px;margin-bottom:8px">Recommandations</div>
+    ${r.recommendations.map(rec=>`<div style="padding:8px 0;border-bottom:1px solid var(--b);font-size:13px">${esc(rec)}</div>`).join("")}
+    ${r.ai_analysis?`<div style="margin-top:14px;padding:12px;background:var(--c2);border-radius:10px;border:1px solid var(--b)"><div style="font-weight:700;font-size:12px;color:var(--purple);margin-bottom:6px"><i class="ti ti-brain"></i> Analyse IA</div><div style="font-size:13px;white-space:pre-wrap">${esc(r.ai_analysis)}</div></div>`:""}
+  `;
+}
+async function loadMarginHistory(){
+  const box=document.getElementById("margin-history");if(!box)return;
+  try{
+    const list=await api("GET","/margin/history");
+    if(!list.length){box.innerHTML=`<div style="color:var(--muted);font-size:13px">Aucun calcul pour l'instant.</div>`;return;}
+    box.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Nom</th><th>CA</th><th>Marge nette</th><th>ROI</th><th>Date</th><th></th></tr></thead><tbody>
+      ${list.map(a=>`<tr>
+        <td style="font-weight:600">${esc(a.name)}</td>
+        <td style="font-family:var(--mono)">${fmtUSD(a.revenue)}</td>
+        <td style="font-family:var(--mono);color:${a.net_margin_pct>10?'var(--green)':'var(--amber)'}">${a.net_margin_pct}%</td>
+        <td style="font-family:var(--mono)">${a.roi}%</td>
+        <td style="font-family:var(--mono);font-size:11px">${fmtDate(a.created_at)}</td>
+        <td><button class="btn btn-sm btn-r" onclick="deleteMarginAnalysis('${a.id}')"><i class="ti ti-trash"></i></button></td>
+      </tr>`).join("")}
+    </tbody></table></div>`;
+  }catch(e){box.innerHTML=`<div style="color:var(--red)">${esc(e.message)}</div>`;}
+}
+async function deleteMarginAnalysis(id){
+  if(!confirm("Supprimer ce calcul ?"))return;
+  try{await api("DELETE",`/margin/${id}`);showToast("Supprimé ✓");loadMarginHistory();}
+  catch(e){showToast(e.message,"error");}
+}
+
 let _subCycle="monthly"; let _lastWire=null;
 async function loadBilling(){
   try{
     const plans=await api("GET","/billing/plans");
     const grid=document.getElementById("plans-grid");if(!grid)return;
+    loadRefundSection();
     const order=["starter","professional","business","enterprise"];
     const colors={starter:"var(--green)",professional:"var(--blue)",business:"var(--purple)",enterprise:"var(--amber)"};
     grid.innerHTML=order.filter(k=>plans[k]).map(k=>{
@@ -1695,6 +1974,35 @@ async function loadBilling(){
       </div>`;}).join("");
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
+async function loadRefundSection(){
+  const box=document.getElementById("refund-section");if(!box)return;
+  try{
+    const r=await api("GET","/billing/refund-status");
+    if(!r.eligible){box.style.display="none";return;}
+    box.style.display="block";
+    box.innerHTML=`<div class="card" style="border-color:rgba(245,166,35,.25)">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:700;font-size:14px;color:var(--amber)"><i class="ti ti-receipt-refund"></i> Remboursement disponible</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Il te reste <b style="color:var(--text)">${r.days_left} jour(s)</b> pour demander un remboursement de ton plan ${esc(r.plan)} — utilisable une seule fois.</div>
+        </div>
+        <button class="btn btn-a btn-sm" onclick="doRequestRefund()"><i class="ti ti-receipt-refund"></i> Demander</button>
+      </div>
+    </div>`;
+  }catch(e){box.style.display="none";}
+}
+async function doRequestRefund(){
+  if(!confirm("Confirmer le remboursement ? Ton compte repassera en accès limité et tu ne pourras plus refaire d'essai gratuit."))return;
+  try{
+    const r=await api("POST","/billing/refund");
+    showToast(r.message);
+    loadRefundSection();
+    const fresh=await api("GET","/profile/");
+    State.tenant=fresh;localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
+    setHTML("topbar-plan",planBadge(fresh.plan));
+  }catch(e){showToast(e.message,"error");}
+}
+
 function setSubCycle(cycle){
   _subCycle=cycle;
   document.getElementById("toggle-m").classList.toggle("active",cycle==="monthly");
@@ -1919,7 +2227,18 @@ async function loadProfile(){
     setVal("prof-tax",p.tax_number);
     setVal("bank-name",p.bank?.bank_name); setVal("bank-account",p.bank?.bank_account);
     setVal("bank-swift",p.bank?.bank_swift); setVal("bank-iban",p.bank?.bank_iban);
+    if(p.referral_code){
+      set("referral-code-display",p.referral_code);
+      const link=`${window.location.origin}${window.location.pathname}?ref=${p.referral_code}`;
+      document.getElementById("referral-whatsapp-btn").href=`https://wa.me/?text=${encodeURIComponent("Rejoins-moi sur ZenithDash et gagne 15 jours d'essai en plus : "+link)}`;
+      _referralLink=link;
+    }
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
+}
+let _referralLink=null;
+function copyReferralLink(){
+  if(!_referralLink){showToast("Lien pas encore prêt","error");return;}
+  navigator.clipboard.writeText(_referralLink).then(()=>showToast("Lien copié ✓"));
 }
 async function saveProfile(){
   try{
@@ -2028,7 +2347,8 @@ async function handleRegister(e){
   const btn=document.getElementById("reg-btn");btn.textContent="Création...";btn.disabled=true;
   try{
     await register({name:document.getElementById("reg-name").value,email:document.getElementById("reg-email").value,
-      password:document.getElementById("reg-password").value,company_name:document.getElementById("reg-company").value||null});
+      password:document.getElementById("reg-password").value,company_name:document.getElementById("reg-company").value||null,
+      referral_code:document.getElementById("reg-referral").value.trim()||null});
     showAppLayout();
   }catch(err){showErr("reg-err",err.message);btn.innerHTML='<i class="ti ti-user-plus"></i> Commencer l\'essai gratuit';btn.disabled=false;}
 }
@@ -2308,8 +2628,18 @@ async function handleAcceptInvite(e){
     btn.disabled=false;
   }
 }
+function checkPendingReferral(){
+  const params=new URLSearchParams(window.location.search);
+  const ref=params.get("ref");
+  if(!ref) return;
+  const field=document.getElementById("reg-referral");
+  if(field) field.value=ref.toUpperCase();
+  showAuthTab("register");
+}
 document.addEventListener("DOMContentLoaded",async ()=>{
+  applyLanguage(State.lang);
   const hasInvite=await checkPendingInvite();
+  if(!hasInvite) checkPendingReferral();
   if(!hasInvite&&State.token&&State.tenant) showAppLayout();
 });
 </script>
