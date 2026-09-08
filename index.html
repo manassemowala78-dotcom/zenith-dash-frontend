@@ -147,6 +147,14 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
 </style>
 </head>
 <body>
+<!-- PORTAIL CLIENT (accès public, sans compte) -->
+<div id="portal-view" style="display:none;max-width:720px;margin:0 auto;padding:24px 16px">
+  <div style="text-align:center;margin-bottom:24px">
+    <div style="font-size:20px;font-weight:800"><span style="color:var(--green)">Zenith</span> Dash</div>
+    <div id="portal-company" style="color:var(--muted);font-size:13px;margin-top:4px"></div>
+  </div>
+  <div id="portal-content"><div style="text-align:center;color:var(--muted);padding:40px 0">Chargement...</div></div>
+</div>
 <!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-wrap">
@@ -1652,7 +1660,10 @@ async function loadClients(){
       <td style="font-family:var(--mono);font-size:12px">${esc(c.phone)||"—"}</td>
       <td>${esc(c.country)||"—"}</td>
       <td style="font-family:var(--mono);font-weight:700">${fmtUSD(c.total_invoiced)}</td>
-      <td><button class="btn btn-sm btn-r" onclick="handleDelClient('${c.id}')"><i class="ti ti-trash"></i></button></td>
+      <td style="display:flex;gap:5px">
+        <button class="btn btn-sm btn-o" onclick="getPortalLink('${c.id}')" title="Lien portail client"><i class="ti ti-link"></i></button>
+        <button class="btn btn-sm btn-r" onclick="handleDelClient('${c.id}')"><i class="ti ti-trash"></i></button>
+      </td>
     </tr>`).join("");
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
@@ -1663,6 +1674,14 @@ async function populateClientSelect(id){
   sel.innerHTML=first+_clients.map(c=>`<option value="${c.id}">${c.name}${c.company?" — "+c.company:""}</option>`).join("");
 }
 async function handleDelClient(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/clients/${id}`);showToast("Supprimé ✓");loadClients();}catch(e){showToast(e.message,"error");}}
+async function getPortalLink(clientId){
+  try{
+    const r=await api("POST",`/clients/${clientId}/portal-link`);
+    const link=`${window.location.origin}${window.location.pathname}?portal=${r.portal_token}`;
+    await navigator.clipboard.writeText(link);
+    showToast("Lien portail copié ✓ — envoie-le à ton client");
+  }catch(e){showToast(e.message,"error");}
+}
 function openClientModal(){document.getElementById("modal-client").style.display="flex";}
 function closeClientModal(){document.getElementById("modal-client").style.display="none";}
 async function submitClient(){
@@ -2988,9 +3007,64 @@ function checkPendingReferral(){
   if(field) field.value=ref.toUpperCase();
   showAuthTab("register");
 }
+let _portalToken=null;
+function statusLabelFr(s){
+  return {draft:"Brouillon",sent:"Envoyé",accepted:"Accepté",rejected:"Refusé",paid:"Payée",overdue:"En retard",cancelled:"Annulée"}[s]||s;
+}
+async function checkPortalView(){
+  const params=new URLSearchParams(window.location.search);
+  const token=params.get("portal");
+  if(!token) return false;
+  _portalToken=token;
+  document.getElementById("auth-screen").style.display="none";
+  document.getElementById("portal-view").style.display="block";
+  const content=document.getElementById("portal-content");
+  try{
+    const r=await fetch(`${API_BASE}/portal/${token}`);
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.detail||"Lien invalide");
+    document.getElementById("portal-company").textContent=d.company_name;
+    let html=`<h3 style="margin-bottom:10px">Bonjour ${esc(d.client_name)}</h3>`;
+    html+=`<div style="font-weight:700;margin:20px 0 10px">Devis</div>`;
+    if(!d.quotes.length) html+=`<div style="color:var(--muted);font-size:13px">Aucun devis.</div>`;
+    d.quotes.forEach(q=>{
+      html+=`<div class="card2" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between"><b>${esc(q.number)}</b><span>${fmtUSD(q.total)}</span></div>
+        <div style="font-size:12px;color:var(--muted);margin:6px 0">${statusLabelFr(q.status)}</div>
+        ${(q.status==='sent'||q.status==='draft')?`<div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-sm btn-g" onclick="portalActOnQuote('${q.id}','approve')">Accepter</button>
+          <button class="btn btn-sm btn-r" onclick="portalActOnQuote('${q.id}','reject')">Refuser</button>
+        </div>`:''}
+      </div>`;
+    });
+    html+=`<div style="font-weight:700;margin:20px 0 10px">Factures</div>`;
+    if(!d.invoices.length) html+=`<div style="color:var(--muted);font-size:13px">Aucune facture.</div>`;
+    d.invoices.forEach(i=>{
+      html+=`<div class="card2" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between"><b>${esc(i.number)}</b><span>${fmtUSD(i.total)}</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">${statusLabelFr(i.status)}</div>
+      </div>`;
+    });
+    content.innerHTML=html;
+  }catch(e){
+    content.innerHTML=`<div style="text-align:center;color:var(--red);padding:40px 0">${esc(e.message)}</div>`;
+  }
+  return true;
+}
+async function portalActOnQuote(quoteId,action){
+  if(!confirm(action==='approve'?"Confirmer l'acceptation de ce devis ?":"Confirmer le refus de ce devis ?"))return;
+  try{
+    const r=await fetch(`${API_BASE}/portal/${_portalToken}/quotes/${quoteId}/${action}`,{method:"POST"});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.detail||"Erreur");
+    checkPortalView();
+  }catch(e){alert(e.message);}
+}
 document.addEventListener("DOMContentLoaded",async ()=>{
   applyLanguage(State.lang);
   setTheme(State.theme);
+  const isPortal=await checkPortalView();
+  if(isPortal) return;
   const hasInvite=await checkPendingInvite();
   if(!hasInvite) checkPendingReferral();
   if(!hasInvite&&State.token&&State.tenant) showAppLayout();
