@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
 :root{--bg:#060a10;--s:#0d1320;--card:#121a28;--c2:#182135;--b:rgba(0,220,100,.12);--blue:#4f7aff;--green:#00e080;--red:#ff5f6d;--amber:#f5a623;--purple:#9b6dff;--cyan:#00d4c8;--gold:#ffd700;--pink:#ff6eb4;--text:#e8eaf2;--muted:#5a6282;--mono:'Consolas',monospace}
+html.light{--bg:#f4f6fb;--s:#ffffff;--card:#ffffff;--c2:#eef1f8;--b:rgba(0,100,60,.14);--blue:#2d5fe0;--green:#00a866;--red:#e0333f;--amber:#c47f0a;--purple:#7c4fe0;--cyan:#00a39a;--gold:#b8860b;--pink:#d94f92;--text:#131a2a;--muted:#6b7280}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;-webkit-text-size-adjust:100%}
 #auth-screen{display:flex;min-height:100vh;min-height:100dvh;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(0,224,128,.07) 0%,var(--bg) 65%);overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
@@ -264,6 +265,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       <div class="nav-lbl" data-i18n="nav_compte">Compte</div>
       <div class="nav-i" data-p="team" onclick="navigate('team')"><i class="ti ti-users-group"></i><span data-i18n="nav_equipe">Équipe</span></div>
       <div class="nav-i" data-p="files" onclick="navigate('files')"><i class="ti ti-folder"></i>Fichiers</div>
+      <div class="nav-i" data-p="bank" onclick="navigate('bank')"><i class="ti ti-building-bank"></i>Rapprochement bancaire</div>
       <div class="nav-i" data-p="integrations" onclick="navigate('integrations')"><i class="ti ti-plug"></i><span data-i18n="nav_integrations">Intégrations</span></div>
       <div class="nav-i" data-p="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i><span data-i18n="nav_profil">Profil & Banque</span></div>
       <div class="nav-i" data-p="admin" id="nav-admin" onclick="navigate('admin')" style="display:none"><i class="ti ti-shield"></i><span data-i18n="nav_admin">Admin</span></div>
@@ -596,6 +598,13 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
           <option value="ln">🇨🇩 Lingála</option>
         </select>
       </div>
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:10px"><i class="ti ti-sun-moon" style="color:var(--amber)"></i> Apparence</div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-o btn-sm" id="theme-btn-dark" onclick="setTheme('dark')"><i class="ti ti-moon"></i> Sombre</button>
+          <button class="btn btn-o btn-sm" id="theme-btn-light" onclick="setTheme('light')"><i class="ti ti-sun"></i> Clair</button>
+        </div>
+      </div>
       <div class="grid2">
         <div class="card">
           <div style="font-weight:700;font-size:14px;margin-bottom:14px"><i class="ti ti-user"></i> Profil entreprise</div>
@@ -729,6 +738,29 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       </div>
     </div>
 
+    <!-- RAPPROCHEMENT BANCAIRE -->
+    <div id="page-bank" class="page">
+      <div class="sh"><div><div class="st">Rapprochement bancaire</div><div class="ss">Importe ton relevé CSV, on associe automatiquement aux factures quand c'est possible</div></div>
+        <label class="btn btn-g btn-sm" style="cursor:pointer">
+          <i class="ti ti-file-import"></i> Importer un CSV
+          <input type="file" id="bank-csv-input" accept=".csv" style="display:none" onchange="submitBankCsv(this.files[0])">
+        </label>
+      </div>
+      <div id="bank-import-result" style="display:none;margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px;margin-bottom:14px" id="bank-filter-tabs">
+        <button class="btn btn-sm btn-g" data-filter="" onclick="filterBankTx('')">Toutes</button>
+        <button class="btn btn-sm btn-o" data-filter="suggested" onclick="filterBankTx('suggested')">À confirmer</button>
+        <button class="btn btn-sm btn-o" data-filter="unmatched" onclick="filterBankTx('unmatched')">Sans correspondance</button>
+        <button class="btn btn-sm btn-o" data-filter="confirmed" onclick="filterBankTx('confirmed')">Confirmées</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table><thead><tr><th>Date</th><th>Description</th><th>Montant</th><th>Facture suggérée</th><th>Statut</th><th></th></tr></thead>
+          <tbody id="bank-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
     <!-- INTÉGRATIONS -->
     <div id="page-integrations" class="page">
       <div class="sh"><div><div class="st">Intégrations</div><div class="ss">Webhooks — connectez ZenithDash à vos outils (Zapier, Make, n8n...)</div></div>
@@ -765,6 +797,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
         <button class="btn btn-g" onclick="adminConfirmWire()"><i class="ti ti-check"></i> Confirmer et activer le compte</button>
         <div id="admin-result" style="margin-top:14px;display:none;border-radius:10px;padding:12px 16px;font-family:var(--mono);font-size:13px"></div>
       </div>
+      <div id="admin-stats-cards" class="grid2" style="margin-bottom:16px"></div>
       <div class="card">
         <div class="sh" style="margin-bottom:14px">
           <div style="font-weight:700;font-size:14px;color:var(--amber)"><i class="ti ti-users"></i> Utilisateurs du site</div>
@@ -814,6 +847,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <div onclick="navigate('billing');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-building-bank" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Plans</span></div>
     <div onclick="navigate('team');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-users-group" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Équipe</span></div>
     <div onclick="navigate('files');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-folder" style="font-size:22px;color:var(--amber)"></i><span style="font-size:10px;font-family:var(--mono)">Fichiers</span></div>
+    <div onclick="navigate('bank');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-building-bank" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Banque</span></div>
     <div onclick="navigate('integrations');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-plug" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Intégrations</span></div>
   </div>
 </div>
@@ -1301,6 +1335,14 @@ function t(key){
   const lang=State.lang||"fr";
   return (I18N[lang]&&I18N[lang][key])||I18N.fr[key]||key;
 }
+function setTheme(theme){
+  State.theme=theme;
+  localStorage.setItem("zd_theme",theme);
+  document.documentElement.classList.toggle("light",theme==="light");
+  const dbtn=document.getElementById("theme-btn-dark"),lbtn=document.getElementById("theme-btn-light");
+  if(dbtn) dbtn.classList.toggle("btn-g",theme==="dark");
+  if(lbtn) lbtn.classList.toggle("btn-g",theme==="light");
+}
 function applyLanguage(lang){
   if(!I18N[lang]) lang="fr";
   State.lang=lang;
@@ -1322,7 +1364,7 @@ function applyLanguage(lang){
   if(selApp) selApp.value=lang;
 }
 
-const State={token:localStorage.getItem("zd_token"),tenant:JSON.parse(localStorage.getItem("zd_tenant")||"null"),lang:localStorage.getItem("zd_lang")||"fr"};
+const State={token:localStorage.getItem("zd_token"),tenant:JSON.parse(localStorage.getItem("zd_tenant")||"null"),lang:localStorage.getItem("zd_lang")||"fr",theme:localStorage.getItem("zd_theme")||"dark"};
 
 async function api(method,path,body=null){
   const h={"Content-Type":"application/json"};
@@ -1464,6 +1506,7 @@ async function loadPage(p){
     case"profile":    await loadProfile();break;
     case"team":       await loadTeam();break;
     case"files":      await loadFiles();break;
+    case"bank":       await loadBankTx();break;
     case"integrations": await loadWebhooks();break;
     case"objectives": await loadObjectives();break;
     case"projects":   await loadProjects();break;
@@ -2347,6 +2390,71 @@ async function deleteFile(id,name){
   catch(e){showToast(e.message,"error");}
 }
 
+// ── RAPPROCHEMENT BANCAIRE ───────────────────────────────────────────────────
+let _bankFilter="";
+function filterBankTx(status){
+  _bankFilter=status;
+  document.querySelectorAll('#bank-filter-tabs button').forEach(b=>{
+    b.classList.toggle('btn-g',b.dataset.filter===status);
+    b.classList.toggle('btn-o',b.dataset.filter!==status);
+  });
+  loadBankTx();
+}
+async function loadBankTx(){
+  const tbody=document.getElementById("bank-tbody");if(!tbody)return;
+  try{
+    const txs=await api("GET",`/bank/transactions${_bankFilter?`?status=${_bankFilter}`:""}`);
+    if(!txs.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Aucune transaction.</td></tr>`;return;}
+    const statusLabel={unmatched:'<span class="badge badge-gray">Sans correspondance</span>',suggested:'<span class="badge bb">À confirmer</span>',confirmed:'<span class="badge bg">Confirmée</span>'};
+    tbody.innerHTML=txs.map(t=>`<tr>
+      <td style="font-family:var(--mono);font-size:11px">${t.tx_date?fmtDate(t.tx_date):"—"}</td>
+      <td style="font-size:13px">${esc(t.description)}</td>
+      <td style="font-family:var(--mono);font-weight:600">${fmtUSD(t.amount)}</td>
+      <td>${t.matched_invoice_number?`<span style="font-family:var(--mono)">${esc(t.matched_invoice_number)}</span>`:'<span style="color:var(--muted)">—</span>'}</td>
+      <td>${statusLabel[t.status]||t.status}</td>
+      <td style="display:flex;gap:5px">
+        ${t.status==='suggested'?`<button class="btn btn-sm btn-g" onclick="confirmBankTx('${t.id}')"><i class="ti ti-check"></i></button>
+        <button class="btn btn-sm btn-o" onclick="unmatchBankTx('${t.id}')"><i class="ti ti-x"></i></button>`:''}
+        ${t.status==='unmatched'?`<button class="btn btn-sm btn-o" onclick="showManualMatch('${t.id}','${t.amount}')"><i class="ti ti-link"></i></button>`:''}
+        <button class="btn btn-sm btn-r" onclick="deleteBankTx('${t.id}')"><i class="ti ti-trash"></i></button>
+      </td>
+    </tr>`).join("");
+  }catch(e){tbody.innerHTML=`<tr><td colspan="6" style="color:var(--red);padding:20px">${esc(e.message)}</td></tr>`;}
+}
+async function submitBankCsv(file){
+  if(!file)return;
+  const box=document.getElementById("bank-import-result");
+  box.style.display="block";
+  box.innerHTML=`<div class="card" style="display:flex;align-items:center;gap:10px"><i class="ti ti-loader-2"></i> Import de ${esc(file.name)} en cours...</div>`;
+  try{
+    const fd=new FormData();fd.append("file",file);
+    const r=await apiUpload("/bank/import-csv",fd);
+    box.innerHTML=`<div class="card" style="border-color:rgba(0,224,128,.25);color:var(--green)">✓ ${r.imported} transaction(s) importée(s), dont ${r.auto_suggested} avec une correspondance suggérée automatiquement.</div>`;
+    document.getElementById("bank-csv-input").value="";
+    loadBankTx();
+  }catch(e){
+    box.innerHTML=`<div class="card" style="color:var(--red)">${esc(e.message)}</div>`;
+    showToast(e.message,"error");
+  }
+}
+async function confirmBankTx(id){
+  if(!confirm("Confirmer ce rapprochement ? La facture sera marquée comme payée."))return;
+  try{const r=await api("POST",`/bank/transactions/${id}/confirm`);showToast(`Facture ${r.invoice_number} marquée payée ✓`);loadBankTx();}
+  catch(e){showToast(e.message,"error");}
+}
+async function unmatchBankTx(id){
+  try{await api("POST",`/bank/transactions/${id}/unmatch`);showToast("Correspondance retirée");loadBankTx();}
+  catch(e){showToast(e.message,"error");}
+}
+async function deleteBankTx(id){
+  if(!confirm("Supprimer cette transaction importée ?"))return;
+  try{await api("DELETE",`/bank/transactions/${id}`);showToast("Supprimé ✓");loadBankTx();}
+  catch(e){showToast(e.message,"error");}
+}
+function showManualMatch(txId,amount){
+  showToast(`Aucune correspondance automatique pour ${fmtUSD(parseFloat(amount))} — vérifie manuellement dans Factures`);
+}
+
 // ── INTÉGRATIONS / WEBHOOKS ─────────────────────────────────────────────────────
 const WEBHOOK_EVENT_LABELS={"invoice.paid":"Facture payée","invoice.created":"Facture créée","client.created":"Nouveau client","subscription.activated":"Abonnement activé","stock.low":"Stock bas"};
 async function loadWebhooks(){
@@ -2509,10 +2617,36 @@ async function adminConfirmWire(){
   }
 }
 
+function renderAdminStats(users){
+  const box=document.getElementById("admin-stats-cards");if(!box||!users)return;
+  const planLabels={trial:"Essai",sandbox:"Sandbox",starter:"Starter",professional:"Professional",business:"Business",enterprise:"Enterprise"};
+  const counts={};
+  users.forEach(u=>{
+    if(u.is_creator)return;
+    counts[u.plan]=(counts[u.plan]||0)+1;
+  });
+  const total=users.filter(u=>!u.is_creator).length;
+  const rows=Object.keys(planLabels).map(k=>`<tr>
+    <td style="font-weight:600">${planLabels[k]}</td>
+    <td style="font-family:var(--mono);text-align:right">${counts[k]||0}</td>
+    <td style="font-family:var(--mono);text-align:right;color:var(--muted)">${total?Math.round((counts[k]||0)/total*100):0}%</td>
+  </tr>`).join("");
+  box.innerHTML=`
+    <div class="card2" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+      <div class="kl">Utilisateurs au total</div>
+      <div style="font-size:38px;font-weight:800;margin-top:6px">${total}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">(créateur exclu)</div>
+    </div>
+    <div class="card2">
+      <div class="kl" style="margin-bottom:8px">Répartition par formule</div>
+      <table style="width:100%;font-size:12px"><tbody>${rows}</tbody></table>
+    </div>`;
+}
 async function loadAdminUsers(){
   const tbody=document.getElementById("admin-users-tbody");if(!tbody)return;
   try{
     const users=await api("GET","/admin/users");
+    renderAdminStats(users);
     if(!users?.length){tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px">Aucun utilisateur.</td></tr>`;return;}
     tbody.innerHTML=users.map(u=>`<tr>
       <td style="font-weight:600">${esc(u.name)}${u.is_creator?' <span class="badge bgold">CRÉATEUR</span>':''}</td>
@@ -2856,6 +2990,7 @@ function checkPendingReferral(){
 }
 document.addEventListener("DOMContentLoaded",async ()=>{
   applyLanguage(State.lang);
+  setTheme(State.theme);
   const hasInvite=await checkPendingInvite();
   if(!hasInvite) checkPendingReferral();
   if(!hasInvite&&State.token&&State.tenant) showAppLayout();
