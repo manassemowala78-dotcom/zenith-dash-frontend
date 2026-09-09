@@ -155,6 +155,22 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
   </div>
   <div id="portal-content"><div style="text-align:center;color:var(--muted);padding:40px 0">Chargement...</div></div>
 </div>
+<div id="modal-signature" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center;padding:16px">
+  <div class="card" style="max-width:420px;width:100%">
+    <div style="font-weight:700;font-size:15px;margin-bottom:14px">Signer le devis</div>
+    <div class="fgrp"><label class="fl">Votre nom complet *</label><input class="inp" id="sig-name" placeholder="Prénom et nom"></div>
+    <label class="fl">Votre signature</label>
+    <canvas id="sig-canvas" width="380" height="140" style="width:100%;height:140px;border:1px solid var(--b);border-radius:8px;background:#fff;touch-action:none;cursor:crosshair"></canvas>
+    <div style="display:flex;justify-content:space-between;margin-top:8px">
+      <button class="btn btn-sm btn-o" onclick="clearSignaturePad()">Effacer</button>
+      <span style="font-size:11px;color:var(--muted);align-self:center">Dessinez avec la souris ou le doigt</span>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-o" style="flex:1" onclick="closeSignatureModal()">Annuler</button>
+      <button class="btn btn-g" style="flex:1" onclick="submitSignedQuote()">Confirmer et signer</button>
+    </div>
+  </div>
+</div>
 <!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-wrap">
@@ -1759,8 +1775,21 @@ async function loadQuotes(){
       <td>${fmtDate(q.valid_until)}</td>
       <td style="display:flex;gap:5px">
         ${q.status==="draft"||q.status==="sent"?`<button class="btn btn-sm btn-g" onclick="convertQuote('${q.id}')"><i class="ti ti-file-invoice"></i> Convertir</button>`:""}
+        ${q.status==="accepted"?`<button class="btn btn-sm btn-o" onclick="viewQuoteSignature('${q.id}')"><i class="ti ti-signature"></i> Signature</button>`:""}
       </td></tr>`).join("");
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
+}
+async function viewQuoteSignature(quoteId){
+  try{
+    const s=await api("GET",`/crm/quotes/${quoteId}/signature`);
+    const win=window.open("","_blank");
+    win.document.write(`<body style="font-family:sans-serif;padding:24px;text-align:center">
+      <h3>Signature — ${esc(s.quote_number)}</h3>
+      <p>Signé par <b>${esc(s.signed_name)}</b> le ${new Date(s.signed_at).toLocaleString()}</p>
+      <p style="color:#888;font-size:12px">IP: ${esc(s.signed_ip||"—")}</p>
+      ${s.signature_data?`<img src="${s.signature_data}" style="border:1px solid #ccc;max-width:400px;margin-top:16px">`:"<p>Aucune signature dessinée (nom seul).</p>"}
+    </body>`);
+  }catch(e){showToast(e.message,"error");}
 }
 async function convertQuote(id){
   try{const r=await api("PATCH",`/crm/quotes/${id}/convert`);showToast(`Facture ${r.invoice_number} créée ✓`);loadQuotes();}
@@ -3032,9 +3061,10 @@ async function checkPortalView(){
         <div style="display:flex;justify-content:space-between"><b>${esc(q.number)}</b><span>${fmtUSD(q.total)}</span></div>
         <div style="font-size:12px;color:var(--muted);margin:6px 0">${statusLabelFr(q.status)}</div>
         ${(q.status==='sent'||q.status==='draft')?`<div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn btn-sm btn-g" onclick="portalActOnQuote('${q.id}','approve')">Accepter</button>
-          <button class="btn btn-sm btn-r" onclick="portalActOnQuote('${q.id}','reject')">Refuser</button>
+          <button class="btn btn-sm btn-g" onclick="openSignatureModal('${q.id}')">Accepter</button>
+          <button class="btn btn-sm btn-r" onclick="portalActOnQuote('${q.id}')">Refuser</button>
         </div>`:''}
+        ${q.signed_name?`<div style="font-size:11px;color:var(--muted);margin-top:6px">Signé par ${esc(q.signed_name)} le ${fmtDate(q.signed_at)}</div>`:''}
       </div>`;
     });
     html+=`<div style="font-weight:700;margin:20px 0 10px">Factures</div>`;
@@ -3051,10 +3081,51 @@ async function checkPortalView(){
   }
   return true;
 }
-async function portalActOnQuote(quoteId,action){
-  if(!confirm(action==='approve'?"Confirmer l'acceptation de ce devis ?":"Confirmer le refus de ce devis ?"))return;
+let _sigQuoteId=null,_sigCanvas=null,_sigCtx=null,_sigDrawing=false,_sigHasDrawn=false;
+function openSignatureModal(quoteId){
+  _sigQuoteId=quoteId;
+  document.getElementById("sig-name").value="";
+  document.getElementById("modal-signature").style.display="flex";
+  setTimeout(initSignaturePad,50);
+}
+function closeSignatureModal(){document.getElementById("modal-signature").style.display="none";}
+function initSignaturePad(){
+  _sigCanvas=document.getElementById("sig-canvas");
+  _sigCtx=_sigCanvas.getContext("2d");
+  _sigCtx.clearRect(0,0,_sigCanvas.width,_sigCanvas.height);
+  _sigCtx.strokeStyle="#111";_sigCtx.lineWidth=2;_sigCtx.lineCap="round";
+  _sigHasDrawn=false;
+  const pos=(e)=>{
+    const r=_sigCanvas.getBoundingClientRect();
+    const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    const cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    return {x:cx*(_sigCanvas.width/r.width),y:cy*(_sigCanvas.height/r.height)};
+  };
+  const start=(e)=>{_sigDrawing=true;_sigHasDrawn=true;const p=pos(e);_sigCtx.beginPath();_sigCtx.moveTo(p.x,p.y);e.preventDefault();};
+  const move=(e)=>{if(!_sigDrawing)return;const p=pos(e);_sigCtx.lineTo(p.x,p.y);_sigCtx.stroke();e.preventDefault();};
+  const end=()=>{_sigDrawing=false;};
+  _sigCanvas.onmousedown=start;_sigCanvas.onmousemove=move;_sigCanvas.onmouseup=end;_sigCanvas.onmouseleave=end;
+  _sigCanvas.ontouchstart=start;_sigCanvas.ontouchmove=move;_sigCanvas.ontouchend=end;
+}
+function clearSignaturePad(){_sigCtx.clearRect(0,0,_sigCanvas.width,_sigCanvas.height);_sigHasDrawn=false;}
+async function submitSignedQuote(){
+  const name=document.getElementById("sig-name").value.trim();
+  if(!name){alert("Ton nom complet est requis pour signer.");return;}
   try{
-    const r=await fetch(`${API_BASE}/portal/${_portalToken}/quotes/${quoteId}/${action}`,{method:"POST"});
+    const r=await fetch(`${API_BASE}/portal/${_portalToken}/quotes/${_sigQuoteId}/approve`,{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({signed_name:name,signature_data:_sigHasDrawn?_sigCanvas.toDataURL("image/png"):null}),
+    });
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.detail||"Erreur");
+    closeSignatureModal();
+    checkPortalView();
+  }catch(e){alert(e.message);}
+}
+async function portalActOnQuote(quoteId){
+  if(!confirm("Confirmer le refus de ce devis ?"))return;
+  try{
+    const r=await fetch(`${API_BASE}/portal/${_portalToken}/quotes/${quoteId}/reject`,{method:"POST"});
     const d=await r.json();
     if(!r.ok) throw new Error(d.detail||"Erreur");
     checkPortalView();
