@@ -264,6 +264,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       <div class="nav-lbl" data-i18n="nav_stock_grp">Stock & Produits</div>
       <div class="nav-i" data-p="stock" onclick="navigate('stock')"><i class="ti ti-package"></i><span data-i18n="nav_inventaire">Inventaire</span> <span class="nav-badge" id="stock-alert-badge" style="display:none">!</span></div>
       <div class="nav-i" data-p="supply" onclick="navigate('supply')"><i class="ti ti-truck-delivery"></i>Approvisionnement</div>
+      <div class="nav-i" data-p="pricelist" onclick="navigate('pricelist')"><i class="ti ti-tags"></i>Catalogue de prix</div>
     </div>
     <div class="nav-g">
       <div class="nav-lbl" data-i18n="nav_compta">Comptabilité</div>
@@ -376,7 +377,10 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <div id="page-quotes" class="page">
       <div class="sh">
         <div><div class="st">Devis</div><div class="ss">Créez et convertissez vos devis en factures</div></div>
-        <button class="btn btn-g btn-sm" onclick="openQuoteModal()"><i class="ti ti-plus"></i> Nouveau devis</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-o btn-sm" onclick="openEstimateModal()"><i class="ti ti-calculator"></i> Estimation rapide</button>
+          <button class="btn btn-g btn-sm" onclick="openQuoteModal()"><i class="ti ti-plus"></i> Nouveau devis</button>
+        </div>
       </div>
       <div class="card"><div class="table-wrap">
         <table><thead><tr><th>Numéro</th><th>Date</th><th>Statut</th><th>Total</th><th>Valide jusqu'au</th><th>Actions</th></tr></thead>
@@ -803,6 +807,40 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       </div>
     </div>
 
+    <!-- CATALOGUE DE PRIX -->
+    <div id="page-pricelist" class="page">
+      <div class="sh"><div><div class="st">Catalogue de prix</div><div class="ss">Tes articles et services réutilisables dans devis et factures</div></div>
+        <button class="btn btn-g btn-sm" onclick="openPriceItemModal()"><i class="ti ti-plus"></i> Nouvel article</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table><thead><tr><th>Nom</th><th>Catégorie</th><th>Prix unitaire</th><th>Unité</th><th>TVA</th><th></th></tr></thead>
+          <tbody id="pricelist-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-price-item" class="modal-overlay" onclick="if(event.target===this)closePriceItemModal()">
+      <div class="modal">
+        <div class="modal-title"><i class="ti ti-tag" style="color:var(--gold)"></i> <span id="pi-modal-title">Nouvel article</span></div>
+        <div class="fgrp"><label class="fl">Nom *</label><input class="inp" id="pi-name"></div>
+        <div class="fgrp"><label class="fl">Description</label><input class="inp" id="pi-desc"></div>
+        <div class="grid2">
+          <div class="fgrp"><label class="fl">Prix unitaire *</label><input class="inp" type="number" id="pi-price" placeholder="0.00"></div>
+          <div class="fgrp"><label class="fl">Unité</label><input class="inp" id="pi-unit" placeholder="unité, heure, m²..."></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="fl">Catégorie</label><input class="inp" id="pi-category" placeholder="Optionnel"></div>
+          <div class="fgrp"><label class="fl">TVA (%)</label><input class="inp" type="number" id="pi-tax" placeholder="0"></div>
+        </div>
+        <input type="hidden" id="pi-edit-id">
+        <div class="modal-footer">
+          <button class="btn btn-o btn-sm" onclick="closePriceItemModal()">Annuler</button>
+          <button class="btn btn-g btn-sm" onclick="submitPriceItem()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
     <!-- RAPPROCHEMENT BANCAIRE -->
     <div id="page-bank" class="page">
       <div class="sh"><div><div class="st">Rapprochement bancaire</div><div class="ss">Importe ton relevé CSV, on associe automatiquement aux factures quand c'est possible</div></div>
@@ -913,6 +951,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <div onclick="navigate('team');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-users-group" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Équipe</span></div>
     <div onclick="navigate('files');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-folder" style="font-size:22px;color:var(--amber)"></i><span style="font-size:10px;font-family:var(--mono)">Fichiers</span></div>
     <div onclick="navigate('supply');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-truck-delivery" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Appro</span></div>
+    <div onclick="navigate('pricelist');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-tags" style="font-size:22px;color:var(--gold)"></i><span style="font-size:10px;font-family:var(--mono)">Prix</span></div>
     <div onclick="navigate('bank');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-building-bank" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Banque</span></div>
     <div onclick="navigate('integrations');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-plug" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Intégrations</span></div>
   </div>
@@ -1136,10 +1175,39 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
   </div>
 </div>
 
+<div id="modal-estimate" class="modal-overlay" onclick="if(event.target===this)closeEstimateModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-calculator" style="color:var(--amber)"></i> Estimation rapide par IA</div>
+    <div class="fgrp"><label class="fl">Décris la prestation *</label><input class="inp" id="est-desc" placeholder="Ex: peinture appartement 80m²"></div>
+    <button class="btn btn-g" style="width:100%" onclick="submitEstimate()" id="est-btn"><i class="ti ti-sparkles"></i> Estimer</button>
+    <div id="est-result" style="margin-top:14px"></div>
+    <div class="modal-footer"><button class="btn btn-o btn-sm" onclick="closeEstimateModal()">Fermer</button></div>
+  </div>
+</div>
+
 <div id="modal-quote" class="modal-overlay" onclick="if(event.target===this)closeQuoteModal()">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-file-description" style="color:var(--purple)"></i> Nouveau devis</div>
+    <div class="fgrp" style="background:var(--c2);border-radius:10px;padding:12px;border:1px solid var(--b)">
+      <label class="fl"><i class="ti ti-sparkles" style="color:var(--purple)"></i> Décris le besoin, l'IA propose les lignes</label>
+      <div style="display:flex;gap:8px">
+        <input class="inp" id="quote-ai-desc" placeholder="Ex: rénovation cuisine 15m², peinture et carrelage">
+        <button class="btn btn-g btn-sm" style="white-space:nowrap" onclick="generateAiQuote()" id="quote-ai-btn"><i class="ti ti-sparkles"></i> Générer</button>
+      </div>
+      <div id="quote-ai-result" style="margin-top:8px"></div>
+    </div>
     <div class="fgrp"><label class="fl">Client</label><select class="inp" id="quote-client"><option value="">Sans client</option></select></div>
+    <div class="fgrp">
+      <label class="fl">Modèle sectoriel (optionnel)</label>
+      <select class="inp" id="quote-sector" onchange="loadSectorSuggestions(this.value)"><option value="">Choisir un secteur pour des suggestions...</option></select>
+      <div id="quote-sector-suggestions" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+    <div class="fgrp">
+      <label class="fl">Mon catalogue</label>
+      <div id="quote-catalog-suggestions" style="display:flex;flex-wrap:wrap;gap:6px">
+        <span style="font-size:11px;color:var(--muted)">Chargement...</span>
+      </div>
+    </div>
     <div class="fgrp"><label class="fl">Description *</label><input class="inp" id="quote-desc" placeholder="Service ou produit"></div>
     <div class="grid2">
       <div class="fgrp"><label class="fl">Quantité *</label><input class="inp" type="number" id="quote-qty" placeholder="1"></div>
@@ -1276,6 +1344,52 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       <button class="btn btn-o btn-sm" onclick="closeProjectModal()">Annuler</button>
       <button class="btn btn-g btn-sm" onclick="submitProject()"><i class="ti ti-check"></i> Créer</button>
     </div>
+  </div>
+</div>
+
+<div id="modal-project-detail" class="modal-overlay" onclick="if(event.target===this)closeProjectDetail()">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-title"><i class="ti ti-briefcase" style="color:var(--purple)"></i> <span id="pd-title">Projet</span></div>
+    <button class="btn btn-g btn-sm" style="width:100%;margin-bottom:12px" onclick="openTaskModal()"><i class="ti ti-plus"></i> Nouvelle tâche</button>
+    <div id="pd-tasks-list" style="max-height:400px;overflow-y:auto"></div>
+    <div class="modal-footer"><button class="btn btn-o btn-sm" onclick="closeProjectDetail()">Fermer</button></div>
+  </div>
+</div>
+
+<div id="modal-task" class="modal-overlay" onclick="if(event.target===this)closeTaskModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-checklist" style="color:var(--blue)"></i> Nouvelle tâche</div>
+    <div class="fgrp"><label class="fl">Titre *</label><input class="inp" id="task-title" placeholder="Ex: Peindre les murs"></div>
+    <div class="grid2">
+      <div class="fgrp"><label class="fl">Priorité</label><select class="inp" id="task-priority"><option value="low">Basse</option><option value="medium" selected>Moyenne</option><option value="high">Haute</option></select></div>
+      <div class="fgrp"><label class="fl">Échéance</label><input class="inp" type="date" id="task-due"></div>
+    </div>
+    <div class="fgrp"><label class="fl">Assigné à</label><input class="inp" id="task-assigned" placeholder="Optionnel"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeTaskModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitTask()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-timelog" class="modal-overlay" onclick="if(event.target===this)closeTimeLogModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-clock" style="color:var(--amber)"></i> Enregistrer des heures</div>
+    <div class="fgrp"><label class="fl">Heures travaillées *</label><input class="inp" type="number" step="0.25" id="tl-hours" placeholder="Ex: 2.5"></div>
+    <div class="fgrp"><label class="fl">Date</label><input class="inp" type="date" id="tl-date"></div>
+    <div class="fgrp"><label class="fl">Note</label><input class="inp" id="tl-note" placeholder="Optionnel"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o btn-sm" onclick="closeTimeLogModal()">Annuler</button>
+      <button class="btn btn-g btn-sm" onclick="submitTimeLog()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-time-history" class="modal-overlay" onclick="if(event.target===this)closeTimeHistoryModal()">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-history" style="color:var(--cyan)"></i> Historique des heures</div>
+    <div id="th-list" style="max-height:320px;overflow-y:auto"></div>
+    <div class="modal-footer"><button class="btn btn-o btn-sm" onclick="closeTimeHistoryModal()">Fermer</button></div>
   </div>
 </div>
 
@@ -1563,6 +1677,7 @@ async function loadPage(p){
     case"payroll":    await loadPayroll();break;
     case"stock":      await loadStock();break;
     case"supply":     await loadSupplyOrders();break;
+    case"pricelist":  await loadPriceList();break;
     case"expenses":   await loadExpenses();break;
     case"pl":         await loadPL("month");break;
     case"margin":     await loadMarginHistory();break;
@@ -1838,8 +1953,111 @@ async function convertQuote(id){
   try{const r=await api("PATCH",`/crm/quotes/${id}/convert`);showToast(`Facture ${r.invoice_number} créée ✓`);loadQuotes();}
   catch(e){showToast(e.message,"error");}
 }
-function openQuoteModal(){populateClientSelect("quote-client");document.getElementById("modal-quote").style.display="flex";}
+let _sectorTemplates=[];
+async function openQuoteModal(){
+  populateClientSelect("quote-client");
+  document.getElementById("quote-sector-suggestions").innerHTML="";
+  document.getElementById("quote-sector").value="";
+  document.getElementById("quote-ai-desc").value="";
+  document.getElementById("quote-ai-result").innerHTML="";
+  _aiQuoteItems=[];
+  if(!_sectorTemplates.length){
+    try{_sectorTemplates=await api("GET","/quotes/sector-templates");}catch(e){}
+  }
+  document.getElementById("quote-sector").innerHTML=`<option value="">Choisir un secteur pour des suggestions...</option>`+
+    _sectorTemplates.map(s=>`<option value="${s.key}">${esc(s.label)}</option>`).join("");
+  const catBox=document.getElementById("quote-catalog-suggestions");
+  try{
+    if(!_priceList.length) _priceList=await api("GET","/price-list/");
+    catBox.innerHTML=_priceList.length?_priceList.map(it=>`<button type="button" class="btn btn-sm btn-o" style="font-size:11px" onclick="applySectorSuggestion('${escJs(it.name)}',${it.unit_price})">${esc(it.name)} — ${fmtUSD(it.unit_price)}</button>`).join(""):`<span style="font-size:11px;color:var(--muted)">Aucun article dans ton catalogue — ajoute-en dans "Catalogue de prix".</span>`;
+  }catch(e){catBox.innerHTML="";}
+  document.getElementById("modal-quote").style.display="flex";
+}
+async function loadSectorSuggestions(key){
+  const box=document.getElementById("quote-sector-suggestions");
+  if(!key){box.innerHTML="";return;}
+  box.innerHTML=`<span style="font-size:11px;color:var(--muted)">Chargement...</span>`;
+  try{
+    const t=await api("GET",`/quotes/sector-templates/${key}`);
+    box.innerHTML=t.items.map(it=>`<button type="button" class="btn btn-sm btn-o" style="font-size:11px" onclick="applySectorSuggestion('${escJs(it.description)}',${it.unit_price})">${esc(it.description)} — ${fmtUSD(it.unit_price)}</button>`).join("");
+  }catch(e){box.innerHTML=`<span style="font-size:11px;color:var(--red)">${esc(e.message)}</span>`;}
+}
+function applySectorSuggestion(description,price){
+  document.getElementById("quote-desc").value=description;
+  document.getElementById("quote-price").value=price;
+  if(!document.getElementById("quote-qty").value) document.getElementById("quote-qty").value="1";
+}
 function closeQuoteModal(){document.getElementById("modal-quote").style.display="none";}
+function openEstimateModal(){
+  document.getElementById("est-desc").value="";
+  document.getElementById("est-result").innerHTML="";
+  document.getElementById("modal-estimate").style.display="flex";
+}
+function closeEstimateModal(){document.getElementById("modal-estimate").style.display="none";}
+async function submitEstimate(){
+  const desc=document.getElementById("est-desc").value.trim();
+  if(!desc){showToast("Décris la prestation d'abord","error");return;}
+  const btn=document.getElementById("est-btn"),box=document.getElementById("est-result");
+  btn.disabled=true;btn.innerHTML=`<i class="ti ti-loader-2"></i> Estimation...`;
+  box.innerHTML="";
+  try{
+    const r=await api("POST","/estimate/ai",{description:desc});
+    box.innerHTML=`
+      <div style="text-align:center;padding:14px;background:var(--c2);border-radius:10px;border:1px solid var(--b)">
+        <div style="font-size:22px;font-weight:800;color:var(--green)">${fmtUSD(r.low_estimate)} — ${fmtUSD(r.high_estimate)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">${esc(r.reasoning)}</div>
+      </div>
+      ${r.factors.length?`<div style="margin-top:10px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">Facteurs qui influencent le prix :</div>
+        ${r.factors.map(f=>`<div style="font-size:12px;color:var(--muted);padding:3px 0"><i class="ti ti-point"></i> ${esc(f)}</div>`).join("")}
+      </div>`:""}`;
+  }catch(e){
+    box.innerHTML=`<div style="color:var(--red);font-size:13px">${esc(e.message)}</div>`;
+  }finally{
+    btn.disabled=false;btn.innerHTML=`<i class="ti ti-sparkles"></i> Estimer`;
+  }
+}
+let _aiQuoteItems=[];
+async function generateAiQuote(){
+  const desc=document.getElementById("quote-ai-desc").value.trim();
+  if(!desc){showToast("Décris le besoin du client d'abord","error");return;}
+  const btn=document.getElementById("quote-ai-btn"),box=document.getElementById("quote-ai-result");
+  btn.disabled=true;btn.innerHTML=`<i class="ti ti-loader-2"></i> Génération...`;
+  box.innerHTML="";
+  try{
+    const r=await api("POST","/quotes/ai-generate",{description:desc});
+    _aiQuoteItems=r.items;
+    renderAiQuoteItems();
+  }catch(e){
+    box.innerHTML=`<div style="color:var(--red);font-size:12px;margin-top:6px">${esc(e.message)}</div>`;
+  }finally{
+    btn.disabled=false;btn.innerHTML=`<i class="ti ti-sparkles"></i> Générer`;
+  }
+}
+function renderAiQuoteItems(){
+  const box=document.getElementById("quote-ai-result");
+  if(!_aiQuoteItems.length){box.innerHTML="";return;}
+  const total=_aiQuoteItems.reduce((s,it)=>s+it.qty*it.unit_price,0);
+  box.innerHTML=`
+    <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Lignes proposées — retire celles que tu ne veux pas :</div>
+    ${_aiQuoteItems.map((it,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--b);font-size:12px">
+      <span>${esc(it.description)} — ${it.qty} × ${fmtUSD(it.unit_price)}</span>
+      <button type="button" class="btn btn-sm btn-r" onclick="removeAiItem(${i})"><i class="ti ti-x"></i></button>
+    </div>`).join("")}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <b style="font-size:13px">Total: ${fmtUSD(total)}</b>
+      <button type="button" class="btn btn-g btn-sm" onclick="submitAiQuote()">Créer ce devis</button>
+    </div>`;
+}
+function removeAiItem(i){_aiQuoteItems.splice(i,1);renderAiQuoteItems();}
+async function submitAiQuote(){
+  if(!_aiQuoteItems.length){showToast("Aucune ligne à créer","error");return;}
+  try{
+    await api("POST","/crm/quotes",{client_id:document.getElementById("quote-client").value||null,
+      items:_aiQuoteItems.map(it=>({description:it.description,qty:it.qty,unit_price:it.unit_price}))});
+    showToast("Devis créé ✓");_aiQuoteItems=[];closeQuoteModal();loadQuotes();
+  }catch(e){showToast(e.message,"error");}
+}
 async function submitQuote(){
   const desc=document.getElementById("quote-desc").value;
   const qty=parseFloat(document.getElementById("quote-qty").value);
@@ -2615,6 +2833,65 @@ async function submitSupplyOrder(){
   }catch(e){showToast(e.message,"error");}
 }
 
+// ── CATALOGUE DE PRIX ────────────────────────────────────────────────────────
+let _priceList=[];
+async function loadPriceList(){
+  const tbody=document.getElementById("pricelist-tbody");if(!tbody)return;
+  try{
+    _priceList=await api("GET","/price-list/");
+    if(!_priceList.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Aucun article. Crée ton premier article réutilisable.</td></tr>`;return;}
+    tbody.innerHTML=_priceList.map(it=>`<tr>
+      <td style="font-weight:600">${esc(it.name)}</td>
+      <td style="color:var(--muted);font-size:12px">${esc(it.category)||"—"}</td>
+      <td style="font-family:var(--mono);font-weight:700">${fmtUSD(it.unit_price)}</td>
+      <td style="font-size:12px">${esc(it.unit)}</td>
+      <td style="font-family:var(--mono);font-size:12px">${it.tax_rate}%</td>
+      <td style="display:flex;gap:5px">
+        <button class="btn btn-sm btn-o" onclick="editPriceItem('${it.id}')"><i class="ti ti-pencil"></i></button>
+        <button class="btn btn-sm btn-r" onclick="deletePriceItem('${it.id}')"><i class="ti ti-trash"></i></button>
+      </td>
+    </tr>`).join("");
+  }catch(e){tbody.innerHTML=`<tr><td colspan="6" style="color:var(--red);padding:20px">${esc(e.message)}</td></tr>`;}
+}
+function openPriceItemModal(){
+  document.getElementById("pi-modal-title").textContent="Nouvel article";
+  document.getElementById("pi-edit-id").value="";
+  ["pi-name","pi-desc","pi-price","pi-unit","pi-category","pi-tax"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("modal-price-item").style.display="flex";
+}
+function editPriceItem(id){
+  const it=_priceList.find(p=>p.id===id);if(!it)return;
+  document.getElementById("pi-modal-title").textContent="Modifier l'article";
+  document.getElementById("pi-edit-id").value=id;
+  document.getElementById("pi-name").value=it.name;
+  document.getElementById("pi-desc").value=it.description||"";
+  document.getElementById("pi-price").value=it.unit_price;
+  document.getElementById("pi-unit").value=it.unit;
+  document.getElementById("pi-category").value=it.category||"";
+  document.getElementById("pi-tax").value=it.tax_rate;
+  document.getElementById("modal-price-item").style.display="flex";
+}
+function closePriceItemModal(){document.getElementById("modal-price-item").style.display="none";}
+async function submitPriceItem(){
+  const name=document.getElementById("pi-name").value.trim();
+  const price=parseFloat(document.getElementById("pi-price").value);
+  if(!name||isNaN(price)){showToast("Nom et prix sont obligatoires","error");return;}
+  const payload={name,description:document.getElementById("pi-desc").value||null,unit_price:price,
+    unit:document.getElementById("pi-unit").value||"unité",category:document.getElementById("pi-category").value||null,
+    tax_rate:parseFloat(document.getElementById("pi-tax").value||0)};
+  const editId=document.getElementById("pi-edit-id").value;
+  try{
+    if(editId) await api("PUT",`/price-list/${editId}`,payload);
+    else await api("POST","/price-list/",payload);
+    showToast(editId?"Article modifié ✓":"Article créé ✓");closePriceItemModal();loadPriceList();
+  }catch(e){showToast(e.message,"error");}
+}
+async function deletePriceItem(id){
+  if(!confirm("Supprimer cet article du catalogue ?"))return;
+  try{await api("DELETE",`/price-list/${id}`);showToast("Supprimé ✓");loadPriceList();}
+  catch(e){showToast(e.message,"error");}
+}
+
 // ── INTÉGRATIONS / WEBHOOKS ─────────────────────────────────────────────────────
 const WEBHOOK_EVENT_LABELS={"invoice.paid":"Facture payée","invoice.created":"Facture créée","client.created":"Nouveau client","subscription.activated":"Abonnement activé","stock.low":"Stock bas"};
 async function loadWebhooks(){
@@ -2939,7 +3216,7 @@ async function loadProjects(){
     if(!projs?.length){container.innerHTML=`<div class="card" style="text-align:center;padding:32px;color:var(--muted)"><i class="ti ti-briefcase" style="font-size:40px;display:block;margin-bottom:12px"></i>Aucun projet. <a href="#" onclick="openProjectModal()">Créer →</a></div>`;return;}
     container.innerHTML=projs.map(p=>{
       const statusColors={active:"var(--green)",completed:"var(--blue)",on_hold:"var(--amber)",cancelled:"var(--red)"};
-      return`<div class="card" style="margin-bottom:12px">
+      return`<div class="card" style="margin-bottom:12px;cursor:pointer" onclick="openProjectDetail('${p.id}','${escJs(p.name)}')">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div><div style="font-weight:700;font-size:14px">${esc(p.name)}</div>
             <div style="font-size:12px;color:var(--muted)">${esc(p.description)||"—"}</div>
@@ -2970,6 +3247,109 @@ async function submitProject(){
     showToast("Projet créé ✓");closeProjectModal();loadProjects();
   }catch(e){showToast(e.message,"error");}
 }
+
+// ── TÂCHES + SUIVI DES HEURES ────────────────────────────────────────────────
+let _currentProjectId=null,_currentTaskId=null;
+const taskStatusLabel={todo:"À faire",in_progress:"En cours",done:"Terminé"};
+async function openProjectDetail(projectId,projectName){
+  _currentProjectId=projectId;
+  document.getElementById("pd-title").textContent=projectName;
+  document.getElementById("modal-project-detail").style.display="flex";
+  await loadProjectTasks();
+}
+function closeProjectDetail(){document.getElementById("modal-project-detail").style.display="none";}
+async function loadProjectTasks(){
+  const box=document.getElementById("pd-tasks-list");
+  box.innerHTML=`<div style="text-align:center;color:var(--muted);padding:16px">Chargement...</div>`;
+  try{
+    const tasks=await api("GET",`/projects/${_currentProjectId}/tasks`);
+    if(!tasks.length){box.innerHTML=`<div style="text-align:center;color:var(--muted);padding:16px">Aucune tâche.</div>`;return;}
+    const withHours=await Promise.all(tasks.map(async t=>{
+      try{const logs=await api("GET",`/projects/tasks/${t.id}/time`);return{...t,totalHours:logs.reduce((s,l)=>s+l.hours,0)};}
+      catch{return{...t,totalHours:0};}
+    }));
+    box.innerHTML=withHours.map(t=>`<div class="card2" style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="font-weight:600;font-size:13px">${esc(t.title)}</div>
+        <button class="btn btn-sm btn-r" onclick="deleteTask('${t.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap">
+        <select class="inp" style="width:auto;padding:4px 8px;font-size:11px" onchange="changeTaskStatus('${t.id}',this.value)">
+          ${Object.keys(taskStatusLabel).map(s=>`<option value="${s}" ${s===t.status?"selected":""}>${taskStatusLabel[s]}</option>`).join("")}
+        </select>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--amber);cursor:pointer" onclick="viewTimeHistory('${t.id}','${escJs(t.title)}')">
+          <i class="ti ti-clock"></i> ${t.totalHours}h
+        </span>
+        <button class="btn btn-sm btn-o" style="margin-left:auto" onclick="openTimeLogModal('${t.id}')"><i class="ti ti-plus"></i> Heures</button>
+      </div>
+    </div>`).join("");
+  }catch(e){box.innerHTML=`<div style="color:var(--red)">${esc(e.message)}</div>`;}
+}
+async function changeTaskStatus(taskId,status){
+  try{await api("PATCH",`/projects/tasks/${taskId}/status?status=${status}`);showToast("Statut mis à jour ✓");}
+  catch(e){showToast(e.message,"error");loadProjectTasks();}
+}
+async function deleteTask(taskId){
+  if(!confirm("Supprimer cette tâche et ses heures enregistrées ?"))return;
+  try{await api("DELETE",`/projects/tasks/${taskId}`);showToast("Supprimée ✓");loadProjectTasks();}
+  catch(e){showToast(e.message,"error");}
+}
+function openTaskModal(){
+  document.getElementById("task-title").value="";document.getElementById("task-due").value="";document.getElementById("task-assigned").value="";
+  document.getElementById("modal-task").style.display="flex";
+}
+function closeTaskModal(){document.getElementById("modal-task").style.display="none";}
+async function submitTask(){
+  const title=document.getElementById("task-title").value.trim();
+  if(!title){showToast("Le titre est obligatoire","error");return;}
+  try{
+    const due=document.getElementById("task-due").value;
+    await api("POST","/projects/tasks",{project_id:_currentProjectId,title,
+      priority:document.getElementById("task-priority").value,
+      due_date:due?new Date(due).toISOString():null,
+      assigned_to:document.getElementById("task-assigned").value||null});
+    showToast("Tâche créée ✓");closeTaskModal();loadProjectTasks();
+  }catch(e){showToast(e.message,"error");}
+}
+function openTimeLogModal(taskId){
+  _currentTaskId=taskId;
+  document.getElementById("tl-hours").value="";document.getElementById("tl-note").value="";
+  document.getElementById("tl-date").value=new Date().toISOString().slice(0,10);
+  document.getElementById("modal-timelog").style.display="flex";
+}
+function closeTimeLogModal(){document.getElementById("modal-timelog").style.display="none";}
+async function submitTimeLog(){
+  const hours=parseFloat(document.getElementById("tl-hours").value);
+  if(!hours||hours<=0){showToast("Entre un nombre d'heures valide","error");return;}
+  try{
+    const d=document.getElementById("tl-date").value;
+    await api("POST",`/projects/tasks/${_currentTaskId}/time`,{hours,
+      log_date:d?new Date(d).toISOString():null,note:document.getElementById("tl-note").value||null});
+    showToast("Heures enregistrées ✓");closeTimeLogModal();loadProjectTasks();
+  }catch(e){showToast(e.message,"error");}
+}
+async function viewTimeHistory(taskId,taskTitle){
+  document.getElementById("modal-time-history").style.display="flex";
+  const box=document.getElementById("th-list");
+  box.innerHTML=`<div style="text-align:center;color:var(--muted);padding:16px">Chargement...</div>`;
+  try{
+    const logs=await api("GET",`/projects/tasks/${taskId}/time`);
+    if(!logs.length){box.innerHTML=`<div style="text-align:center;color:var(--muted);padding:16px">Aucune heure enregistrée.</div>`;return;}
+    box.innerHTML=logs.map(l=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b);font-size:13px">
+      <div><b>${l.hours}h</b> — ${esc(l.logged_by)||"?"}<div style="font-size:11px;color:var(--muted)">${esc(l.note)||""}</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${fmtDate(l.log_date)}</span>
+        <button class="btn btn-sm btn-r" onclick="deleteTimeLog('${l.id}','${taskId}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`).join("");
+  }catch(e){box.innerHTML=`<div style="color:var(--red)">${esc(e.message)}</div>`;}
+}
+async function deleteTimeLog(logId,taskId){
+  if(!confirm("Supprimer cette entrée ?"))return;
+  try{await api("DELETE",`/time/${logId}`);showToast("Supprimée ✓");viewTimeHistory(taskId);loadProjectTasks();}
+  catch(e){showToast(e.message,"error");}
+}
+function closeTimeHistoryModal(){document.getElementById("modal-time-history").style.display="none";}
 
 // ── CALENDRIER ────────────────────────────────────────────────────────────────
 async function loadCalendar(){
