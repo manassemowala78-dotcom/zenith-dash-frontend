@@ -263,6 +263,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <div class="nav-g">
       <div class="nav-lbl" data-i18n="nav_stock_grp">Stock & Produits</div>
       <div class="nav-i" data-p="stock" onclick="navigate('stock')"><i class="ti ti-package"></i><span data-i18n="nav_inventaire">Inventaire</span> <span class="nav-badge" id="stock-alert-badge" style="display:none">!</span></div>
+      <div class="nav-i" data-p="supply" onclick="navigate('supply')"><i class="ti ti-truck-delivery"></i>Approvisionnement</div>
     </div>
     <div class="nav-g">
       <div class="nav-lbl" data-i18n="nav_compta">Comptabilité</div>
@@ -762,6 +763,46 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       </div>
     </div>
 
+    <!-- APPROVISIONNEMENT -->
+    <div id="page-supply" class="page">
+      <div class="sh"><div><div class="st">Approvisionnement</div><div class="ss">Commandes fournisseurs et réception de stock</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-o btn-sm" onclick="openSupplierModal()"><i class="ti ti-building-store"></i> Fournisseur</button>
+          <button class="btn btn-g btn-sm" onclick="openSupplyOrderModal()"><i class="ti ti-plus"></i> Commande</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table><thead><tr><th>N°</th><th>Fournisseur</th><th>Articles</th><th>Total</th><th>Statut</th><th>Prévue le</th><th></th></tr></thead>
+          <tbody id="supply-tbody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Chargement...</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-supplier" class="modal-overlay" onclick="if(event.target===this)closeSupplierModal()">
+      <div class="modal">
+        <div class="modal-title"><i class="ti ti-building-store" style="color:var(--cyan)"></i> Nouveau fournisseur</div>
+        <div class="fgrp"><label class="fl">Nom *</label><input class="inp" id="sup-name"></div>
+        <div class="fgrp"><label class="fl">Email</label><input class="inp" id="sup-email"></div>
+        <div class="fgrp"><label class="fl">Téléphone</label><input class="inp" id="sup-phone"></div>
+        <button class="btn btn-g" style="width:100%" onclick="submitSupplier()">Créer</button>
+      </div>
+    </div>
+
+    <div id="modal-supply-order" class="modal-overlay" onclick="if(event.target===this)closeSupplyOrderModal()">
+      <div class="modal">
+        <div class="modal-title"><i class="ti ti-truck-delivery" style="color:var(--green)"></i> Nouvelle commande fournisseur</div>
+        <div class="fgrp"><label class="fl">Fournisseur</label><select class="inp" id="so-supplier"><option value="">Sans fournisseur</option></select></div>
+        <div class="fgrp"><label class="fl">Produit *</label><select class="inp" id="so-product"></select></div>
+        <div class="grid2">
+          <div class="fgrp"><label class="fl">Quantité *</label><input class="inp" type="number" id="so-qty" placeholder="0"></div>
+          <div class="fgrp"><label class="fl">Coût unitaire *</label><input class="inp" type="number" id="so-cost" placeholder="0.00"></div>
+        </div>
+        <div class="fgrp"><label class="fl">Date prévue</label><input class="inp" type="date" id="so-date"></div>
+        <button class="btn btn-g" style="width:100%" onclick="submitSupplyOrder()">Créer la commande</button>
+      </div>
+    </div>
+
     <!-- RAPPROCHEMENT BANCAIRE -->
     <div id="page-bank" class="page">
       <div class="sh"><div><div class="st">Rapprochement bancaire</div><div class="ss">Importe ton relevé CSV, on associe automatiquement aux factures quand c'est possible</div></div>
@@ -871,6 +912,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <div onclick="navigate('billing');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-building-bank" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Plans</span></div>
     <div onclick="navigate('team');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-users-group" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Équipe</span></div>
     <div onclick="navigate('files');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-folder" style="font-size:22px;color:var(--amber)"></i><span style="font-size:10px;font-family:var(--mono)">Fichiers</span></div>
+    <div onclick="navigate('supply');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-truck-delivery" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Appro</span></div>
     <div onclick="navigate('bank');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-building-bank" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Banque</span></div>
     <div onclick="navigate('integrations');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-plug" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Intégrations</span></div>
   </div>
@@ -1520,6 +1562,7 @@ async function loadPage(p){
     case"leaves":     await loadLeaves();break;
     case"payroll":    await loadPayroll();break;
     case"stock":      await loadStock();break;
+    case"supply":     await loadSupplyOrders();break;
     case"expenses":   await loadExpenses();break;
     case"pl":         await loadPL("month");break;
     case"margin":     await loadMarginHistory();break;
@@ -2501,6 +2544,75 @@ async function deleteBankTx(id){
 }
 function showManualMatch(txId,amount){
   showToast(`Aucune correspondance automatique pour ${fmtUSD(parseFloat(amount))} — vérifie manuellement dans Factures`);
+}
+
+// ── APPROVISIONNEMENT ────────────────────────────────────────────────────────
+let _suppliers=[];
+const supplyStatusLabel={draft:'<span class="badge badge-gray">Brouillon</span>',ordered:'<span class="badge bb">Commandée</span>',received:'<span class="badge bg">Reçue</span>',cancelled:'<span class="badge br">Annulée</span>'};
+async function loadSupplyOrders(){
+  const tbody=document.getElementById("supply-tbody");if(!tbody)return;
+  try{
+    const [orders,suppliers]=await Promise.all([api("GET","/supply-orders/"),api("GET","/suppliers/")]);
+    _suppliers=suppliers;
+    if(!orders.length){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Aucune commande.</td></tr>`;return;}
+    tbody.innerHTML=orders.map(o=>`<tr>
+      <td style="font-family:var(--mono);color:var(--purple)">${esc(o.number)}</td>
+      <td>${esc(o.supplier_name)||"—"}</td>
+      <td style="font-size:12px">${o.items.map(it=>`${it.product_name} ×${it.qty}`).join(", ")}</td>
+      <td style="font-family:var(--mono);font-weight:700">${fmtUSD(o.total_cost)}</td>
+      <td>${supplyStatusLabel[o.status]||o.status}</td>
+      <td style="font-family:var(--mono);font-size:11px">${o.expected_date?fmtDate(o.expected_date):"—"}</td>
+      <td style="display:flex;gap:5px">
+        ${o.status==='draft'?`<button class="btn btn-sm btn-o" onclick="updateSupplyStatus('${o.id}','ordered')">Commander</button>`:''}
+        ${o.status==='ordered'?`<button class="btn btn-sm btn-g" onclick="updateSupplyStatus('${o.id}','received')">Réceptionner</button>`:''}
+        ${o.status!=='received'?`<button class="btn btn-sm btn-r" onclick="deleteSupplyOrder('${o.id}')"><i class="ti ti-trash"></i></button>`:''}
+      </td>
+    </tr>`).join("");
+  }catch(e){tbody.innerHTML=`<tr><td colspan="7" style="color:var(--red);padding:20px">${esc(e.message)}</td></tr>`;}
+}
+async function updateSupplyStatus(id,status){
+  const msg=status==='received'?"Confirmer la réception ? Le stock sera mis à jour automatiquement.":"Confirmer le passage en commande ?";
+  if(!confirm(msg))return;
+  try{await api("PATCH",`/supply-orders/${id}/status?status=${status}`);showToast("Mis à jour ✓");loadSupplyOrders();loadStock();}
+  catch(e){showToast(e.message,"error");}
+}
+async function deleteSupplyOrder(id){
+  if(!confirm("Supprimer cette commande ?"))return;
+  try{await api("DELETE",`/supply-orders/${id}`);showToast("Supprimé ✓");loadSupplyOrders();}
+  catch(e){showToast(e.message,"error");}
+}
+function openSupplierModal(){document.getElementById("modal-supplier").style.display="flex";}
+function closeSupplierModal(){document.getElementById("modal-supplier").style.display="none";}
+async function submitSupplier(){
+  const name=document.getElementById("sup-name").value.trim();
+  if(!name){showToast("Le nom est obligatoire","error");return;}
+  try{
+    await api("POST","/suppliers/",{name,email:document.getElementById("sup-email").value||null,phone:document.getElementById("sup-phone").value||null});
+    showToast("Fournisseur créé ✓");closeSupplierModal();loadSupplyOrders();
+  }catch(e){showToast(e.message,"error");}
+}
+async function openSupplyOrderModal(){
+  if(!_products.length) try{_products=await api("GET","/stock/products");}catch(e){}
+  if(!_suppliers.length) try{_suppliers=await api("GET","/suppliers/");}catch(e){}
+  document.getElementById("so-supplier").innerHTML=`<option value="">Sans fournisseur</option>`+_suppliers.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  document.getElementById("so-product").innerHTML=_products.map(p=>`<option value="${p.id}">${esc(p.name)} (stock: ${p.stock_qty})</option>`).join("");
+  document.getElementById("so-qty").value="";document.getElementById("so-cost").value="";document.getElementById("so-date").value="";
+  document.getElementById("modal-supply-order").style.display="flex";
+}
+function closeSupplyOrderModal(){document.getElementById("modal-supply-order").style.display="none";}
+async function submitSupplyOrder(){
+  const productId=document.getElementById("so-product").value;
+  const qty=parseFloat(document.getElementById("so-qty").value);
+  const cost=parseFloat(document.getElementById("so-cost").value);
+  if(!productId||!qty||!cost){showToast("Produit, quantité et coût sont obligatoires","error");return;}
+  try{
+    await api("POST","/supply-orders/",{
+      supplier_id:document.getElementById("so-supplier").value||null,
+      items:[{product_id:productId,qty,unit_cost:cost}],
+      expected_date:document.getElementById("so-date").value||null,
+    });
+    showToast("Commande créée ✓");closeSupplyOrderModal();loadSupplyOrders();
+  }catch(e){showToast(e.message,"error");}
 }
 
 // ── INTÉGRATIONS / WEBHOOKS ─────────────────────────────────────────────────────
