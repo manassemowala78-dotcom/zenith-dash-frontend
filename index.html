@@ -22,8 +22,9 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .auth-tab.active{background:var(--card);color:var(--text)}
 .auth-tab-content{display:none}.auth-tab-content.active{display:block}
 .err-box{color:var(--red);font-size:12px;font-family:var(--mono);margin-top:8px;display:none}
-#app-screen{display:none}
-.layout{display:grid;grid-template-columns:230px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+html,body{height:100%;margin:0}
+#app-screen{display:none;height:100vh;height:100dvh;overflow:hidden}
+.layout{display:grid;grid-template-columns:230px 1fr;grid-template-rows:auto 1fr;height:100vh;height:100dvh;overflow:hidden}
 .trial-bar{grid-column:1/-1;background:rgba(0,224,128,.08);border-bottom:1px solid rgba(0,224,128,.2);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--green)}
 .trial-bar.expired{background:rgba(255,95,109,.08);border-color:rgba(255,95,109,.2);color:var(--red)}
 .trial-bar.hidden{display:none}
@@ -32,7 +33,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--green),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px}
 .logo span{color:var(--green)}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#000}
-.sidebar{background:var(--s);border-right:1px solid var(--b);padding:14px 0;overflow-y:auto}
+.sidebar{background:var(--s);border-right:1px solid var(--b);padding:14px 0;overflow-y:auto;min-height:0}
 .nav-g{padding:0 10px;margin-bottom:4px}
 .nav-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:8px 8px 4px}
 .nav-i{display:flex;align-items:center;gap:9px;padding:8px 10px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;border-radius:8px;margin-bottom:1px}
@@ -40,7 +41,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .nav-i.active{color:var(--green);background:rgba(0,224,128,.1)}
 .nav-i i{font-size:15px;flex-shrink:0}
 .nav-badge{font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:4px;background:rgba(255,95,109,.15);color:var(--red);margin-left:auto}
-.main{padding:24px;overflow-y:auto}
+.main{padding:24px;overflow-y:auto;min-height:0}
 .page{display:none}.page.active{display:block;animation:fi .2s ease}
 @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:18px}
@@ -929,6 +930,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
 </div>
 
 <!-- MORE MENU MOBILE -->
+<div id="more-menu-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:198" onclick="closeMoreMenu()"></div>
 <div id="more-menu" style="display:none;position:fixed;bottom:70px;left:0;right:0;background:var(--s);border-top:1px solid var(--b);z-index:199;padding:12px 16px;max-height:65vh;overflow-y:auto">
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
     <div onclick="navigate('clients');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-users" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Clients</span></div>
@@ -3458,11 +3460,16 @@ async function activateCreator(){
 
 function toggleMoreMenu(){
   const m=document.getElementById("more-menu");
-  if(m) m.style.display=m.style.display==="none"?"block":"none";
+  const b=document.getElementById("more-menu-backdrop");
+  const show=m.style.display==="none";
+  if(m) m.style.display=show?"block":"none";
+  if(b) b.style.display=show?"block":"none";
 }
 function closeMoreMenu(){
   const m=document.getElementById("more-menu");
+  const b=document.getElementById("more-menu-backdrop");
   if(m) m.style.display="none";
+  if(b) b.style.display="none";
 }
 
 // Fix iPhone — scroll vers le bouton après remplissage
