@@ -156,6 +156,23 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
   </div>
   <div id="portal-content"><div style="text-align:center;color:var(--muted);padding:40px 0">Chargement...</div></div>
 </div>
+
+<!-- ÉCRAN DE BLOCAGE (essai ou abonnement expiré) -->
+<div id="blocked-screen" style="display:none;min-height:100vh;min-height:100dvh;align-items:center;justify-content:center;padding:24px 16px">
+  <div style="max-width:520px;width:100%">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:40px;margin-bottom:10px">🔒</div>
+      <div style="font-size:20px;font-weight:800"><span style="color:var(--green)">Zenith</span> Dash</div>
+      <div style="font-size:15px;font-weight:700;margin-top:14px;color:var(--red)">Ton accès a expiré</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">Choisis une formule ci-dessous pour continuer à utiliser Zenith Dash.</div>
+    </div>
+    <div id="blocked-plans"><div style="text-align:center;color:var(--muted);padding:20px">Chargement des formules...</div></div>
+    <div id="blocked-wire-result" style="display:none;margin-top:16px"></div>
+    <div style="text-align:center;margin-top:20px">
+      <button class="btn btn-o btn-sm" onclick="doLogout()"><i class="ti ti-logout"></i> Se déconnecter</button>
+    </div>
+  </div>
+</div>
 <div id="modal-signature" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center;padding:16px">
   <div class="card" style="max-width:420px;width:100%">
     <div style="font-weight:700;font-size:15px;margin-bottom:14px">Signer le devis</div>
@@ -613,7 +630,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
         <div id="referral-box" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <div style="font-family:var(--mono);font-size:18px;font-weight:800;letter-spacing:3px;background:var(--s);padding:8px 16px;border-radius:8px;border:1px solid var(--b)" id="referral-code-display">—</div>
           <button class="btn btn-o btn-sm" onclick="copyReferralLink()"><i class="ti ti-copy"></i> Copier le lien</button>
-          <a id="referral-whatsapp-btn" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:7px 14px;border-radius:8px;font-weight:700;font-size:12px;text-decoration:none"><i class="ti ti-brand-whatsapp"></i> WhatsApp</a>
+          <button type="button" id="referral-whatsapp-btn" onclick="shareViaNative('referral')" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:7px 14px;border-radius:8px;font-weight:700;font-size:12px;text-decoration:none;border:none;cursor:pointer;font-family:inherit"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
           <span style="font-family:var(--mono);font-size:11px;color:var(--muted)" id="referral-bonus-label"></span>
         </div>
       </div>
@@ -1272,7 +1289,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <div class="wire-box" id="invite-link-box" style="word-break:break-all"></div>
     <div class="modal-footer">
       <button class="btn btn-o btn-sm" onclick="closeInviteLinkModal()">Fermer</button>
-      <a id="invite-whatsapp-btn" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none"><i class="ti ti-brand-whatsapp"></i> WhatsApp</a>
+      <button type="button" id="invite-whatsapp-btn" onclick="shareViaNative('invite')" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;border:none;cursor:pointer;font-family:inherit"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
       <button class="btn btn-g btn-sm" onclick="copyInviteLink()"><i class="ti ti-copy"></i> Copier</button>
     </div>
   </div>
@@ -1547,6 +1564,17 @@ function applyLanguage(lang){
 }
 
 const State={token:localStorage.getItem("zd_token"),tenant:JSON.parse(localStorage.getItem("zd_tenant")||"null"),lang:localStorage.getItem("zd_lang")||"fr",theme:localStorage.getItem("zd_theme")||"dark"};
+const _shareTexts={};
+async function shareViaNative(key){
+  const text=_shareTexts[key];
+  if(!text){showToast("Rien à partager pour l'instant","error");return;}
+  if(navigator.share){
+    try{await navigator.share({text});}
+    catch(e){/* utilisateur a annulé le partage, rien à faire */}
+  }else{
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank");
+  }
+}
 
 async function api(method,path,body=null){
   const h={"Content-Type":"application/json"};
@@ -1554,6 +1582,7 @@ async function api(method,path,body=null){
   try{
     const r=await fetch(API_BASE+path,{method,headers:h,body:body?JSON.stringify(body):null});
     const d=await r.json();
+    if(r.status===402){showBlockedScreen();throw new Error(d.detail||"Abonnement expiré");}
     if(!r.ok){const m=typeof d.detail==="object"?(d.detail.message||d.detail.error):d.detail;throw new Error(m||"Erreur serveur");}
     return d;
   }catch(e){
@@ -1597,16 +1626,47 @@ function statusBadge(s){
   return`<span class="badge ${m[s]||"bb"}">${labels[s]||s}</span>`;
 }
 
-function showTrialBar(trial){
+let _expiryInterval=null;
+function formatCountdown(msRemaining){
+  if(msRemaining<=0) return "Expiré";
+  const totalSec=Math.floor(msRemaining/1000);
+  const days=Math.floor(totalSec/86400);
+  const hours=Math.floor((totalSec%86400)/3600);
+  const mins=Math.floor((totalSec%3600)/60);
+  const secs=totalSec%60;
+  if(days>0) return `${days}j ${hours}h`;
+  if(hours>0) return `${hours}h ${String(mins).padStart(2,"0")}min`;
+  if(mins>0) return `${mins}min ${String(secs).padStart(2,"0")}s`;
+  return `${secs}s`;
+}
+function updateExpiryBar(user){
   const bar=document.getElementById("trial-bar");
-  if(!trial||trial.is_creator){bar.className="trial-bar hidden";return;}
-  if(trial.active&&trial.days_remaining!=null){
-    bar.className="trial-bar";
-    bar.innerHTML=`⏱ Essai gratuit — <b>${trial.days_remaining} jour(s) restant(s)</b> &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--green);text-decoration:underline">Souscrire →</a>`;
-  } else if(trial.expired){
-    bar.className="trial-bar expired";
-    bar.innerHTML=`⚠️ Essai expiré — Souscrivez pour continuer &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--red);text-decoration:underline">Voir les plans →</a>`;
-  } else { bar.className="trial-bar hidden"; }
+  if(_expiryInterval){clearInterval(_expiryInterval);_expiryInterval=null;}
+  if(!user||user.is_creator){bar.className="trial-bar hidden";return;}
+  let targetIso=null,label="",linkText="";
+  if(user.plan==="trial"&&user.trial){
+    if(user.trial.expired){bar.className="trial-bar expired";
+      bar.innerHTML=`⚠️ Essai expiré — Souscrivez pour continuer &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--red);text-decoration:underline">Voir les plans →</a>`;
+      return;}
+    if(user.trial.active&&user.trial.expires_at){targetIso=user.trial.expires_at;label="⏱ Essai gratuit —";linkText="Souscrire";}
+  }else if(user.subscription_expires_at){
+    targetIso=user.subscription_expires_at;label="📅 Abonnement —";linkText="Gérer";
+  }
+  if(!targetIso){bar.className="trial-bar hidden";return;}
+  const target=new Date(targetIso);
+  bar.className="trial-bar";
+  const render=()=>{
+    const remaining=target-new Date();
+    if(remaining<=0){
+      bar.className="trial-bar expired";
+      bar.innerHTML=`⚠️ Expiré — Souscrivez pour continuer &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--red);text-decoration:underline">Voir les plans →</a>`;
+      clearInterval(_expiryInterval);_expiryInterval=null;
+      return;
+    }
+    bar.innerHTML=`${label} <b>${formatCountdown(remaining)} restant(s)</b> &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--green);text-decoration:underline">${linkText} →</a>`;
+  };
+  render();
+  _expiryInterval=setInterval(render,1000);
 }
 
 async function login(email,password){
@@ -1710,6 +1770,7 @@ async function loadNotifBadge(){
 }
 
 async function showAppLayout(){
+  if(State.tenant?.access_blocked){showBlockedScreen();return;}
   document.getElementById("auth-screen").style.display="none";
   document.getElementById("app-screen").style.display="block";
   document.querySelector(".bottom-nav")?.classList.add("show");
@@ -1719,7 +1780,7 @@ async function showAppLayout(){
     set("topbar-name",t.acting_as_member_name?`${t.acting_as_member_name} · ${t.name}`:t.name);
     document.getElementById("topbar-av").textContent=displayName?.charAt(0).toUpperCase();
     setHTML("topbar-plan",planBadge(t.plan));
-    if(t.trial) showTrialBar(t.trial);
+    if(t.trial) updateExpiryBar(t);
     if(t.is_creator){
       const navAdmin=document.getElementById("nav-admin");
       if(navAdmin) navAdmin.style.display="flex";
@@ -1733,7 +1794,7 @@ async function showAppLayout(){
     if(fresh&&fresh.trial){
       State.tenant={...State.tenant,...fresh,trial:fresh.trial};
       localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
-      showTrialBar(fresh.trial);
+      updateExpiryBar(fresh);
       setHTML("topbar-plan",planBadge(fresh.plan));
       if(fresh.is_creator){
         const navAdmin=document.getElementById("nav-admin");
@@ -1762,7 +1823,7 @@ async function loadDashboard(){
     set("dash-low-stock",s.low_stock_alerts+" alertes");
     set("dash-opps",s.open_opportunities+" ouvertes");
     setHTML("dash-plan",planBadge(s.plan));
-    if(s.trial) showTrialBar(s.trial);
+    if(s.trial) updateExpiryBar(s);
     // Afficher les limites d'usage
     if(s.limits_usage){
       const invUsage=document.getElementById("inv-usage");
@@ -2627,7 +2688,7 @@ function showInviteLink(token){
   _lastInviteToken=token;
   const url=buildInviteUrl(token);
   document.getElementById("invite-link-box").textContent=url;
-  document.getElementById("invite-whatsapp-btn").href=`https://wa.me/?text=${encodeURIComponent("Rejoins mon espace ZenithDash : "+url)}`;
+  _shareTexts.invite=`Rejoins mon espace ZenithDash : ${url}`;
   document.getElementById("modal-invite-link").style.display="flex";
 }
 function closeInviteLinkModal(){document.getElementById("modal-invite-link").style.display="none";}
@@ -2958,7 +3019,7 @@ async function loadProfile(){
     if(p.referral_code){
       set("referral-code-display",p.referral_code);
       const link=`${window.location.origin}${window.location.pathname}?ref=${p.referral_code}`;
-      document.getElementById("referral-whatsapp-btn").href=`https://wa.me/?text=${encodeURIComponent("Rejoins-moi sur ZenithDash et gagne 5 jours d'essai en plus : "+link)}`;
+      _shareTexts.referral=`Rejoins-moi sur ZenithDash et gagne 5 jours d'essai en plus : ${link}`;
       _referralLink=link;
     }
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
@@ -3149,7 +3210,50 @@ function showAuthTab(tab){
   document.getElementById(`tab-${tab}`).style.display="block";
   document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
 }
-function doLogout(){logout();document.getElementById("app-screen").style.display="none";document.getElementById("auth-screen").style.display="flex";document.querySelector(".bottom-nav")?.classList.remove("show");}
+function doLogout(){logout();if(_expiryInterval){clearInterval(_expiryInterval);_expiryInterval=null;}document.getElementById("app-screen").style.display="none";document.getElementById("blocked-screen").style.display="none";document.getElementById("auth-screen").style.display="flex";document.querySelector(".bottom-nav")?.classList.remove("show");}
+
+// ── ÉCRAN DE BLOCAGE (essai/abonnement expiré) ──────────────────────────────
+async function showBlockedScreen(){
+  document.getElementById("auth-screen").style.display="none";
+  document.getElementById("app-screen").style.display="none";
+  document.getElementById("portal-view").style.display="none";
+  document.querySelector(".bottom-nav")?.classList.remove("show");
+  document.getElementById("blocked-screen").style.display="flex";
+  await loadBlockedPlans();
+}
+async function loadBlockedPlans(){
+  const box=document.getElementById("blocked-plans");
+  try{
+    const plans=await fetch(`${API_BASE}/billing/plans`,{headers:State.token?{"Authorization":`Bearer ${State.token}`}:{}}).then(r=>r.json());
+    box.innerHTML=Object.entries(plans).map(([key,p])=>`
+      <div class="card2" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div><div style="font-weight:700">${esc(p.name)}</div><div style="font-size:12px;color:var(--muted)">$${p.price_monthly}/mois ou $${p.price_annual}/an</div></div>
+        <button class="btn btn-g btn-sm" onclick="subscribeFromBlocked('${key}')">Souscrire</button>
+      </div>`).join("");
+  }catch(e){box.innerHTML=`<div style="color:var(--red);text-align:center">${esc(e.message)}</div>`;}
+}
+async function subscribeFromBlocked(planKey){
+  try{
+    const r=await fetch(`${API_BASE}/billing/subscribe`,{method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":`Bearer ${State.token}`},
+      body:JSON.stringify({plan:planKey,billing_cycle:"monthly"})}).then(r=>r.json());
+    const ins=r.instructions;
+    const box=document.getElementById("blocked-wire-result");
+    box.style.display="block";
+    box.innerHTML=`
+      <div class="card2">
+        <div style="font-weight:700;margin-bottom:8px">Instructions de paiement — ${esc(ins.plan)}</div>
+        <div style="font-family:var(--mono);font-size:12px;line-height:1.9">
+          Référence : <b>${esc(ins.reference)}</b><br>
+          Montant : <b>${fmtUSD(ins.amount_usd)}</b><br>
+          Bénéficiaire : ${esc(ins.national_wire.beneficiary)}<br>
+          Compte : ${esc(ins.national_wire.account_number)}<br>
+          Banque : ${esc(ins.national_wire.bank_name)}
+        </div>
+        <a href="https://wa.me/${ins.whatsapp.number.replace('+','')}?text=${encodeURIComponent(ins.whatsapp.message)}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;margin-top:10px"><i class="ti ti-brand-whatsapp"></i> Confirmer sur WhatsApp</a>
+      </div>`;
+  }catch(e){showToast(e.message,"error");}
+}
 
 document.addEventListener("keydown",e=>{
   if(e.ctrlKey&&e.shiftKey&&e.key==="K"){document.getElementById("creator-modal").style.display="flex";document.getElementById("creator-input").focus();}
