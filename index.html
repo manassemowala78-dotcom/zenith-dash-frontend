@@ -123,6 +123,7 @@ select.inp option{background:var(--card)}
   .btn-g[type="submit"]{position:relative;z-index:10}
 }
 .msg-conv-panel,.msg-chat-panel{display:flex}
+.msg-layout{height:calc(100vh - 106px)}
 @media(max-width:768px){
   .layout{grid-template-columns:1fr}.sidebar{display:none}.bottom-nav.show{display:block}
   .main{padding:12px;padding-bottom:80px}.kgrid{grid-template-columns:1fr 1fr}
@@ -132,7 +133,9 @@ select.inp option{background:var(--card)}
   .trial-bar{font-size:10px;padding:6px 12px;flex-wrap:wrap;gap:4px}
   .kpi{padding:12px 14px}.kv{font-size:20px}.card{padding:14px}
   .modal{padding:18px}.wire-box{font-size:11px;line-height:2}.sh{margin-bottom:12px}
-  .msg-layout.js-fixed{position:fixed;left:0;right:0;margin:0;flex-direction:column;z-index:50}
+  .main.msg-active{overflow:hidden}
+  .msg-layout{height:calc(100dvh - 160px);margin:-12px -12px 0;flex-direction:column}
+  .msg-layout.js-fixed{position:fixed;left:0;right:0;margin:0;height:auto;flex-direction:column;z-index:50}
   .msg-conv-panel{width:100%!important;border-right:none!important}
   .msg-chat-panel{display:none!important}
   .msg-layout.mobile-chat-open .msg-conv-panel{display:none!important}
@@ -368,7 +371,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
 
     <!-- MESSAGERIE -->
     <div id="page-messaging" class="page">
-      <div class="msg-layout" id="msg-layout" style="display:flex;height:calc(100vh - 106px);gap:0;margin:-24px;border-top:1px solid var(--b)">
+      <div class="msg-layout" id="msg-layout" style="display:flex;gap:0;margin:-24px;border-top:1px solid var(--b)">
         <div class="msg-conv-panel" style="width:300px;border-right:1px solid var(--b);flex-direction:column;background:var(--s)">
           <div style="padding:14px;border-bottom:1px solid var(--b);display:flex;gap:8px">
             <button class="btn btn-g btn-sm" style="flex:1" onclick="openNewConvModal()"><i class="ti ti-plus"></i> <span data-i18n="msg_new">Nouveau</span></button>
@@ -1976,7 +1979,7 @@ function navigate(page){
   document.querySelector(`[data-p="${page}"]`)?.classList.add("active");
   document.querySelector(`[data-bp="${page}"]`)?.classList.add("active");
   document.querySelector(".main")?.classList.toggle("msg-active",page==="messaging");
-  if(page==="messaging") setTimeout(applyMobileMessagingLayout,50);
+  if(page==="messaging"){applyMobileMessagingLayout();setTimeout(applyMobileMessagingLayout,100);setTimeout(applyMobileMessagingLayout,400);}
   loadPage(page);
 }
 async function loadPage(p){
@@ -3226,6 +3229,7 @@ function connectMessagingWS(){
     else if(data.type==="message_deleted"&&data.conversation_id===_currentConvId) applyMessageDelete(data.id);
     else if((data.type==="message_pinned"||data.type==="message_unpinned")&&data.conversation_id===_currentConvId) loadPinnedBar(_currentConvId);
     else if(data.type==="poll_updated"&&data.conversation_id===_currentConvId) updatePollUI(data.poll_id,data.votes,data.total_votes);
+    else if(data.type==="presence") handlePresenceUpdate(data);
   };
   _ws.onclose=()=>{_ws=null;setTimeout(()=>{if(State.token)connectMessagingWS();},3000);};
   _ws.onerror=()=>{};
@@ -3796,6 +3800,19 @@ function renderMediaTab(tab){
     content.innerHTML=items.map(i=>`<div style="padding:10px;border-bottom:1px solid var(--b)"><audio controls preload="metadata" style="width:100%;height:36px" src="${i.file_url}"></audio></div>`).join("");
   }else if(tab==="links"){
     content.innerHTML=items.map(i=>`<a href="${i.url}" target="_blank" style="display:block;padding:10px;border-bottom:1px solid var(--b);color:var(--blue);text-decoration:underline;font-size:13px;word-break:break-all">${esc(i.url)}</a>`).join("");
+  }
+}
+function handlePresenceUpdate(data){
+  const conv=_conversations.find(c=>c.other_tenant_id===data.tenant_id);
+  if(!conv)return;
+  conv.other_online=data.online;
+  if(conv.id===_currentConvId){
+    const statusEl=document.getElementById("chat-header-status");
+    if(statusEl){
+      statusEl.style.display="block";
+      statusEl.textContent=data.online?t("online_status"):t("offline_status");
+      statusEl.style.color=data.online?"var(--green)":"var(--muted)";
+    }
   }
 }
 function toggleChatMoreMenu(){
