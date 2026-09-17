@@ -401,6 +401,10 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
             </div>
             <div id="chat-more-menu" style="display:none;padding:8px 16px;border-bottom:1px solid var(--b);background:var(--s);flex-direction:column;gap:6px">
               <button class="btn btn-sm btn-o" style="text-align:left" onclick="openMediaGallery()" data-i18n="media_gallery_action">Fichiers partagés</button>
+              <button class="btn btn-sm btn-o" style="text-align:left" onclick="triggerAvatarFromChat()" data-i18n="btn_change_photo">Changer la photo</button>
+              <button class="btn btn-sm btn-o" style="text-align:left" onclick="toggleWallpaperMenuInChat()" data-i18n="card_wallpaper">Fond d'écran de discussion</button>
+              <div id="chat-wallpaper-grid" style="display:none;grid-template-columns:repeat(3,1fr);gap:6px;padding-top:6px"></div>
+              <input type="file" id="chat-avatar-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="uploadAvatar(this.files[0])">
               <button class="btn btn-sm btn-o" style="text-align:left" onclick="blockCurrentContact()" data-i18n="block_user_action">Bloquer</button>
               <button class="btn btn-sm btn-r" style="text-align:left" onclick="reportCurrentContact()" data-i18n="report_user_action">Signaler</button>
             </div>
@@ -3287,6 +3291,7 @@ async function openConversation(convId,name){
   applyChatWallpaper(State.tenant?.chat_wallpaper||"default");
   document.getElementById("chat-header-name").textContent=name;
   document.getElementById("chat-more-menu").style.display="none";
+  document.getElementById("chat-wallpaper-grid").style.display="none";
   loadPinnedBar(convId);
   loadGroupMembersIfNeeded(convId);
   _pendingMentions=[];
@@ -3590,8 +3595,8 @@ async function uploadAvatar(file){
 const WALLPAPER_SWATCHES={
   default:"var(--bg)",dark_leaves:"linear-gradient(135deg,#0f2418,#1a3d2a)",soft_blue:"linear-gradient(135deg,#0f1f2e,#1a3550)",
   warm_sand:"linear-gradient(135deg,#2e2417,#4a3a24)",midnight:"linear-gradient(135deg,#0a0a1a,#1a1a35)",forest:"linear-gradient(135deg,#0f2418,#1e4030)"};
-function renderWallpaperGrid(current){
-  const grid=document.getElementById("wallpaper-grid");if(!grid)return;
+function renderWallpaperGrid(current,targetId){
+  const grid=document.getElementById(targetId||"wallpaper-grid");if(!grid)return;
   grid.innerHTML=Object.entries(WALLPAPER_SWATCHES).map(([key,bg])=>`
     <div onclick="selectWallpaper('${key}')" style="cursor:pointer;border-radius:10px;height:60px;background:${bg};border:2px solid ${current===key?'var(--green)':'var(--b)'};display:flex;align-items:end;justify-content:center;padding-bottom:4px">
       <span style="font-size:10px;color:var(--muted);background:rgba(0,0,0,.5);padding:1px 6px;border-radius:6px">${t("wp_"+key)}</span>
@@ -3600,7 +3605,8 @@ function renderWallpaperGrid(current){
 async function selectWallpaper(key){
   try{
     await api("PUT","/profile/wallpaper",{wallpaper:key});
-    renderWallpaperGrid(key);
+    renderWallpaperGrid(key,"wallpaper-grid");
+    renderWallpaperGrid(key,"chat-wallpaper-grid");
     if(State.tenant){State.tenant.chat_wallpaper=key;localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));}
     applyChatWallpaper(key);
     showToast(t("toast_wallpaper_updated"));
@@ -3801,6 +3807,15 @@ function renderMediaTab(tab){
   }else if(tab==="links"){
     content.innerHTML=items.map(i=>`<a href="${i.url}" target="_blank" style="display:block;padding:10px;border-bottom:1px solid var(--b);color:var(--blue);text-decoration:underline;font-size:13px;word-break:break-all">${esc(i.url)}</a>`).join("");
   }
+}
+function triggerAvatarFromChat(){
+  document.getElementById("chat-avatar-input").click();
+}
+function toggleWallpaperMenuInChat(){
+  const grid=document.getElementById("chat-wallpaper-grid");
+  const isOpening=grid.style.display==="none";
+  grid.style.display=isOpening?"grid":"none";
+  if(isOpening) renderWallpaperGrid(State.tenant?.chat_wallpaper||"default","chat-wallpaper-grid");
 }
 function handlePresenceUpdate(data){
   const conv=_conversations.find(c=>c.other_tenant_id===data.tenant_id);
