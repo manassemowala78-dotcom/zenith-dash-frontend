@@ -42,7 +42,7 @@ html,body{height:100%;margin:0}
 .nav-i i{font-size:15px;flex-shrink:0}
 .nav-badge{font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:4px;background:rgba(255,95,109,.15);color:var(--red);margin-left:auto}
 .main{padding:24px;overflow-y:auto;min-height:0}
-.page{display:none}.page.active{display:block;animation:fi .2s ease}
+.page{display:none}.page.active{display:block;animation:fi .2s ease;height:100%}
 @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:18px}
 .card2{background:var(--c2);border:1px solid var(--b);border-radius:10px;padding:14px}
@@ -123,7 +123,7 @@ select.inp option{background:var(--card)}
   .btn-g[type="submit"]{position:relative;z-index:10}
 }
 .msg-conv-panel,.msg-chat-panel{display:flex}
-.msg-layout{height:calc(100vh - 106px)}
+.msg-layout{height:100%}
 @media(max-width:768px){
   .layout{grid-template-columns:1fr}.sidebar{display:none}.bottom-nav.show{display:block}
   .main{padding:12px;padding-bottom:80px}.kgrid{grid-template-columns:1fr 1fr}
@@ -3296,19 +3296,26 @@ async function loadConversations(){
   const box=document.getElementById("conv-list");if(!box)return;
   try{
     _conversations=await api("GET","/messaging/conversations");
-    const totalUnread=_conversations.reduce((s,c)=>s+c.unread_count,0);
-    const badge=document.getElementById("msg-unread-badge");
-    if(badge) badge.style.display=totalUnread>0?"inline-flex":"none";
-    if(!_conversations.length){box.innerHTML=`<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">${t("no_conversations")}</div>`;return;}
-    box.innerHTML=_conversations.map(c=>`
+    renderConvList();
+  }catch(e){box.innerHTML=`<div style="color:var(--red);padding:16px;font-size:13px">${esc(e.message)}</div>`;}
+}
+function renderConvList(){
+  const box=document.getElementById("conv-list");if(!box)return;
+  const totalUnread=_conversations.reduce((s,c)=>s+c.unread_count,0);
+  const badge=document.getElementById("msg-unread-badge");
+  if(badge) badge.style.display=totalUnread>0?"inline-flex":"none";
+  if(!_conversations.length){box.innerHTML=`<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">${t("no_conversations")}</div>`;return;}
+  box.innerHTML=_conversations.map(c=>`
       <div onclick="openConversation('${c.id}','${escJs(c.name)}')" style="padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--b);display:flex;gap:10px;align-items:center;${c.id===_currentConvId?'background:var(--c2)':''}">
-        ${c.is_group?`<div style="width:40px;height:40px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-users-group" style="color:var(--purple);font-size:18px"></i></div>`:avatarHtml(c.other_avatar_url,c.name,40)}
+        <div style="position:relative;flex-shrink:0">
+          ${c.is_group?`<div style="width:40px;height:40px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center"><i class="ti ti-users-group" style="color:var(--purple);font-size:18px"></i></div>`:avatarHtml(c.other_avatar_url,c.name,40)}
+          ${!c.is_group&&c.other_online?`<span style="position:absolute;bottom:0;right:0;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid var(--s)"></span>`:''}
+        </div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;justify-content:space-between"><b style="font-size:13px">${esc(c.name)}</b>${c.unread_count>0?`<span class="badge bb" style="font-size:10px">${c.unread_count}</span>`:''}</div>
           <div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">${esc(c.last_message)||t("no_message")}</div>
         </div>
       </div>`).join("");
-  }catch(e){box.innerHTML=`<div style="color:var(--red);padding:16px;font-size:13px">${esc(e.message)}</div>`;}
 }
 async function openConversation(convId,name){
   _currentConvId=convId;
@@ -3908,6 +3915,7 @@ function handlePresenceUpdate(data){
   if(!conv)return;
   conv.other_online=data.online;
   if(!data.online) conv.other_last_seen=data.last_seen_at;
+  renderConvList();
   if(conv.id===_currentConvId){
     const statusEl=document.getElementById("chat-header-status");
     if(statusEl){
