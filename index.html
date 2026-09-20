@@ -8,7 +8,8 @@
 :root{--bg:#060a10;--s:#0d1320;--card:#121a28;--c2:#182135;--b:rgba(0,220,100,.12);--blue:#4f7aff;--green:#00e080;--red:#ff5f6d;--amber:#f5a623;--purple:#9b6dff;--cyan:#00d4c8;--gold:#ffd700;--pink:#ff6eb4;--text:#e8eaf2;--muted:#5a6282;--mono:'Consolas',monospace}
 html.light{--bg:#f4f6fb;--s:#ffffff;--card:#ffffff;--c2:#eef1f8;--b:rgba(0,100,60,.14);--blue:#2d5fe0;--green:#00a866;--red:#e0333f;--amber:#c47f0a;--purple:#7c4fe0;--cyan:#00a39a;--gold:#b8860b;--pink:#d94f92;--text:#131a2a;--muted:#6b7280}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;-webkit-text-size-adjust:100%}
+html{overflow-x:hidden;max-width:100%}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;-webkit-text-size-adjust:100%;overflow-x:hidden;max-width:100%}
 #auth-screen{display:flex;min-height:100vh;min-height:100dvh;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(0,224,128,.07) 0%,var(--bg) 65%);overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
 .auth-wrap{width:100%;max-width:420px;padding:24px;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .auth-logo{text-align:center;margin-bottom:28px}
@@ -1989,6 +1990,13 @@ function applyMobileMessagingLayout(){
 }
 window.addEventListener("resize",applyMobileMessagingLayout);
 window.addEventListener("orientationchange",()=>setTimeout(applyMobileMessagingLayout,200));
+if(window.ResizeObserver){
+  const _layoutResizeObserver=new ResizeObserver(()=>applyMobileMessagingLayout());
+  const _topbarEl=document.querySelector(".topbar");
+  const _trialBarEl=document.getElementById("trial-bar");
+  if(_topbarEl) _layoutResizeObserver.observe(_topbarEl);
+  if(_trialBarEl) _layoutResizeObserver.observe(_trialBarEl);
+}
 function navigate(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".nav-i").forEach(n=>n.classList.remove("active"));
