@@ -125,7 +125,11 @@ select.inp option{background:var(--card)}
   .btn-g[type="submit"]{position:relative;z-index:10}
 }
 .msg-conv-panel,.msg-chat-panel{display:flex}
-.msg-layout{height:100%}
+.msg-layout{height:100%;margin:-24px}
+#chat-input-row>i,#chat-input-row>button{flex-shrink:0}
+#chat-messages>div,#chat-messages>div>div{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+.zd-locked{opacity:.35}
+.nav-i.zd-locked::after{content:"🔒";margin-left:auto;font-size:11px}
 @media(max-width:768px){
   .layout{grid-template-columns:1fr}.sidebar{display:none}.bottom-nav.show{display:block}
   .main{padding:12px;padding-bottom:80px}.kgrid{grid-template-columns:1fr 1fr}
@@ -136,7 +140,7 @@ select.inp option{background:var(--card)}
   .kpi{padding:12px 14px}.kv{font-size:20px}.card{padding:14px}
   .modal{padding:18px}.wire-box{font-size:11px;line-height:2}.sh{margin-bottom:12px}
   .main.msg-active{overflow:hidden}
-  .msg-layout{height:calc(100dvh - 160px);margin:-12px -12px 0;flex-direction:column}
+  .msg-layout{height:calc(100dvh - 160px);margin:-12px -12px 0;flex-direction:column;max-width:100vw;overflow:hidden}
   .msg-layout.js-fixed{position:fixed;left:0;right:0;margin:0;height:auto;flex-direction:column;z-index:50}
   .msg-conv-panel{width:100%!important;border-right:none!important}
   .msg-chat-panel{display:none!important}
@@ -373,7 +377,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
 
     <!-- MESSAGERIE -->
     <div id="page-messaging" class="page">
-      <div class="msg-layout" id="msg-layout" style="display:flex;gap:0;margin:-24px;border-top:1px solid var(--b)">
+      <div class="msg-layout" id="msg-layout" style="display:flex;gap:0;border-top:1px solid var(--b)">
         <div class="msg-conv-panel" style="width:300px;border-right:1px solid var(--b);flex-direction:column;background:var(--s)">
           <div style="padding:14px;border-bottom:1px solid var(--b);display:flex;gap:8px">
             <button class="btn btn-g btn-sm" style="flex:1" onclick="openNewConvModal()"><i class="ti ti-plus"></i> <span data-i18n="msg_new">Nouveau</span></button>
@@ -391,16 +395,21 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
             <div data-i18n="select_conversation">Sélectionne une conversation pour commencer</div>
           </div>
           <div id="chat-active" style="display:none;flex:1;flex-direction:column;min-height:0">
-            <div style="padding:12px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;background:var(--s)">
-              <button class="msg-back-btn" onclick="backToConvList()" style="display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:4px;margin-right:2px"><i class="ti ti-arrow-left" style="font-size:20px"></i></button>
-              <div id="chat-header-avatar"></div>
-              <div id="chat-header-name" style="font-weight:700"></div>
-              <div id="chat-header-status" style="display:none;font-size:11px"></div>
-              <div id="chat-typing-indicator" style="font-size:12px;color:var(--muted);font-style:italic"></div>
-              <div style="flex:1"></div>
-              <i class="ti ti-bell" id="mute-btn" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="toggleMuteConversation()"></i>
-              <i class="ti ti-archive" id="archive-btn" style="cursor:pointer;color:var(--muted);font-size:18px;margin-left:10px" onclick="toggleArchiveConversation()"></i>
-              <i class="ti ti-dots-vertical" style="cursor:pointer;color:var(--muted);font-size:18px;margin-left:10px" onclick="toggleChatMoreMenu()"></i>
+            <div style="padding:10px 12px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;background:var(--s);min-width:0">
+              <button class="msg-back-btn" onclick="backToConvList()" style="display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:4px;flex-shrink:0"><i class="ti ti-arrow-left" style="font-size:20px"></i></button>
+              <div id="chat-header-avatar" style="flex-shrink:0"></div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center">
+                <div id="chat-header-name" style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+                <div style="display:flex;gap:6px;min-width:0;white-space:nowrap;overflow:hidden">
+                  <div id="chat-header-status" style="display:none;font-size:11px;flex-shrink:0"></div>
+                  <div id="chat-typing-indicator" style="font-size:11px;color:var(--muted);font-style:italic;overflow:hidden;text-overflow:ellipsis"></div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
+                <i class="ti ti-bell" id="mute-btn" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="toggleMuteConversation()"></i>
+                <i class="ti ti-archive" id="archive-btn" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="toggleArchiveConversation()"></i>
+                <i class="ti ti-dots-vertical" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="toggleChatMoreMenu()"></i>
+              </div>
             </div>
             <div id="chat-more-menu" style="display:none;padding:8px 16px;border-bottom:1px solid var(--b);background:var(--s);flex-direction:column;gap:6px">
               <button class="btn btn-sm btn-o" style="text-align:left" onclick="openMediaGallery()" data-i18n="media_gallery_action">Fichiers partagés</button>
@@ -445,7 +454,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
                 <div onclick="openContactPickerModal();toggleExtraFeaturesMenu()" style="display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;border-radius:6px"><i class="ti ti-user-circle" style="font-size:18px;color:var(--green)"></i> <span data-i18n="contact_action">Contact</span></div>
               </div>
               <i class="ti ti-microphone" id="mic-btn" onclick="startVoiceRecording()" style="font-size:20px;color:var(--muted);cursor:pointer"></i>
-              <div style="position:relative;flex:1">
+              <div style="position:relative;flex:1;min-width:0">
                 <div id="mention-dropdown" style="display:none;position:absolute;bottom:100%;left:0;right:0;background:var(--s);border:1px solid var(--b);border-radius:8px;max-height:160px;overflow-y:auto;margin-bottom:4px;z-index:10"></div>
                 <input class="inp" id="chat-input" placeholder="Écris un message..." data-i18n-ph="msg_placeholder" style="width:100%" onkeydown="if(event.key==='Enter'&&document.getElementById('mention-dropdown').style.display==='none')sendChatMessage()" oninput="notifyTyping();checkMentionTrigger()">
               </div>
@@ -734,12 +743,10 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <div id="page-billing" class="page">
       <div class="sh"><div><div class="st" data-i18n="billing_title">Abonnements</div><div class="ss" data-i18n="billing_sub">Virement Rawbank RDC · SWIFT international</div></div></div>
       <div id="trial-billing-info" style="display:none;margin-bottom:16px"></div>
-      <div id="refund-section" style="display:none;margin-bottom:16px"></div>
       <div class="card" style="margin-bottom:16px;border-color:rgba(0,212,200,.2)">
         <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px">
           <div><div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:4px">🇨🇩 <span data-i18n="national_label">NATIONAL (Rawbank RDC)</span></div><div style="color:var(--muted)" data-i18n="national_desc">Pour les clients en RDC</div></div>
           <div><div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:4px">🌍 <span data-i18n="intl_label">INTERNATIONAL (SWIFT USD)</span></div><div style="color:var(--muted)" data-i18n="intl_desc">Pour les clients hors RDC</div></div>
-          <div><div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-bottom:4px">↩️ <span data-i18n="refund_label">REMBOURSEMENT</span></div><div style="color:var(--muted)" data-i18n="refund_desc">14 jours · 1 seul par compte</div></div>
         </div>
       </div>
       <div id="whats-new-section" style="display:none;margin-bottom:16px"></div>
@@ -863,7 +870,6 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
         </div>
         <div class="card">
           <div style="font-weight:700;font-size:14px;margin-bottom:8px"><i class="ti ti-building-bank"></i> <span data-i18n="card_bank_details">Coordonnées bancaires</span></div>
-          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.15);border-radius:8px;padding:10px;margin-bottom:12px" data-i18n="bank_used_for_refunds">Utilisées pour les remboursements dans les 14 jours.</div>
           <div class="fgrp"><label class="fl" data-i18n="fld_bank_name">Nom de la banque</label><input class="inp" type="text" id="bank-name" placeholder="Ex: Rawbank SA"></div>
           <div class="fgrp"><label class="fl" data-i18n="fld_account_number2">N° de compte</label><input class="inp" type="text" id="bank-account"></div>
           <div class="fgrp"><label class="fl" data-i18n="fld_swift_code">Code SWIFT/BIC</label><input class="inp" type="text" id="bank-swift"></div>
@@ -1767,6 +1773,12 @@ Object.assign(I18N.es,{push_card_title:"Notificaciones push",push_card_desc:"Rec
 Object.assign(I18N.ar,{push_card_title:"إشعارات الدفع",push_card_desc:"استلم التنبيهات حتى عندما يكون Zenith Dash مغلقًا.",push_test_btn:"اختبار",push_test_sent:"تم إرسال إشعار تجريبي ✓ — سيظهر خلال ثوانٍ",push_test_failed:"فشل الاختبار:",push_blocked_help:"الإشعارات محظورة لهذا الموقع. افتح إعدادات المتصفح (رمز 🔒 بجانب العنوان) ← الإشعارات ← السماح، ثم أعد تحميل الصفحة.",push_activation_failed:"تعذّر تفعيل الإشعارات",preview_view_once:"👁️ رسالة لمشاهدة واحدة",preview_voice:"🎤 رسالة صوتية",preview_contact:"👤 جهة اتصال مشتركة"});
 Object.assign(I18N.sw,{push_card_title:"Arifa za push",push_card_desc:"Pokea arifa hata Zenith Dash ikiwa imefungwa.",push_test_btn:"Jaribu",push_test_sent:"Arifa ya majaribio imetumwa ✓ — itaonekana baada ya sekunde chache",push_test_failed:"Jaribio limeshindwa:",push_blocked_help:"Arifa zimezuiwa kwa tovuti hii. Fungua mipangilio ya kivinjari (ikoni 🔒 kushoto mwa anwani) → Arifa → Ruhusu, kisha pakia upya ukurasa.",push_activation_failed:"Imeshindwa kuwasha arifa",preview_view_once:"👁️ Ujumbe wa kuona mara moja",preview_voice:"🎤 Ujumbe wa sauti",preview_contact:"👤 Anwani iliyoshirikiwa"});
 Object.assign(I18N.ln,{push_card_title:"Ba notification push",push_card_desc:"Zwa ba alerte ata soki Zenith Dash ekangami.",push_test_btn:"Komeka",push_test_sent:"Notification ya komeka etindami ✓ — ekobima na ba seconde moke",push_test_failed:"Komeka elongi te:",push_blocked_help:"Ba notification ekangami mpo na site oyo. Fungola ba paramètre ya navigateur (icône 🔒 na lobɔkɔ ya mwasi ya adresse) → Notifications → Autoriser, mpe zongisa page.",push_activation_failed:"Ekokaki te kopelisa ba notification",preview_view_once:"👁️ Message ya kotala mbala moko",preview_voice:"🎤 Message ya mongongo",preview_contact:"👤 Contact ekabolami"});
+Object.assign(I18N.fr,{backend_unreachable:"Serveur injoignable — vérifie ta connexion internet et réessaie.",server_error:"Erreur serveur",restricted_toast:"Ton accès a expiré — seuls Abonnements, Messagerie et Profil restent disponibles.",plan_expired_badge:"EXPIRÉ"});
+Object.assign(I18N.en,{backend_unreachable:"Server unreachable — check your internet connection and try again.",server_error:"Server error",restricted_toast:"Your access has expired — only Subscription, Messaging and Profile remain available.",plan_expired_badge:"EXPIRED"});
+Object.assign(I18N.es,{backend_unreachable:"Servidor inaccesible — verifica tu conexión a internet e inténtalo de nuevo.",server_error:"Error del servidor",restricted_toast:"Tu acceso ha expirado — solo Suscripción, Mensajería y Perfil siguen disponibles.",plan_expired_badge:"EXPIRADO"});
+Object.assign(I18N.ar,{backend_unreachable:"تعذّر الوصول إلى الخادم — تحقق من اتصالك بالإنترنت وأعد المحاولة.",server_error:"خطأ في الخادم",restricted_toast:"انتهت صلاحية وصولك — تبقى الاشتراكات والرسائل والملف الشخصي فقط متاحة.",plan_expired_badge:"منتهي"});
+Object.assign(I18N.sw,{backend_unreachable:"Seva haipatikani — angalia muunganisho wako wa intaneti na ujaribu tena.",server_error:"Hitilafu ya seva",restricted_toast:"Ufikiaji wako umeisha — Usajili, Ujumbe na Wasifu pekee ndivyo vinapatikana.",plan_expired_badge:"IMEISHA"});
+Object.assign(I18N.ln,{backend_unreachable:"Serveur ezwami te — tala connexion internet na yo mpe meka lisusu.",server_error:"Libunga ya serveur",restricted_toast:"Accès na yo esili — kaka Abonnement, Messagerie na Profil nde etikali.",plan_expired_badge:"ESILI"});
 
 function t(key){
   const lang=State.lang||"fr";
@@ -1814,32 +1826,66 @@ async function shareViaNative(key){
   }
 }
 
+async function apiFetch(url,opts,retry){
+  try{return await fetch(url,opts);}
+  catch(e){
+    if(retry){
+      await new Promise(r=>setTimeout(r,1200));
+      try{return await fetch(url,opts);}catch(_){}
+    }
+    throw new Error(t("backend_unreachable"));
+  }
+}
+async function readApiResponse(r){
+  let d=null;
+  try{d=await r.json();}catch(_){}
+  if(r.status===402){
+    enterRestrictedMode();
+    throw new Error((d&&typeof d.detail==="string"&&d.detail)||t("restricted_toast"));
+  }
+  if(!r.ok){
+    const det=d&&d.detail;
+    let m=null;
+    if(Array.isArray(det)) m=det.map(x=>x&&x.msg).filter(Boolean).join(" · ");
+    else if(det&&typeof det==="object") m=det.message||det.error;
+    else m=det;
+    throw new Error(m||`${t("server_error")} (${r.status})`);
+  }
+  return d;
+}
 async function api(method,path,body=null){
   const h={"Content-Type":"application/json"};
   if(State.token) h["Authorization"]=`Bearer ${State.token}`;
-  try{
-    const r=await fetch(API_BASE+path,{method,headers:h,body:body?JSON.stringify(body):null});
-    const d=await r.json();
-    if(r.status===402){showBlockedScreen();throw new Error(d.detail||"Abonnement expiré");}
-    if(!r.ok){const m=typeof d.detail==="object"?(d.detail.message||d.detail.error):d.detail;throw new Error(m||"Erreur serveur");}
-    return d;
-  }catch(e){
-    if(e.message==="Failed to fetch"||e.name==="TypeError") throw new Error("Backend injoignable");
-    throw e;
-  }
+  const r=await apiFetch(API_BASE+path,{method,headers:h,body:body?JSON.stringify(body):null},method==="GET");
+  return readApiResponse(r);
 }
 async function apiUpload(path,formData){
   const h={};
   if(State.token) h["Authorization"]=`Bearer ${State.token}`;
-  try{
-    const r=await fetch(API_BASE+path,{method:"POST",headers:h,body:formData});
-    const d=await r.json();
-    if(!r.ok){const m=typeof d.detail==="object"?(d.detail.message||d.detail.error):d.detail;throw new Error(m||"Erreur serveur");}
-    return d;
-  }catch(e){
-    if(e.message==="Failed to fetch"||e.name==="TypeError") throw new Error("Backend injoignable");
-    throw e;
-  }
+  const r=await apiFetch(API_BASE+path,{method:"POST",headers:h,body:formData},false);
+  return readApiResponse(r);
+}
+const RESTRICTED_ALLOWED_PAGES=["billing","messaging","profile"];
+function applyRestrictedUI(){
+  const on=!!State.restricted;
+  document.body.classList.toggle("zd-restricted",on);
+  document.querySelectorAll(".nav-i[data-p],.bnav-item[data-bp]").forEach(el=>{
+    const p=el.dataset.p||el.dataset.bp;
+    el.classList.toggle("zd-locked",on&&!RESTRICTED_ALLOWED_PAGES.includes(p));
+  });
+  document.querySelectorAll("#more-menu [onclick]").forEach(el=>{
+    const m=(el.getAttribute("onclick")||"").match(/navigate\('([a-z]+)'\)/);
+    if(m) el.classList.toggle("zd-locked",on&&!RESTRICTED_ALLOWED_PAGES.includes(m[1]));
+  });
+  if(on) setHTML("topbar-plan",`<span class="badge br">${t("plan_expired_badge")}</span>`);
+  else if(State.tenant) setHTML("topbar-plan",planBadge(State.tenant.plan));
+}
+function enterRestrictedMode(){
+  if(State.restricted||State.tenant?.is_creator) return;
+  State.restricted=true;
+  applyRestrictedUI();
+  const active=document.querySelector(".page.active")?.id?.replace("page-","");
+  if(document.getElementById("app-screen")?.style.display==="block"&&!RESTRICTED_ALLOWED_PAGES.includes(active)) navigate("billing");
 }
 
 function esc(s){if(s==null)return"";return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -1852,16 +1898,23 @@ function linkify(escapedText){
 }
 function escJs(s){if(s==null)return"";return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/&/g,"&amp;").replace(/"/g,"&quot;");}
 function fmtUSD(a,cur="USD"){return(cur==="USD"?"$":cur==="EUR"?"€":cur==="XAF"?"XAF ":cur+" ")+new Intl.NumberFormat("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}).format(a||0);}
-function fmtDate(iso){if(!iso)return"—";return new Date(iso).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"numeric"});}
+function parseServerDate(v){
+  if(!v) return null;
+  if(v instanceof Date) return v;
+  const s=String(v);
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s+"T00:00:00");
+  return new Date(/([zZ]|[+-]\d{2}:?\d{2})$/.test(s)?s:s+"Z");
+}
+function fmtDate(iso){if(!iso)return"—";return parseServerDate(iso).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"numeric"});}
 function fmtMsgTime(iso){
   if(!iso)return"—";
-  const d=new Date(iso),now=new Date();
+  const d=parseServerDate(iso),now=new Date();
   const isToday=d.toDateString()===now.toDateString();
   const time=d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
   return isToday?time:`${d.toLocaleDateString("fr-FR",{day:"2-digit",month:"short"})} ${time}`;
 }
 function fmtDayDivider(iso){
-  const d=new Date(iso),now=new Date();
+  const d=parseServerDate(iso),now=new Date();
   const yesterday=new Date(now);yesterday.setDate(now.getDate()-1);
   if(d.toDateString()===now.toDateString())return t("day_today");
   if(d.toDateString()===yesterday.toDateString())return t("day_yesterday");
@@ -1869,14 +1922,14 @@ function fmtDayDivider(iso){
 }
 function fmtLastSeen(iso){
   if(!iso)return t("offline_status");
-  const d=new Date(iso),now=new Date();
+  const d=parseServerDate(iso),now=new Date();
   const yesterday=new Date(now);yesterday.setDate(now.getDate()-1);
   const time=d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
   if(d.toDateString()===now.toDateString())return `${t("last_seen_today_prefix")} ${time}`;
   if(d.toDateString()===yesterday.toDateString())return `${t("last_seen_yesterday_prefix")} ${time}`;
   return `${t("last_seen_prefix")} ${d.toLocaleDateString("fr-FR",{day:"2-digit",month:"short"})} ${time}`;
 }
-function dayKey(iso){return new Date(iso).toDateString();}
+function dayKey(iso){return parseServerDate(iso).toDateString();}
 let _lastRenderedDayKey=null;
 
 function planBadge(plan){
@@ -1923,7 +1976,7 @@ function updateExpiryBar(user){
     targetIso=user.subscription_expires_at;label=t("sub_label");linkText=t("btn_manage");
   }
   if(!targetIso){bar.className="trial-bar hidden";return;}
-  const target=new Date(targetIso);
+  const target=parseServerDate(targetIso);
   bar.className="trial-bar";
   const render=()=>{
     const remaining=target-new Date();
@@ -1931,6 +1984,7 @@ function updateExpiryBar(user){
       bar.className="trial-bar expired";
       bar.innerHTML=`⚠️ ${t("expired_msg")} &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--red);text-decoration:underline">${t("upgrade_view_plans")}</a>`;
       clearInterval(_expiryInterval);_expiryInterval=null;
+      if(!user.is_creator) enterRestrictedMode();
       return;
     }
     bar.innerHTML=`${label} <b>${formatCountdown(remaining)} ${t("remaining_suffix")}</b> &nbsp;·&nbsp; <a href="#" onclick="navigate('billing')" style="color:var(--green);text-decoration:underline">${linkText} →</a>`;
@@ -2020,6 +2074,10 @@ if(window.ResizeObserver){
   if(_trialBarEl) _layoutResizeObserver.observe(_trialBarEl);
 }
 function navigate(page){
+  if(State.restricted&&!RESTRICTED_ALLOWED_PAGES.includes(page)){
+    if(document.querySelector(".page.active")) showToast(t("restricted_toast"),"error");
+    page="billing";
+  }
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".nav-i").forEach(n=>n.classList.remove("active"));
   document.querySelectorAll(".bnav-item").forEach(n=>n.classList.remove("active"));
@@ -2075,7 +2133,7 @@ async function loadNotifBadge(){
 }
 
 async function showAppLayout(){
-  if(State.tenant?.access_blocked){showBlockedScreen();return;}
+  State.restricted=!!State.tenant?.access_blocked&&!State.tenant?.is_creator;
   document.getElementById("auth-screen").style.display="none";
   document.getElementById("app-screen").style.display="block";
   document.querySelector(".bottom-nav")?.classList.add("show");
@@ -2110,8 +2168,10 @@ async function showAppLayout(){
       }
     }
   }catch(_){}
+  State.restricted=!!State.tenant?.access_blocked&&!State.tenant?.is_creator;
+  applyRestrictedUI();
   const deepLink=consumeDeepLink();
-  if(!(await openDeepLink(deepLink.page,deepLink.conv))) navigate("dashboard");
+  if(!(await openDeepLink(deepLink.page,deepLink.conv))) navigate(State.restricted?"billing":"dashboard");
   loadNotifBadge();
   syncPushSubscription();
 }
@@ -2131,7 +2191,7 @@ async function loadDashboard(){
     set("dash-low-stock",s.low_stock_alerts+" alertes");
     set("dash-opps",s.open_opportunities+" ouvertes");
     setHTML("dash-plan",planBadge(s.plan));
-    if(s.trial) updateExpiryBar(s);
+    if(s.trial&&State.tenant) updateExpiryBar({...State.tenant,trial:s.trial});
     // Afficher les limites d'usage
     if(s.limits_usage){
       const invUsage=document.getElementById("inv-usage");
@@ -2349,7 +2409,7 @@ async function viewQuoteSignature(quoteId){
     const win=window.open("","_blank");
     win.document.write(`<body style="font-family:sans-serif;padding:24px;text-align:center">
       <h3>${t("btn_signature")} — ${esc(s.quote_number)}</h3>
-      <p>${t("sig_signed_by")} <b>${esc(s.signed_name)}</b> — ${new Date(s.signed_at).toLocaleString()}</p>
+      <p>${t("sig_signed_by")} <b>${esc(s.signed_name)}</b> — ${parseServerDate(s.signed_at).toLocaleString()}</p>
       <p style="color:#888;font-size:12px">IP: ${esc(s.signed_ip||"—")}</p>
       ${s.signature_data?`<img src="${s.signature_data}" style="border:1px solid #ccc;max-width:400px;margin-top:16px">`:`<p>${t("sig_no_drawing")}</p>`}
     </body>`);
@@ -2836,7 +2896,6 @@ async function loadBilling(){
   try{
     const plans=await api("GET","/billing/plans");
     const grid=document.getElementById("plans-grid");if(!grid)return;
-    loadRefundSection();
     const order=["starter","professional","business","enterprise"];
     const colors={starter:"var(--green)",professional:"var(--blue)",business:"var(--purple)",enterprise:"var(--amber)"};
     grid.innerHTML=order.filter(k=>plans[k]).map(k=>{
@@ -2858,35 +2917,6 @@ async function loadBilling(){
       </div>`;}).join("");
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
-async function loadRefundSection(){
-  const box=document.getElementById("refund-section");if(!box)return;
-  try{
-    const r=await api("GET","/billing/refund-status");
-    if(!r.eligible){box.style.display="none";return;}
-    box.style.display="block";
-    box.innerHTML=`<div class="card" style="border-color:rgba(245,166,35,.25)">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-        <div>
-          <div style="font-weight:700;font-size:14px;color:var(--amber)"><i class="ti ti-receipt-refund"></i> ${t("refund_available_title")}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:4px">Il te reste <b style="color:var(--text)">${r.days_left} jour(s)</b> pour demander un remboursement de ton plan ${esc(r.plan)} — utilisable une seule fois.</div>
-        </div>
-        <button class="btn btn-a btn-sm" onclick="doRequestRefund()"><i class="ti ti-receipt-refund"></i> ${t("btn_request")}</button>
-      </div>
-    </div>`;
-  }catch(e){box.style.display="none";}
-}
-async function doRequestRefund(){
-  if(!confirm(t("confirm_refund")))return;
-  try{
-    const r=await api("POST","/billing/refund");
-    showToast(r.message);
-    loadRefundSection();
-    const fresh=await api("GET","/profile/");
-    State.tenant=fresh;localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
-    setHTML("topbar-plan",planBadge(fresh.plan));
-  }catch(e){showToast(e.message,"error");}
-}
-
 function setSubCycle(cycle){
   _subCycle=cycle;
   document.getElementById("toggle-m").classList.toggle("active",cycle==="monthly");
@@ -2900,7 +2930,6 @@ function showWireModal(r){
     <div style="background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.2);border-radius:10px;padding:14px;margin-bottom:16px">
       <div style="font-weight:700;margin-bottom:4px">${ins.plan} — ${ins.billing_cycle}</div>
       <div style="font-size:20px;font-weight:800;color:var(--green);margin:6px 0">$${ins.amount_usd.toFixed(2)}</div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">${ins.refund_policy}</div>
     </div>
     <div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-weight:700;font-size:13px;color:var(--amber)">
       ⚠️ ${t("wire_label_required")} : <span style="font-family:var(--mono);letter-spacing:2px">${ins.reference}</span>
@@ -3461,7 +3490,7 @@ function appendMessageBubble(m){
   const div=document.createElement("div");
   div.id=`msg-bubble-${m.id}`;
   div.dataset.senderName=m.sender_name||"";
-  div.style.cssText=`max-width:70%;align-self:${mine?'flex-end':'flex-start'};background:${mine?'var(--green)':'var(--card)'};color:${mine?'#04160e':'var(--text)'};padding:8px 12px;border-radius:12px;font-size:13px`;
+  div.style.cssText=`max-width:70%;align-self:${mine?'flex-end':'flex-start'};background:${mine?'var(--green)':'var(--card)'};color:${mine?'#04160e':'var(--text)'};padding:8px 12px;border-radius:12px;font-size:13px;min-width:0;overflow-wrap:anywhere;word-break:break-word`;
 
   if(m.deleted){
     div.innerHTML=`${!mine?`<div style="font-size:11px;font-weight:700;margin-bottom:2px">${esc(m.sender_name)}</div>`:""}<i class="ti ti-ban" style="opacity:.6"></i> <i style="opacity:.6">${t("message_deleted_placeholder")}</i>
@@ -3539,7 +3568,7 @@ function appendMessageBubble(m){
   const replyPreviewText=m.message_type==="text"?(m.content||"").slice(0,80):`[${m.message_type}]`;
   const canEditDelete=mine&&m.message_type==="text"&&!m.view_once;
   const isPinned=!!m.pinned_at;
-  const actionsHtml=`<span style="display:inline-flex;gap:6px;margin-left:6px;opacity:.6">
+  const actionsHtml=`<span style="display:inline-flex;flex-wrap:wrap;gap:6px;margin-left:6px;opacity:.6">
       <i class="ti ti-arrow-back-up" style="cursor:pointer;font-size:12px" onclick="replyToMessageAction('${m.id}','${escJs(m.sender_name)}','${escJs(replyPreviewText)}')" title="${t("reply_action")}"></i>
       <i class="ti ti-arrow-forward-up" style="cursor:pointer;font-size:12px" onclick="openForwardModal('${m.id}')" title="${t("forward_action")}"></i>
       <i class="ti ${isPinned?'ti-pinned-off':'ti-pin'}" style="cursor:pointer;font-size:12px" onclick="togglePinMessage('${m.id}',${isPinned})" title="${isPinned?t("unpin_action"):t("pin_action")}"></i>
@@ -3709,11 +3738,11 @@ function scrollChatToBottom(){const box=document.getElementById("chat-messages")
 let _countedReaders=new Map();
 function handleReadReceipt(data){
   if(data.conversation_id!==_currentConvId)return;
-  const readAt=new Date(data.read_at);
+  const readAt=parseServerDate(data.read_at);
   document.querySelectorAll('#chat-messages [id^="ticks-"]').forEach(el=>{
     const bubble=el.closest("div[data-created-at]");
     if(!bubble)return;
-    if(new Date(bubble.dataset.createdAt)>readAt)return;
+    if(parseServerDate(bubble.dataset.createdAt)>readAt)return;
     const msgId=el.id.replace("ticks-","");
     if(el.dataset.totalOthers!=null){
       if(!_countedReaders.has(msgId)) _countedReaders.set(msgId,new Set());
@@ -3948,7 +3977,7 @@ async function openConversationFromSearch(convId,name,messageId,createdAt){
   if(messageId&&createdAt){
     await openConversation(convId,name);
     try{
-      const target=new Date(new Date(createdAt).getTime()+1000).toISOString();
+      const target=new Date(parseServerDate(createdAt).getTime()+1000).toISOString().replace("Z","");
       const msgs=await api("GET",`/messaging/conversations/${convId}/messages?before=${encodeURIComponent(target)}`);
       _lastRenderedDayKey=null;
       document.getElementById("chat-messages").innerHTML="";
@@ -4740,7 +4769,7 @@ async function loadAdminUsers(){
       <td style="font-weight:600">${esc(u.name)}${u.is_creator?' <span class="badge bgold">CRÉATEUR</span>':''}</td>
       <td style="font-family:var(--mono);font-size:12px">${esc(u.email)}</td>
       <td>${planBadge(u.plan)}</td>
-      <td style="font-family:var(--mono);font-size:12px">${u.plan==='trial'?(u.trial_expired?'<span style="color:var(--red)">Expiré</span>':`${u.trial_days_remaining}j`):'—'}</td>
+      <td style="font-family:var(--mono);font-size:12px">${u.plan==='trial'?(u.trial_expired?'<span style="color:var(--red)">Expiré</span>':(u.trial_expires_at?formatCountdown(parseServerDate(u.trial_expires_at)-new Date()):`${u.trial_days_remaining}j`)):'—'}</td>
       <td>${u.is_subscribed?`<span class="badge bg">${esc(u.subscribed_plan)}</span>`:'<span class="badge badge-gray">Non</span>'}</td>
       <td>${esc(u.country)||"—"}</td>
       <td style="font-family:var(--mono);font-size:11px">${fmtDate(u.created_at)}</td>
@@ -4798,7 +4827,7 @@ function showAuthTab(tab){
   document.getElementById(`tab-${tab}`).style.display="block";
   document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
 }
-function doLogout(){logout();disconnectMessagingWS();if(_expiryInterval){clearInterval(_expiryInterval);_expiryInterval=null;}document.getElementById("app-screen").style.display="none";document.getElementById("blocked-screen").style.display="none";document.getElementById("auth-screen").style.display="flex";document.querySelector(".bottom-nav")?.classList.remove("show");}
+function doLogout(){logout();State.restricted=false;applyRestrictedUI();disconnectMessagingWS();if(_expiryInterval){clearInterval(_expiryInterval);_expiryInterval=null;}document.getElementById("app-screen").style.display="none";document.getElementById("blocked-screen").style.display="none";document.getElementById("auth-screen").style.display="flex";document.querySelector(".bottom-nav")?.classList.remove("show");}
 
 // ── ÉCRAN DE BLOCAGE (essai/abonnement expiré) ──────────────────────────────
 async function showBlockedScreen(){
