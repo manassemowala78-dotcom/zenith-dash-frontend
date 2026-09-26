@@ -537,7 +537,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       </div>
       <div class="card">
         <div class="table-wrap">
-          <table><thead><tr><th data-i18n="th_number">Numéro</th><th data-i18n="th_date">Date</th><th data-i18n="th_status">Statut</th><th data-i18n="th_total_usd">Total (USD)</th><th data-i18n="th_blockchain">Blockchain</th><th data-i18n="th_actions">Actions</th></tr></thead>
+          <table><thead><tr><th data-i18n="th_number">Numéro</th><th data-i18n="th_date">Date</th><th data-i18n="th_status">Statut</th><th data-i18n="th_total_usd">Total (USD)</th><th data-i18n="th_due_date">Échéance</th><th data-i18n="th_blockchain">Blockchain</th><th data-i18n="th_actions">Actions</th></tr></thead>
           <tbody id="inv-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px" data-i18n="loading">Chargement...</td></tr></tbody></table>
         </div>
       </div>
@@ -1235,6 +1235,8 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       <div class="fgrp"><label class="fl" data-i18n="fld_tax">TVA (%)</label><input class="inp" type="number" id="inv-tax" placeholder="0"></div>
       <div class="fgrp"><label class="fl">Remise</label><input class="inp" type="number" id="inv-disc" placeholder="0"></div>
     </div>
+    <div class="fgrp"><label class="fl" data-i18n="fld_due_date">Date d'échéance</label><input class="inp" type="date" id="inv-due"></div>
+    <div id="inv-total-preview" style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:12px"></div>
     <div class="fgrp"><label class="fl" data-i18n="fld_notes">Notes</label><input class="inp" type="text" id="inv-notes" placeholder="Optionnel"></div>
     <div class="modal-footer">
       <button class="btn btn-o btn-sm" onclick="closeInvModal()" data-i18n="btn_cancel">Annuler</button>
@@ -1322,8 +1324,8 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
       </select>
     </div>
     <div class="grid2">
-      <div class="fgrp"><label class="fl" data-i18n="fld_start_date">Date début *</label><input class="inp" type="date" id="leave-start"></div>
-      <div class="fgrp"><label class="fl" data-i18n="fld_end_date">Date fin *</label><input class="inp" type="date" id="leave-end"></div>
+      <div class="fgrp"><label class="fl" data-i18n="fld_start_date">Date début *</label><input class="inp" type="date" id="leave-start" onchange="updateLeaveDays()"></div>
+      <div class="fgrp"><label class="fl" data-i18n="fld_end_date">Date fin *</label><input class="inp" type="date" id="leave-end" onchange="updateLeaveDays()"></div>
     </div>
     <div class="fgrp"><label class="fl" data-i18n="fld_days_count">Nombre de jours</label><input class="inp" type="number" id="leave-days" placeholder="1"></div>
     <div class="fgrp"><label class="fl" data-i18n="fld_reason">Raison</label><input class="inp" id="leave-reason"></div>
@@ -1340,7 +1342,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
     <div class="fgrp"><label class="fl" data-i18n="th_employee">Employé *</label>
       <select class="inp" id="payslip-emp-id"></select>
     </div>
-    <div class="fgrp"><label class="fl" data-i18n="fld_month_label">Mois (YYYY-MM) *</label><input class="inp" id="payslip-month" placeholder="2026-08"></div>
+    <div class="fgrp"><label class="fl" data-i18n="fld_month_label">Mois (YYYY-MM) *</label><input class="inp" type="month" id="payslip-month" placeholder="2026-08"></div>
     <div class="grid2">
       <div class="fgrp"><label class="fl" data-i18n="fld_base_salary">Salaire de base</label><input class="inp" type="number" id="payslip-base" placeholder="0.00"></div>
       <div class="fgrp"><label class="fl" data-i18n="fld_bonuses">Primes / Bonus</label><input class="inp" type="number" id="payslip-bonuses" placeholder="0.00"></div>
@@ -1773,6 +1775,12 @@ Object.assign(I18N.es,{push_card_title:"Notificaciones push",push_card_desc:"Rec
 Object.assign(I18N.ar,{push_card_title:"إشعارات الدفع",push_card_desc:"استلم التنبيهات حتى عندما يكون Zenith Dash مغلقًا.",push_test_btn:"اختبار",push_test_sent:"تم إرسال إشعار تجريبي ✓ — سيظهر خلال ثوانٍ",push_test_failed:"فشل الاختبار:",push_blocked_help:"الإشعارات محظورة لهذا الموقع. افتح إعدادات المتصفح (رمز 🔒 بجانب العنوان) ← الإشعارات ← السماح، ثم أعد تحميل الصفحة.",push_activation_failed:"تعذّر تفعيل الإشعارات",preview_view_once:"👁️ رسالة لمشاهدة واحدة",preview_voice:"🎤 رسالة صوتية",preview_contact:"👤 جهة اتصال مشتركة"});
 Object.assign(I18N.sw,{push_card_title:"Arifa za push",push_card_desc:"Pokea arifa hata Zenith Dash ikiwa imefungwa.",push_test_btn:"Jaribu",push_test_sent:"Arifa ya majaribio imetumwa ✓ — itaonekana baada ya sekunde chache",push_test_failed:"Jaribio limeshindwa:",push_blocked_help:"Arifa zimezuiwa kwa tovuti hii. Fungua mipangilio ya kivinjari (ikoni 🔒 kushoto mwa anwani) → Arifa → Ruhusu, kisha pakia upya ukurasa.",push_activation_failed:"Imeshindwa kuwasha arifa",preview_view_once:"👁️ Ujumbe wa kuona mara moja",preview_voice:"🎤 Ujumbe wa sauti",preview_contact:"👤 Anwani iliyoshirikiwa"});
 Object.assign(I18N.ln,{push_card_title:"Ba notification push",push_card_desc:"Zwa ba alerte ata soki Zenith Dash ekangami.",push_test_btn:"Komeka",push_test_sent:"Notification ya komeka etindami ✓ — ekobima na ba seconde moke",push_test_failed:"Komeka elongi te:",push_blocked_help:"Ba notification ekangami mpo na site oyo. Fungola ba paramètre ya navigateur (icône 🔒 na lobɔkɔ ya mwasi ya adresse) → Notifications → Autoriser, mpe zongisa page.",push_activation_failed:"Ekokaki te kopelisa ba notification",preview_view_once:"👁️ Message ya kotala mbala moko",preview_voice:"🎤 Message ya mongongo",preview_contact:"👤 Contact ekabolami"});
+Object.assign(I18N.fr,{"fld_due_date": "Date d'échéance", "inv_preview_subtotal": "Sous-total", "inv_preview_total": "Total", "inv_discount_too_high": "La remise dépasse le montant de la facture", "client_balance_due": "Reste dû :", "quote_invoiced": "Facturé", "leave_dates_required": "Choisis la date de début et la date de fin"});
+Object.assign(I18N.en,{"fld_due_date": "Due date", "inv_preview_subtotal": "Subtotal", "inv_preview_total": "Total", "inv_discount_too_high": "The discount exceeds the invoice amount", "client_balance_due": "Balance due:", "quote_invoiced": "Invoiced", "leave_dates_required": "Choose the start and end dates"});
+Object.assign(I18N.es,{"fld_due_date": "Fecha de vencimiento", "inv_preview_subtotal": "Subtotal", "inv_preview_total": "Total", "inv_discount_too_high": "El descuento supera el importe de la factura", "client_balance_due": "Saldo pendiente:", "quote_invoiced": "Facturado", "leave_dates_required": "Elige la fecha de inicio y de fin"});
+Object.assign(I18N.ar,{"fld_due_date": "تاريخ الاستحقاق", "inv_preview_subtotal": "المجموع الفرعي", "inv_preview_total": "الإجمالي", "inv_discount_too_high": "الخصم يتجاوز مبلغ الفاتورة", "client_balance_due": "المتبقي:", "quote_invoiced": "تمت الفوترة", "leave_dates_required": "اختر تاريخ البداية وتاريخ النهاية"});
+Object.assign(I18N.sw,{"fld_due_date": "Tarehe ya mwisho wa malipo", "inv_preview_subtotal": "Jumla ndogo", "inv_preview_total": "Jumla", "inv_discount_too_high": "Punguzo linazidi kiasi cha ankara", "client_balance_due": "Deni lililobaki:", "quote_invoiced": "Imetozwa", "leave_dates_required": "Chagua tarehe ya kuanza na ya mwisho"});
+Object.assign(I18N.ln,{"fld_due_date": "Mokolo ya kofuta", "inv_preview_subtotal": "Sous-total", "inv_preview_total": "Motuya nyonso", "inv_discount_too_high": "Bokitisi eleki motuya ya fakture", "client_balance_due": "Etikali kofutama:", "quote_invoiced": "Efakturami", "leave_dates_required": "Pona mokolo ya kobanda mpe ya kosuka"});
 Object.assign(I18N.fr,{backend_unreachable:"Serveur injoignable — vérifie ta connexion internet et réessaie.",server_error:"Erreur serveur",restricted_toast:"Ton accès a expiré — seuls Abonnements, Messagerie et Profil restent disponibles.",plan_expired_badge:"EXPIRÉ"});
 Object.assign(I18N.en,{backend_unreachable:"Server unreachable — check your internet connection and try again.",server_error:"Server error",restricted_toast:"Your access has expired — only Subscription, Messaging and Profile remain available.",plan_expired_badge:"EXPIRED"});
 Object.assign(I18N.es,{backend_unreachable:"Servidor inaccesible — verifica tu conexión a internet e inténtalo de nuevo.",server_error:"Error del servidor",restricted_toast:"Tu acceso ha expirado — solo Suscripción, Mensajería y Perfil siguen disponibles.",plan_expired_badge:"EXPIRADO"});
@@ -2188,8 +2196,8 @@ async function loadDashboard(){
     set("kpi-expenses",fmtUSD(s.expenses_30d));
     set("dash-inv-count",s.invoices_created);
     set("dash-products",s.products);
-    set("dash-low-stock",s.low_stock_alerts+" alertes");
-    set("dash-opps",s.open_opportunities+" ouvertes");
+    set("dash-low-stock",(s.low_stock_alerts||0)+" alertes");
+    set("dash-opps",(s.open_opportunities||0)+" ouvertes");
     setHTML("dash-plan",planBadge(s.plan));
     if(s.trial&&State.tenant) updateExpiryBar({...State.tenant,trial:s.trial});
     // Afficher les limites d'usage
@@ -2215,21 +2223,22 @@ async function loadDashboard(){
 // ── FACTURES ─────────────────────────────────────────────────────────────────
 async function loadInvoices(){
   const tbody=document.getElementById("inv-tbody");if(!tbody)return;
-  tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">${t("loading")}</td></tr>`;
+  tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">${t("loading")}</td></tr>`;
   try{
     const invs=await api("GET","/invoices/");
-    if(!invs?.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">${t("no_invoices")} <a href="#" onclick="openInvModal()">${t("create_arrow")}</a></td></tr>`;return;}
+    if(!invs?.length){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">${t("no_invoices")} <a href="#" onclick="openInvModal()">${t("create_arrow")}</a></td></tr>`;return;}
     tbody.innerHTML=invs.map(i=>`<tr>
       <td style="font-family:var(--mono);color:var(--blue)">${i.number}</td>
       <td>${fmtDate(i.created_at)}</td><td>${statusBadge(i.status)}</td>
       <td style="font-family:var(--mono);font-weight:700">${fmtUSD(i.total)}</td>
+      <td style="font-family:var(--mono);font-size:12px;${i.status==="overdue"?"color:var(--red);font-weight:700":""}">${i.due_date?fmtDate(i.due_date):"—"}</td>
       <td>${i.blockchain_hash?`<span class="badge bp">🔗</span>`:"—"}</td>
       <td style="display:flex;gap:5px">
         ${i.status==="draft"?`<button class="btn btn-sm btn-o" onclick="handleSend('${i.id}')">${t("btn_send")}</button>`:""}
         ${i.status!=="paid"?`<button class="btn btn-sm btn-g" onclick="handlePaid('${i.id}')">${t("btn_mark_paid")}</button>`:""}
         <button class="btn btn-sm btn-r" onclick="handleDelInv('${i.id}')"><i class="ti ti-trash"></i></button>
       </td></tr>`).join("");
-  }catch(e){tbody.innerHTML=`<tr><td colspan="6" style="color:var(--red);padding:20px">${e.message}</td></tr>`;}
+  }catch(e){tbody.innerHTML=`<tr><td colspan="7" style="color:var(--red);padding:20px">${esc(e.message)}</td></tr>`;}
 }
 async function handleSend(id){
   try{
@@ -2255,18 +2264,48 @@ async function handleSend(id){
 }
 async function handlePaid(id){try{await api("POST",`/invoices/${id}/paid`);showToast(t("toast_paid"));loadInvoices();}catch(e){showToast(e.message,"error");}}
 async function handleDelInv(id){if(!confirm(t("confirm_del_invoice")))return;try{await api("DELETE",`/invoices/${id}`);showToast(t("toast_deleted"));loadInvoices();}catch(e){showToast(e.message,"error");}}
-function openInvModal(){populateClientSelect("inv-client");document.getElementById("modal-inv").style.display="flex";}
+function localDateInput(daysAhead){
+  const d=new Date();d.setDate(d.getDate()+daysAhead);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function dateInputToIso(v){
+  if(!v)return null;
+  const [y,m,d]=v.split("-").map(Number);
+  return new Date(Date.UTC(y,m-1,d,23,59,59)).toISOString();
+}
+function computeInvoicePreview(){
+  const qty=parseFloat(document.getElementById("inv-qty").value)||0;
+  const price=parseFloat(document.getElementById("inv-price").value)||0;
+  const tax=parseFloat(document.getElementById("inv-tax").value)||0;
+  const disc=parseFloat(document.getElementById("inv-disc").value)||0;
+  const sub=Math.round(qty*price*100)/100;
+  const taxAmt=Math.round(qty*price*tax)/100;
+  const total=Math.round((sub+taxAmt-disc)*100)/100;
+  const box=document.getElementById("inv-total-preview");
+  if(box) box.innerHTML=qty&&price?`${t("inv_preview_subtotal")} ${fmtUSD(sub)} · ${t("fld_tax")} ${fmtUSD(taxAmt)} · ${t("fld_discount")} −${fmtUSD(disc)} → <b style="color:${total<0?"var(--red)":"var(--green)"}">${t("inv_preview_total")} ${fmtUSD(total)}</b>`:"";
+  return total;
+}
+["inv-qty","inv-price","inv-tax","inv-disc"].forEach(id=>document.getElementById(id)?.addEventListener("input",computeInvoicePreview));
+function openInvModal(){
+  populateClientSelect("inv-client");
+  ["inv-desc","inv-qty","inv-price","inv-tax","inv-disc","inv-notes"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+  document.getElementById("inv-due").value=localDateInput(30);
+  computeInvoicePreview();
+  document.getElementById("modal-inv").style.display="flex";
+}
 function closeInvModal(){document.getElementById("modal-inv").style.display="none";}
 async function submitInvoice(){
   const desc=document.getElementById("inv-desc").value;
   const qty=parseFloat(document.getElementById("inv-qty").value);
   const price=parseFloat(document.getElementById("inv-price").value);
-  if(!desc||!qty||!price){showToast("Remplissez les champs obligatoires","error");return;}
+  if(!desc.trim()||!(qty>0)||!(price>=0)||isNaN(price)){showToast("Remplissez les champs obligatoires","error");return;}
+  if(computeInvoicePreview()<0){showToast(t("inv_discount_too_high"),"error");return;}
   try{
     await api("POST","/invoices/",{
       client_id:document.getElementById("inv-client").value||null,
-      items:[{description:desc,qty,unit_price:price,tax_rate:parseFloat(document.getElementById("inv-tax").value||0)}],
+      items:[{description:desc.trim(),qty,unit_price:price,tax_rate:parseFloat(document.getElementById("inv-tax").value||0)}],
       discount_amount:parseFloat(document.getElementById("inv-disc").value||0),
+      due_date:dateInputToIso(document.getElementById("inv-due").value),
       notes:document.getElementById("inv-notes").value||null,currency:"USD"});
     showToast("Facture créée ✓");closeInvModal();loadInvoices();
   }catch(e){showToast(e.message,"error");}
@@ -2285,7 +2324,7 @@ async function loadClients(){
       <td style="font-family:var(--mono);font-size:12px">${esc(c.email)||"—"}</td>
       <td style="font-family:var(--mono);font-size:12px">${esc(c.phone)||"—"}</td>
       <td>${esc(c.country)||"—"}</td>
-      <td style="font-family:var(--mono);font-weight:700">${fmtUSD(c.total_invoiced)}</td>
+      <td style="font-family:var(--mono);font-weight:700">${fmtUSD(c.total_invoiced)}${c.balance_due>0?`<div style="font-size:10px;font-weight:400;color:var(--amber)">${t("client_balance_due")} ${fmtUSD(c.balance_due)}</div>`:""}</td>
       <td style="display:flex;gap:5px">
         <button class="btn btn-sm btn-o" onclick="getPortalLink('${c.id}')" title="${t("portal_link_title")}"><i class="ti ti-link"></i></button>
         <button class="btn btn-sm btn-r" onclick="handleDelClient('${c.id}')"><i class="ti ti-trash"></i></button>
@@ -2398,8 +2437,9 @@ async function loadQuotes(){
       <td style="font-family:var(--mono);font-weight:700">${fmtUSD(q.total)}</td>
       <td>${fmtDate(q.valid_until)}</td>
       <td style="display:flex;gap:5px">
-        ${q.status==="draft"||q.status==="sent"?`<button class="btn btn-sm btn-g" onclick="convertQuote('${q.id}')"><i class="ti ti-file-invoice"></i> ${t("btn_convert")}</button>`:""}
-        ${q.status==="accepted"?`<button class="btn btn-sm btn-o" onclick="viewQuoteSignature('${q.id}')"><i class="ti ti-signature"></i> ${t("btn_signature")}</button>`:""}
+        ${!q.converted_invoice_id&&q.status!=="rejected"?`<button class="btn btn-sm btn-g" onclick="convertQuote('${q.id}')"><i class="ti ti-file-invoice"></i> ${t("btn_convert")}</button>`:""}
+        ${q.converted_invoice_id?`<span class="badge bg">✓ ${t("quote_invoiced")}</span>`:""}
+        ${q.signed_at?`<button class="btn btn-sm btn-o" onclick="viewQuoteSignature('${q.id}')"><i class="ti ti-signature"></i> ${t("btn_signature")}</button>`:""}
       </td></tr>`).join("");
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
@@ -2564,7 +2604,7 @@ async function loadEmployees(){
     </tr>`).join("");
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
 }
-async function delEmployee(id){if(!confirm("Supprimer ?"))return;try{await api("DELETE",`/hr/employees/${id}`);showToast("Supprimé ✓");loadEmployees();}catch(e){showToast(e.message,"error");}}
+async function delEmployee(id){if(!confirm("Supprimer ?"))return;try{const r=await api("DELETE",`/hr/employees/${id}`);showToast(r.archived?r.message:"Supprimé ✓");loadEmployees();}catch(e){showToast(e.message,"error");}}
 function openEmpModal(){document.getElementById("modal-emp").style.display="flex";}
 function closeEmpModal(){document.getElementById("modal-emp").style.display="none";}
 async function submitEmployee(){
@@ -2611,13 +2651,22 @@ async function handleLeave(id,action){
 }
 function openLeaveModal(){if(!_employees.length){showToast("Chargez d'abord les employés","error");return;}populateEmpSelect("leave-emp-id");document.getElementById("modal-leave").style.display="flex";}
 function closeLeaveModal(){document.getElementById("modal-leave").style.display="none";}
+function updateLeaveDays(){
+  const s=document.getElementById("leave-start").value,e=document.getElementById("leave-end").value;
+  if(!s||!e)return;
+  const span=Math.round((Date.parse(e+"T00:00:00Z")-Date.parse(s+"T00:00:00Z"))/86400000)+1;
+  document.getElementById("leave-days").value=span>0?span:"";
+}
 async function submitLeave(){
+  const s=document.getElementById("leave-start").value,e=document.getElementById("leave-end").value;
+  if(!s||!e){showToast(t("leave_dates_required"),"error");return;}
+  const daysVal=parseInt(document.getElementById("leave-days").value,10);
   try{
     await api("POST","/hr/leaves",{employee_id:document.getElementById("leave-emp-id").value,
       type:document.getElementById("leave-type").value,
-      start_date:new Date(document.getElementById("leave-start").value).toISOString(),
-      end_date:new Date(document.getElementById("leave-end").value).toISOString(),
-      days:parseInt(document.getElementById("leave-days").value||1),
+      start_date:`${s}T00:00:00`,
+      end_date:`${e}T00:00:00`,
+      days:daysVal>0?daysVal:null,
       reason:document.getElementById("leave-reason").value||null});
     showToast("Demande soumise ✓");closeLeaveModal();loadLeaves();
   }catch(e){showToast(e.message,"error");}
@@ -3173,7 +3222,7 @@ async function submitBankCsv(file){
   try{
     const fd=new FormData();fd.append("file",file);
     const r=await apiUpload("/bank/import-csv",fd);
-    box.innerHTML=`<div class="card" style="border-color:rgba(0,224,128,.25);color:var(--green)">✓ ${r.imported} transaction(s) importée(s), dont ${r.auto_suggested} avec une correspondance suggérée automatiquement.</div>`;
+    box.innerHTML=`<div class="card" style="border-color:rgba(0,224,128,.25);color:var(--green)">✓ ${r.imported} transaction(s) importée(s), dont ${r.auto_suggested} avec une correspondance suggérée automatiquement.${r.skipped_duplicates?` ${r.skipped_duplicates} doublon(s) ignoré(s).`:""}</div>`;
     document.getElementById("bank-csv-input").value="";
     loadBankTx();
   }catch(e){
