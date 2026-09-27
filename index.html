@@ -159,6 +159,10 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
 .kpi:hover{transform:translateY(-2px);border-color:rgba(0,224,128,.25)}
 .modal-overlay[style*="flex"] .modal{animation:modalIn .18s ease}
 @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.inp.inp-missing{border-color:var(--red)!important;animation:zdBlink .45s ease-in-out 5}
+@keyframes zdBlink{0%,100%{box-shadow:0 0 0 0 rgba(255,95,109,0)}50%{box-shadow:0 0 0 4px rgba(255,95,109,.5);background:rgba(255,95,109,.10)}}
+.btn-busy{opacity:.55;cursor:progress}
+@media (prefers-reduced-motion:reduce){.inp.inp-missing{animation:none;box-shadow:0 0 0 3px rgba(255,95,109,.5)}}
 .skel{background:linear-gradient(90deg,var(--s) 25%,var(--c2) 50%,var(--s) 75%);background-size:200% 100%;animation:skelWave 1.4s ease-in-out infinite;border-radius:6px}
 @keyframes skelWave{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -654,6 +658,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
         <button class="toggle-btn" data-pp="quarter" onclick="loadPL('quarter',this)" data-i18n="period_quarter">Trimestre</button>
         <button class="toggle-btn" data-pp="year" onclick="loadPL('year',this)" data-i18n="period_year">Année</button>
       </div>
+      <div id="pl-period-range" style="font-size:12px;color:var(--muted);margin:-8px 0 16px"></div>
       <div class="kgrid">
         <div class="kpi g"><div class="kl" data-i18n="kpi_pl_revenue">Revenus</div><div class="kv" id="pl-revenue">—</div></div>
         <div class="kpi r"><div class="kl" data-i18n="kpi_pl_expenses">Dépenses</div><div class="kv" id="pl-expenses">—</div></div>
@@ -784,6 +789,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
         <button class="toggle-btn" data-rp="quarter" onclick="loadReport('quarter',this)" data-i18n="period_quarter">Trimestre</button>
         <button class="toggle-btn" data-rp="year" onclick="loadReport('year',this)" data-i18n="period_year">Année</button>
       </div>
+      <div id="rep-period-range" style="font-size:12px;color:var(--muted);margin:-8px 0 16px"></div>
       <div class="kgrid">
         <div class="kpi g"><div class="kl" data-i18n="kpi_collected">Encaissé</div><div class="kv" id="rep-paid">—</div></div>
         <div class="kpi b"><div class="kl" data-i18n="st_pending">En attente</div><div class="kv" id="rep-pending">—</div></div>
@@ -1769,6 +1775,12 @@ btn_copy:"Kokopi",btn_edit:"Kobongisa",bnav_home:"Ndako",bnav_invoices:"Fakture"
 };
 const RTL_LANGS=["ar"];
 const LANG_NAMES={fr:"Français",en:"English",es:"Español",ar:"العربية",sw:"Kiswahili",ln:"Lingála"};
+Object.assign(I18N.fr,{fill_missing_field:"Remplis la case qui clignote en rouge",fill_missing_fields_n:"Remplis les {n} cases qui clignotent en rouge",stock_below_min:"produit(s) sous le seuil minimum.",stock_below_min_hint:"Réapprovisionne-les pour faire disparaître cette alerte.",btn_restock:"Réapprovisionner",restock_reason:"Réapprovisionnement",period_range_prefix:"Période calculée :"});
+Object.assign(I18N.en,{fill_missing_field:"Fill in the field blinking in red",fill_missing_fields_n:"Fill in the {n} fields blinking in red",stock_below_min:"product(s) below minimum level.",stock_below_min_hint:"Restock them to clear this alert.",btn_restock:"Restock",restock_reason:"Restocking",period_range_prefix:"Calculated period:"});
+Object.assign(I18N.es,{fill_missing_field:"Completa la casilla que parpadea en rojo",fill_missing_fields_n:"Completa las {n} casillas que parpadean en rojo",stock_below_min:"producto(s) bajo el umbral mínimo.",stock_below_min_hint:"Reabastécelos para quitar esta alerta.",btn_restock:"Reabastecer",restock_reason:"Reabastecimiento",period_range_prefix:"Periodo calculado:"});
+Object.assign(I18N.ar,{fill_missing_field:"املأ الخانة التي تومض باللون الأحمر",fill_missing_fields_n:"املأ الخانات ({n}) التي تومض باللون الأحمر",stock_below_min:"منتج(ات) تحت الحد الأدنى.",stock_below_min_hint:"أعد تزويدها لإزالة هذا التنبيه.",btn_restock:"إعادة التزويد",restock_reason:"إعادة تزويد",period_range_prefix:"الفترة المحسوبة:"});
+Object.assign(I18N.sw,{fill_missing_field:"Jaza kisanduku kinachowaka kwa rangi nyekundu",fill_missing_fields_n:"Jaza visanduku {n} vinavyowaka kwa rangi nyekundu",stock_below_min:"bidhaa chini ya kiwango cha chini.",stock_below_min_hint:"Ongeza hisa ili kuondoa tahadhari hii.",btn_restock:"Ongeza hisa",restock_reason:"Kuongeza hisa",period_range_prefix:"Kipindi kilichohesabiwa:"});
+Object.assign(I18N.ln,{fill_missing_field:"Tondisa esika oyo ezali kongenga na motane",fill_missing_fields_n:"Tondisa bisika {n} oyo ezali kongenga na motane",stock_below_min:"eloko(biloko) na se ya ndelo.",stock_below_min_hint:"Bakisa stock mpo alerte oyo elongwa.",btn_restock:"Kobakisa stock",restock_reason:"Kobakisa stock",period_range_prefix:"Ntango etangami:"});
 Object.assign(I18N.fr,{push_card_title:"Notifications push",push_card_desc:"Reçois une alerte même quand Zenith Dash est fermé.",push_test_btn:"Tester",push_test_sent:"Notification de test envoyée ✓ — elle doit apparaître dans quelques secondes",push_test_failed:"Le test a échoué :",push_blocked_help:"Les notifications sont bloquées pour ce site. Ouvre les paramètres du navigateur (icône 🔒 à gauche de l'adresse) → Notifications → Autoriser, puis recharge la page.",push_activation_failed:"Impossible d'activer les notifications",preview_view_once:"👁️ Message à vue unique",preview_voice:"🎤 Message vocal",preview_contact:"👤 Contact partagé"});
 Object.assign(I18N.en,{push_card_title:"Push notifications",push_card_desc:"Get alerts even when Zenith Dash is closed.",push_test_btn:"Test",push_test_sent:"Test notification sent ✓ — it should appear in a few seconds",push_test_failed:"Test failed:",push_blocked_help:"Notifications are blocked for this site. Open your browser settings (🔒 icon left of the address) → Notifications → Allow, then reload the page.",push_activation_failed:"Couldn't enable notifications",preview_view_once:"👁️ View-once message",preview_voice:"🎤 Voice message",preview_contact:"👤 Shared contact"});
 Object.assign(I18N.es,{push_card_title:"Notificaciones push",push_card_desc:"Recibe alertas incluso cuando Zenith Dash está cerrado.",push_test_btn:"Probar",push_test_sent:"Notificación de prueba enviada ✓ — aparecerá en unos segundos",push_test_failed:"La prueba falló:",push_blocked_help:"Las notificaciones están bloqueadas para este sitio. Abre la configuración del navegador (icono 🔒 a la izquierda de la dirección) → Notificaciones → Permitir, y recarga la página.",push_activation_failed:"No se pudieron activar las notificaciones",preview_view_once:"👁️ Mensaje de una sola vista",preview_voice:"🎤 Mensaje de voz",preview_contact:"👤 Contacto compartido"});
@@ -2207,11 +2219,14 @@ async function loadDashboard(){
       if(invUsage) invUsage.textContent=s.limits_usage.invoices;
       if(cliUsage) cliUsage.textContent=s.limits_usage.clients;
     }
+    const banner=document.getElementById("stock-alert-banner");
+    const badge=document.getElementById("stock-alert-badge");
     if(s.low_stock_alerts>0){
-      const banner=document.getElementById("stock-alert-banner");
       if(banner){banner.style.display="block";banner.innerHTML=`<div class="alert-bar"><i class="ti ti-alert-triangle"></i> ${s.low_stock_alerts} produit(s) en rupture ou sous le seuil minimum — <a href="#" onclick="navigate('stock')" style="color:var(--red)">Voir le stock →</a></div>`;}
-      const badge=document.getElementById("stock-alert-badge");
       if(badge) badge.style.display="inline";
+    }else{
+      if(banner){banner.style.display="none";banner.innerHTML="";}
+      if(badge) badge.style.display="none";
     }
   }catch(e){
     console.error(e);
@@ -2719,9 +2734,21 @@ async function loadStock(){
     _products=await api("GET","/stock/products");
     const alerts=await api("GET","/stock/alerts");
     const section=document.getElementById("stock-alerts-section");
-    if(alerts?.length&&section){
-      section.style.display="block";
-      section.innerHTML=`<div class="alert-bar"><i class="ti ti-alert-triangle"></i> <b>${alerts.length} produit(s) sous le seuil minimum :</b> ${alerts.map(a=>`${a.name} (${a.stock_qty}/${a.stock_min})`).join(", ")}</div>`;
+    const badge=document.getElementById("stock-alert-badge");
+    if(badge) badge.style.display=alerts?.length?"inline":"none";
+    if(section){
+      if(alerts?.length){
+        section.style.display="block";
+        section.innerHTML=`<div class="alert-bar" style="flex-direction:column;align-items:stretch;gap:8px">
+          <div><i class="ti ti-alert-triangle"></i> <b>${alerts.length} ${t("stock_below_min")}</b> ${t("stock_below_min_hint")}</div>
+          ${alerts.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+            <span>${esc(a.name)} — ${a.stock_qty} / ${a.stock_min}</span>
+            <button class="btn btn-sm btn-g" onclick="openStockMoveModal('${a.id}','in')"><i class="ti ti-plus"></i> ${t("btn_restock")}</button>
+          </div>`).join("")}
+        </div>`;
+      }else{
+        section.style.display="none";section.innerHTML="";
+      }
     }
     if(!_products?.length){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">${t("no_products")}</td></tr>`;return;}
     tbody.innerHTML=_products.map(p=>`<tr>
@@ -2754,9 +2781,15 @@ async function submitProduct(){
     showToast("Produit créé ✓");closeProductModal();loadStock();
   }catch(e){showToast(e.message,"error");}
 }
-function openStockMoveModal(){
+async function openStockMoveModal(productId,type){
   const sel=document.getElementById("move-product-id");if(!sel)return;
-  sel.innerHTML=_products.map(p=>`<option value="${p.id}">${p.name} (${p.stock_qty} ${p.unit})</option>`).join("");
+  if(!_products.length) try{_products=await api("GET","/stock/products");}catch(e){}
+  sel.innerHTML=_products.map(p=>`<option value="${p.id}">${esc(p.name)} (${p.stock_qty} ${esc(p.unit)})</option>`).join("");
+  if(productId) sel.value=productId;
+  document.getElementById("move-type").value=type||"in";
+  const prod=_products.find(p=>p.id===sel.value);
+  document.getElementById("move-qty").value=productId&&prod?Math.max(1,Math.ceil((prod.stock_min*2)-prod.stock_qty)):"";
+  document.getElementById("move-reason").value=productId?t("restock_reason"):"";
   document.getElementById("modal-stock-move").style.display="flex";
 }
 function closeStockMoveModal(){document.getElementById("modal-stock-move").style.display="none";}
@@ -2806,7 +2839,8 @@ async function submitExpense(){
 let _plPeriod="month";
 async function loadPL(period,btn){
   _plPeriod=period||"month";
-  if(btn){document.querySelectorAll("[data-pp]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");}
+  document.querySelectorAll("[data-pp]").forEach(b=>b.classList.toggle("active",b.dataset.pp===_plPeriod));
+  showPeriodRange("pl-period-range",_plPeriod);
   try{
     const [pl,tax]=await Promise.all([api("GET",`/accounting/pl?period=${_plPeriod}`),api("GET","/accounting/tax-summary")]);
     set("pl-revenue",fmtUSD(pl.revenue));
@@ -3037,7 +3071,8 @@ async function loadAnalytics(){
 let _repPeriod="month";
 async function loadReport(period,btn){
   _repPeriod=period||"month";
-  if(btn){document.querySelectorAll("[data-rp]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");}
+  document.querySelectorAll("[data-rp]").forEach(b=>b.classList.toggle("active",b.dataset.rp===_repPeriod));
+  showPeriodRange("rep-period-range",_repPeriod);
   try{
     const r=await api("GET",`/reports/summary?period=${_repPeriod}`);
     set("rep-paid",fmtUSD(r.revenue?.total_paid));
@@ -3284,7 +3319,10 @@ async function deleteSupplyOrder(id){
   try{await api("DELETE",`/supply-orders/${id}`);showToast("Supprimé ✓");loadSupplyOrders();}
   catch(e){showToast(e.message,"error");}
 }
-function openSupplierModal(){document.getElementById("modal-supplier").style.display="flex";}
+function openSupplierModal(){
+  ["sup-name","sup-email","sup-phone"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+  document.getElementById("modal-supplier").style.display="flex";
+}
 function closeSupplierModal(){document.getElementById("modal-supplier").style.display="none";}
 async function submitSupplier(){
   const name=document.getElementById("sup-name").value.trim();
@@ -3295,8 +3333,10 @@ async function submitSupplier(){
   }catch(e){showToast(e.message,"error");}
 }
 async function openSupplyOrderModal(){
-  if(!_products.length) try{_products=await api("GET","/stock/products");}catch(e){}
-  if(!_suppliers.length) try{_suppliers=await api("GET","/suppliers/");}catch(e){}
+  try{
+    const [prods,sups]=await Promise.all([api("GET","/stock/products"),api("GET","/suppliers/")]);
+    _products=prods;_suppliers=sups;
+  }catch(e){showToast(e.message,"error");}
   document.getElementById("so-supplier").innerHTML=`<option value="">Sans fournisseur</option>`+_suppliers.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
   document.getElementById("so-product").innerHTML=_products.map(p=>`<option value="${p.id}">${esc(p.name)} (stock: ${p.stock_qty})</option>`).join("");
   document.getElementById("so-qty").value="";document.getElementById("so-cost").value="";document.getElementById("so-date").value="";
@@ -3312,7 +3352,7 @@ async function submitSupplyOrder(){
     await api("POST","/supply-orders/",{
       supplier_id:document.getElementById("so-supplier").value||null,
       items:[{product_id:productId,qty,unit_cost:cost}],
-      expected_date:document.getElementById("so-date").value||null,
+      expected_date:dateInputToIso(document.getElementById("so-date").value),
     });
     showToast("Commande créée ✓");closeSupplyOrderModal();loadSupplyOrders();
   }catch(e){showToast(e.message,"error");}
@@ -5400,6 +5440,63 @@ async function portalActOnQuote(quoteId){
     checkPortalView();
   }catch(e){alert(e.message);}
 }
+
+function showPeriodRange(id,period){
+  const el=document.getElementById(id);if(!el)return;
+  const days={week:7,month:30,quarter:90,year:365}[period]||30;
+  const end=new Date(),start=new Date(end.getTime()-days*86400000);
+  const f=d=>d.toLocaleDateString(State.lang==="ar"?"ar":State.lang,{day:"numeric",month:"short",year:"numeric"});
+  el.textContent=`${t("period_range_prefix")} ${f(start)} → ${f(end)}`;
+}
+function markMissingField(el){
+  el.classList.remove("inp-missing");void el.offsetWidth;el.classList.add("inp-missing");
+  const clear=()=>{el.classList.remove("inp-missing");el.removeEventListener("input",clear);el.removeEventListener("change",clear);};
+  el.addEventListener("input",clear);el.addEventListener("change",clear);
+}
+function findMissingRequired(container){
+  const missing=[];
+  container.querySelectorAll(".fgrp").forEach(g=>{
+    if(g.offsetParent===null)return;
+    const lbl=g.querySelector(".fl");
+    const field=g.querySelector("input:not([type=hidden]):not([type=checkbox]):not([type=file]),select,textarea");
+    if(!lbl||!field||field.disabled)return;
+    if(!/\*\s*$/.test(lbl.textContent.trim()))return;
+    if(!String(field.value||"").trim())missing.push(field);
+  });
+  return missing;
+}
+function flagMissingFields(fields){
+  fields.forEach(markMissingField);
+  const first=fields[0];
+  first.scrollIntoView({behavior:"smooth",block:"center"});
+  setTimeout(()=>{try{first.focus({preventScroll:true});}catch(_){}},300);
+  showToast(fields.length>1?t("fill_missing_fields_n").replace("{n}",fields.length):t("fill_missing_field"),"error");
+}
+const SKIP_REQUIRED_CHECK=new Set(["submitAiQuote"]);
+let _lastSubmitBtn=null;
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");
+  if(b&&/\bsubmit[A-Za-z]*\s*\(/.test(b.getAttribute("onclick")||"")) _lastSubmitBtn=b;
+},true);
+function wrapSubmitHandler(name){
+  const original=window[name];
+  if(typeof original!=="function"||original._zdWrapped)return;
+  const wrapped=async function(...args){
+    const btn=_lastSubmitBtn;_lastSubmitBtn=null;
+    const box=btn&&!SKIP_REQUIRED_CHECK.has(name)?(btn.closest(".modal")||btn.closest(".card")):null;
+    document.querySelectorAll(".inp-missing").forEach(el=>{if(!box||!box.contains(el))el.classList.remove("inp-missing");});
+    if(box){const missing=findMissingRequired(box);if(missing.length){flagMissingFields(missing);return;}}
+    if(btn){
+      if(btn.dataset.busy==="1")return;
+      btn.dataset.busy="1";btn.disabled=true;btn.classList.add("btn-busy");
+    }
+    try{return await original.apply(this,args);}
+    finally{if(btn){btn.dataset.busy="";btn.disabled=false;btn.classList.remove("btn-busy");}}
+  };
+  wrapped._zdWrapped=true;
+  window[name]=wrapped;
+}
+Object.getOwnPropertyNames(window).filter(n=>/^submit[A-Z]/.test(n)).forEach(wrapSubmitHandler);
 document.addEventListener("DOMContentLoaded",async ()=>{
   applyLanguage(State.lang);
   setTheme(State.theme);
