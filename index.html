@@ -888,6 +888,15 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
         </div>
         <div id="push-status-hint" style="display:none;font-size:12px;color:var(--amber);margin-top:10px"></div>
       </div>
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px"><i class="ti ti-stethoscope" style="color:var(--blue)"></i> <span data-i18n="diag_title">Diagnostic de l'appareil</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px" data-i18n="diag_desc">Si quelque chose ne marche pas sur cet appareil, lance le diagnostic et envoie le rapport au support.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="btn btn-g btn-sm" onclick="runDiagnostics()"><i class="ti ti-player-play"></i> <span data-i18n="diag_run">Lancer le diagnostic</span></button>
+          <button class="btn btn-o btn-sm" id="diag-copy-btn" style="display:none" onclick="copyDiagnostics()"><i class="ti ti-copy"></i> <span data-i18n="diag_copy">Copier le rapport</span></button>
+        </div>
+        <div id="diag-output" style="display:none;font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:10px 12px;white-space:pre-wrap;word-break:break-word"></div>
+      </div>
       <div class="grid2">
         <div class="card">
           <div style="font-weight:700;font-size:14px;margin-bottom:14px"><i class="ti ti-user"></i> <span data-i18n="card_company_profile">Profil entreprise</span></div>
@@ -1696,9 +1705,10 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
 </div>
 
 <script>
-const API_BASE = window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1"
-  ? "http://localhost:8000/v1"
-  : "https://zenith-dash-production.up.railway.app/v1";
+const APP_BUILD="6.1.0 · 28/09/2026";
+const ZD_ENV=(()=>{const host=window.location.hostname;if(host==="localhost"||host==="127.0.0.1")return "local";if(host.includes("staging"))return "staging";return "production";})();
+const API_URLS={local:"http://localhost:8000/v1",staging:"https://zenith-dash-staging.up.railway.app/v1",production:"https://zenith-dash-production.up.railway.app/v1"};
+const API_BASE=API_URLS[ZD_ENV];
 const WS_BASE = API_BASE.replace("https://","wss://").replace("http://","ws://");
 
 const I18N={
@@ -1813,6 +1823,8 @@ btn_copy:"Kokopi",btn_edit:"Kobongisa",bnav_home:"Ndako",bnav_invoices:"Fakture"
 };
 const RTL_LANGS=["ar"];
 const LANG_NAMES={fr:"Français",en:"English",es:"Español",ar:"العربية",sw:"Kiswahili",ln:"Lingála"};
+Object.assign(I18N.fr,{"diag_title": "Diagnostic de l'appareil", "diag_desc": "Si quelque chose ne marche pas sur cet appareil, lance le diagnostic et envoie le rapport au support.", "diag_run": "Lancer le diagnostic", "diag_copy": "Copier le rapport", "diag_copied": "Rapport copié ✓", "diag_running": "Diagnostic en cours…", "diag_app_version": "Version de l'appli", "diag_server_url": "Serveur utilisé", "diag_server": "Serveur", "diag_clock": "Décalage d'horloge", "diag_storage": "Stockage de fichiers", "diag_push_server": "Push côté serveur", "diag_device": "Appareil", "diag_realtime": "Temps réel", "diag_connected": "connecté", "diag_disconnected": "déconnecté", "diag_push_support": "Push supporté", "diag_push_permission": "Permission notifications", "diag_sw": "Service worker", "diag_active": "actif", "diag_missing": "absent", "diag_push_local": "Abonnement sur l'appareil", "diag_push_registered": "Appareil connu du serveur", "diag_devices": "appareil(s) au total", "diag_push_key": "Clé de notification", "diag_ok": "OK", "diag_mismatch": "différente du serveur", "diag_wallpaper_default": "Fond d'écran par défaut", "diag_wallpaper_convs": "Fonds personnalisés", "diag_photo_ok": "photo chargée", "diag_photo_fail": "photo impossible à charger", "diag_yes": "oui", "diag_no": "non", "push_test_repaired": "Appareil réabonné — notification de test envoyée ✓", "push_device_not_reached": "cet appareil n'a pas pu être joint", "env_staging": "ENVIRONNEMENT DE TEST", "env_local": "LOCAL"});
+Object.assign(I18N.en,{"diag_title": "Device diagnostics", "diag_desc": "If something doesn't work on this device, run the diagnostics and send the report to support.", "diag_run": "Run diagnostics", "diag_copy": "Copy report", "diag_copied": "Report copied ✓", "diag_running": "Running diagnostics…", "diag_app_version": "App version", "diag_server_url": "Server used", "diag_server": "Server", "diag_clock": "Clock offset", "diag_storage": "File storage", "diag_push_server": "Push on server", "diag_device": "Device", "diag_realtime": "Real time", "diag_connected": "connected", "diag_disconnected": "disconnected", "diag_push_support": "Push supported", "diag_push_permission": "Notification permission", "diag_sw": "Service worker", "diag_active": "active", "diag_missing": "missing", "diag_push_local": "Subscription on device", "diag_push_registered": "Device known by server", "diag_devices": "device(s) in total", "diag_push_key": "Notification key", "diag_ok": "OK", "diag_mismatch": "different from server", "diag_wallpaper_default": "Default wallpaper", "diag_wallpaper_convs": "Custom wallpapers", "diag_photo_ok": "photo loaded", "diag_photo_fail": "photo failed to load", "diag_yes": "yes", "diag_no": "no", "push_test_repaired": "Device re-subscribed — test notification sent ✓", "push_device_not_reached": "this device could not be reached", "env_staging": "TEST ENVIRONMENT", "env_local": "LOCAL"});
 Object.assign(I18N.fr,{"unblock_user_action": "Débloquer", "block_user_action": "Bloquer", "confirm_unblock": "Débloquer {name} ? Vous pourrez de nouveau vous écrire.", "toast_unblocked": "Contact débloqué ✓", "blocked_banner": "Tu as bloqué {name}. Vous ne pouvez plus vous écrire.", "card_blocked_contacts": "Contacts bloqués", "blocked_contacts_desc": "Les personnes bloquées ne peuvent plus t'écrire. Débloque-les pour reprendre la discussion.", "no_blocked_contacts": "Aucun contact bloqué.", "blocked_tag": "Bloqué", "blocked_since": "Bloqué le {date}"});
 Object.assign(I18N.en,{"unblock_user_action": "Unblock", "block_user_action": "Block", "confirm_unblock": "Unblock {name}? You will be able to message each other again.", "toast_unblocked": "Contact unblocked ✓", "blocked_banner": "You blocked {name}. You can no longer message each other.", "card_blocked_contacts": "Blocked contacts", "blocked_contacts_desc": "Blocked people can no longer message you. Unblock them to resume the chat.", "no_blocked_contacts": "No blocked contacts.", "blocked_tag": "Blocked", "blocked_since": "Blocked on {date}"});
 Object.assign(I18N.es,{"unblock_user_action": "Desbloquear", "block_user_action": "Bloquear", "confirm_unblock": "¿Desbloquear a {name}? Podrán volver a escribirse.", "toast_unblocked": "Contacto desbloqueado ✓", "blocked_banner": "Bloqueaste a {name}. Ya no pueden escribirse.", "card_blocked_contacts": "Contactos bloqueados", "blocked_contacts_desc": "Las personas bloqueadas ya no pueden escribirte. Desbloquéalas para retomar el chat.", "no_blocked_contacts": "Ningún contacto bloqueado.", "blocked_tag": "Bloqueado", "blocked_since": "Bloqueado el {date}"});
@@ -2109,6 +2121,15 @@ function checkFeature(features, feature) {
   return features[feature] === true;
 }
 
+function showEnvRibbon(){
+  if(ZD_ENV==="production"||document.getElementById("zd-env-ribbon"))return;
+  const r=document.createElement("div");
+  r.id="zd-env-ribbon";
+  r.textContent=ZD_ENV==="staging"?t("env_staging"):t("env_local");
+  r.style.cssText="position:fixed;top:calc(env(safe-area-inset-top,0px) + 2px);left:50%;transform:translateX(-50%);z-index:99999;background:#f59e0b;color:#1a1200;font:700 11px/1 var(--mono);letter-spacing:.08em;padding:4px 10px;border-radius:0 0 8px 8px;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.4)";
+  document.body.appendChild(r);
+}
+document.addEventListener("DOMContentLoaded",showEnvRibbon);
 function showToast(msg,type="success"){
   document.querySelector(".toast")?.remove();
   const t=Object.assign(document.createElement("div"),{className:`toast t${type==="error"?"r":type==="info"?"i":"g"}`,textContent:msg});
@@ -3089,7 +3110,7 @@ function showWireModal(r){
     </div>
     <div style="margin-top:16px;background:rgba(0,224,128,.06);border:1px solid rgba(0,224,128,.2);border-radius:10px;padding:14px">
       <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--green)">📲 ${t("confirm_payment_title")}</div>
-      <a href="https://wa.me/212632947286?text=Bonjour%2C%20j%27ai%20effectu%C3%A9%20mon%20virement%20ZenithDash.%20R%C3%A9f%C3%A9rence%20%3A%20${ins.reference}%20-%20Plan%20${ins.plan}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">
+      <a href="https://wa.me/${(ins.whatsapp?.number||"+212774887385").replace(/[^0-9]/g,"")}?text=Bonjour%2C%20j%27ai%20effectu%C3%A9%20mon%20virement%20ZenithDash.%20R%C3%A9f%C3%A9rence%20%3A%20${ins.reference}%20-%20Plan%20${ins.plan}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">
         <i class="ti ti-brand-whatsapp"></i> ${t("whatsapp_send_ref")}
       </a>
     </div>`);
@@ -4169,14 +4190,29 @@ async function resetConversationTheme(){
   try{await api("PUT",`/messaging/conversations/${conv.id}/theme`,{reset:true});showToast(t("toast_theme_updated"));}
   catch(e){conv.theme=previous;applyConversationTheme();renderChatThemePanel();showToast(e.message,"error");}
 }
+async function refreshWallpaperUrls(failedUrl){
+  _wallpaperRefreshTried.add(failedUrl);
+  try{
+    const [profile,convs]=await Promise.all([api("GET","/profile/"),api("GET","/messaging/conversations?include_archived=true")]);
+    if(State.tenant&&!_pendingDefaultWallpaper){State.tenant.chat_wallpaper=profile.chat_wallpaper||"default";saveTenantLocal();}
+    convs.forEach(fresh=>{const local=_conversations.find(c=>c.id===fresh.id);if(local&&!_pendingConvTheme[fresh.id])local.theme=fresh.theme;});
+    [State.tenant?.chat_wallpaper,...convs.map(c=>c.theme?.wallpaper)].forEach(k=>{if(k&&k.startsWith("custom:"))_wallpaperRefreshTried.add(k.slice(7));});
+    applyConversationTheme();
+    renderDefaultThemeSettings();
+  }catch(_){}
+}
 function preloadImage(url){
   return new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=url;});
 }
+const _wallpaperRefreshTried=new Set();
 function applyChatWallpaper(key){
   const box=document.getElementById("chat-messages");if(!box)return;
   if(key&&key.startsWith("custom:")){
     const url=key.slice(7);
     box.style.background=`url("${url}") center/cover no-repeat`;
+    if(!url.startsWith("blob:")&&!_wallpaperRefreshTried.has(url)){
+      preloadImage(url).then(ok=>{if(!ok) refreshWallpaperUrls(url);});
+    }
     return;
   }
   box.style.background=WALLPAPER_SWATCHES[key]||WALLPAPER_SWATCHES.default;
@@ -4930,22 +4966,109 @@ async function togglePushNotifications(){
     refreshPushButtonState();
   }
 }
+async function currentPushSubscription(){
+  const reg=await navigator.serviceWorker.getRegistration();
+  return reg?await reg.pushManager.getSubscription():null;
+}
+async function freshSubscribe(reg){
+  const old=await reg.pushManager.getSubscription();
+  if(old){
+    const endpoint=old.endpoint;
+    try{await old.unsubscribe();}catch(_){}
+    try{await api("POST","/push/unsubscribe",{endpoint});}catch(_){}
+  }
+  return subscribeCurrentDevice(reg);
+}
 async function testPushNotification(){
   const btn=document.getElementById("push-test-btn");
   if(btn) btn.disabled=true;
   try{
-    const r=await api("POST","/push/test");
-    if(r.sent>0) showToast(t("push_test_sent"));
-    else showToast(`${t("push_test_failed")} ${(r.errors||[])[0]||""}`,"error");
+    const reg=await getSwRegistration();
+    let sub=await reg.pushManager.getSubscription();
+    let r=await api("POST","/push/test",{endpoint:sub?.endpoint||null});
+    if(r.this_device!=="sent"){
+      await freshSubscribe(reg);
+      sub=await reg.pushManager.getSubscription();
+      r=await api("POST","/push/test",{endpoint:sub?.endpoint||null});
+      if(r.this_device==="sent"){showToast(t("push_test_repaired"));return;}
+    }
+    if(r.this_device==="sent") showToast(t("push_test_sent"));
+    else showToast(`${t("push_test_failed")} ${(r.errors||[])[0]||t("push_device_not_reached")}`,"error");
   }catch(e){showToast(e.message,"error");}
-  finally{if(btn) btn.disabled=false;}
+  finally{if(btn) btn.disabled=false;refreshPushButtonState();}
 }
 async function syncPushSubscription(){
   if(!pushSupported()||Notification.permission!=="granted"||!State.token)return;
   try{
     const reg=await getSwRegistration();
-    if(await reg.pushManager.getSubscription()) await subscribeCurrentDevice(reg);
+    const sub=await reg.pushManager.getSubscription();
+    if(!sub)return;
+    const status=await api("GET",`/push/devices?endpoint=${encodeURIComponent(sub.endpoint)}`);
+    if(status.this_device_registered) await subscribeCurrentDevice(reg);
+    else await freshSubscribe(reg);
   }catch(e){console.warn("Synchronisation push impossible :",e);}
+}
+let _lastDiagnostics="";
+async function runDiagnostics(){
+  const out=document.getElementById("diag-output");
+  const copyBtn=document.getElementById("diag-copy-btn");
+  if(!out)return;
+  out.style.display="block";out.textContent=t("diag_running");
+  const lines=[];
+  const add=(ok,label,value)=>lines.push(`${ok===true?"✅":ok===false?"❌":"⚠️"} ${label} : ${value}`);
+  add(true,t("diag_app_version"),`${APP_BUILD} (${ZD_ENV})`);
+  add(true,t("diag_server_url"),API_BASE.replace(/^https?:\/\//,""));
+  let info=null;
+  try{info=await api("GET","/system/info");add(true,t("diag_server"),`${info.version} · ${info.env}`);}
+  catch(e){add(false,t("diag_server"),e.message);}
+  if(info){
+    const skew=Math.round((Date.now()-parseServerDate(info.server_time).getTime())/1000);
+    add(Math.abs(skew)<120?true:null,t("diag_clock"),`${skew>0?"+":""}${skew} s`);
+    add(info.storage_enabled,t("diag_storage"),info.storage_enabled?t("diag_yes"):t("diag_no"));
+    add(info.push_enabled,t("diag_push_server"),info.push_enabled?t("diag_yes"):t("diag_no"));
+  }
+  add(true,t("diag_device"),`${/Android/i.test(navigator.userAgent)?"Android":/iPhone|iPad/i.test(navigator.userAgent)?"iOS":/Windows/i.test(navigator.userAgent)?"Windows":/Mac/i.test(navigator.userAgent)?"Mac":"?"} · ${window.innerWidth}×${window.innerHeight} · ${navigator.language}`);
+  add(!!(_ws&&_ws.readyState===1),t("diag_realtime"),_ws&&_ws.readyState===1?t("diag_connected"):t("diag_disconnected"));
+  if(!pushSupported()){add(false,t("diag_push_support"),t("diag_no"));}
+  else{
+    add(Notification.permission==="granted"?true:Notification.permission==="denied"?false:null,t("diag_push_permission"),Notification.permission);
+    try{
+      const reg=await navigator.serviceWorker.getRegistration();
+      add(!!reg?.active,t("diag_sw"),reg?.active?t("diag_active"):t("diag_missing"));
+      const sub=reg?await reg.pushManager.getSubscription():null;
+      add(!!sub,t("diag_push_local"),sub?t("diag_yes"):t("diag_no"));
+      if(sub){
+        const st=await api("GET",`/push/devices?endpoint=${encodeURIComponent(sub.endpoint)}`);
+        add(st.this_device_registered,t("diag_push_registered"),`${st.this_device_registered?t("diag_yes"):t("diag_no")} (${st.count} ${t("diag_devices")})`);
+        if(info?.vapid_public_key){
+          const match=sameApplicationKey(sub.options&&sub.options.applicationServerKey,urlBase64ToUint8Array(info.vapid_public_key));
+          add(match,t("diag_push_key"),match?t("diag_ok"):t("diag_mismatch"));
+        }
+      }
+    }catch(e){add(false,t("diag_push_local"),e.message);}
+  }
+  const wp=State.tenant?.chat_wallpaper||"default";
+  if(wp.startsWith("custom:")){
+    const ok=await preloadImage(wp.slice(7));
+    add(ok,t("diag_wallpaper_default"),ok?t("diag_photo_ok"):t("diag_photo_fail"));
+  }else add(true,t("diag_wallpaper_default"),wp);
+  const custom=_conversations.filter(c=>c.theme?.wallpaper);
+  if(custom.length){
+    let bad=0;
+    for(const c of custom){if(c.theme.wallpaper.startsWith("custom:")&&!(await preloadImage(c.theme.wallpaper.slice(7))))bad++;}
+    add(bad===0,t("diag_wallpaper_convs"),`${custom.length} · ${bad?`${bad} ${t("diag_photo_fail")}`:t("diag_ok")}`);
+  }
+  _lastDiagnostics=`Zenith Dash — ${new Date().toLocaleString()}\n`+lines.join("\n");
+  out.textContent=lines.join("\n");
+  if(copyBtn) copyBtn.style.display="inline-flex";
+}
+async function copyDiagnostics(){
+  try{await navigator.clipboard.writeText(_lastDiagnostics);showToast(t("diag_copied"));}
+  catch(_){
+    const ta=document.createElement("textarea");ta.value=_lastDiagnostics;document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");showToast(t("diag_copied"));}catch(e){showToast(e.message,"error");}
+    ta.remove();
+  }
 }
 function consumeDeepLink(){
   const params=new URLSearchParams(window.location.search);
@@ -4981,10 +5104,13 @@ if("serviceWorker" in navigator){
     }catch(_){}
   });
 }
+function isUserActivelyViewing(){return document.visibilityState==="visible"&&document.hasFocus();}
 function sendWsVisibility(visible){
-  if(_ws&&_ws.readyState===1) _ws.send(JSON.stringify({type:"visibility",visible:visible===undefined?document.visibilityState==="visible":visible}));
+  if(_ws&&_ws.readyState===1) _ws.send(JSON.stringify({type:"visibility",visible:visible===undefined?isUserActivelyViewing():visible}));
 }
 document.addEventListener("visibilitychange",()=>sendWsVisibility());
+window.addEventListener("focus",()=>sendWsVisibility());
+window.addEventListener("blur",()=>sendWsVisibility(false));
 window.addEventListener("pagehide",()=>sendWsVisibility(false));
 
 // ── INTÉGRATIONS / WEBHOOKS ─────────────────────────────────────────────────────
