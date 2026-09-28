@@ -25,7 +25,8 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);mi
 .err-box{color:var(--red);font-size:12px;font-family:var(--mono);margin-top:8px;display:none}
 html,body{height:100%;margin:0}
 #app-screen{display:none;height:100vh;height:100dvh;overflow:hidden}
-.layout{display:grid;grid-template-columns:230px 1fr;grid-template-rows:auto 1fr;height:100vh;height:100dvh;overflow:hidden}
+.layout{display:grid;grid-template-columns:230px 1fr;grid-template-rows:auto auto minmax(0,1fr);height:100vh;height:100dvh;overflow:hidden}
+.layout>.trial-bar{grid-row:1}.layout>.topbar{grid-row:2}.layout>.sidebar,.layout>.main{grid-row:3}
 .trial-bar{grid-column:1/-1;background:rgba(0,224,128,.08);border-bottom:1px solid rgba(0,224,128,.2);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--green)}
 .trial-bar.expired{background:rgba(255,95,109,.08);border-color:rgba(255,95,109,.2);color:var(--red)}
 .trial-bar.hidden{display:none}
@@ -436,7 +437,7 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
               </div>
               <input type="file" id="chat-wallpaper-input" accept="image/*" style="display:none" onchange="uploadConversationWallpaper(this.files[0])">
               <input type="file" id="chat-avatar-input" accept="image/*" style="display:none" onchange="uploadAvatar(this.files[0])">
-              <button class="btn btn-sm btn-o" style="text-align:left" onclick="blockCurrentContact()" data-i18n="block_user_action">Bloquer</button>
+              <button class="btn btn-sm btn-o" id="chat-block-btn" style="text-align:left" onclick="toggleBlockCurrentContact()"><i class="ti ti-ban"></i> <span id="chat-block-label" data-i18n="block_user_action">Bloquer</span></button>
               <button class="btn btn-sm btn-r" style="text-align:left" onclick="reportCurrentContact()" data-i18n="report_user_action">Signaler</button>
             </div>
             <div id="pinned-bar" style="display:none;padding:8px 16px;border-bottom:1px solid var(--b);background:rgba(245,166,35,.06);cursor:pointer;align-items:center;gap:8px" onclick="scrollToMessage(_pinnedMsgIds[0])">
@@ -476,6 +477,10 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
                 <input class="inp" id="chat-input" placeholder="Écris un message..." data-i18n-ph="msg_placeholder" style="width:100%" onkeydown="if(event.key==='Enter'&&document.getElementById('mention-dropdown').style.display==='none')sendChatMessage()" oninput="notifyTyping();checkMentionTrigger()">
               </div>
               <button class="btn btn-g btn-sm" onclick="sendChatMessage()"><i class="ti ti-send"></i></button>
+            </div>
+            <div id="chat-blocked-banner" style="display:none;padding:14px 12px;border-top:1px solid var(--b);flex-shrink:0;text-align:center;background:var(--s)">
+              <div id="chat-blocked-text" style="font-size:13px;color:var(--muted);margin-bottom:10px"></div>
+              <button class="btn btn-g btn-sm" onclick="unblockCurrentContact()"><i class="ti ti-lock-open"></i> <span data-i18n="unblock_user_action">Débloquer</span></button>
             </div>
             <div id="recording-row" style="display:none;padding:12px;border-top:1px solid var(--b);align-items:center;gap:10px">
               <i class="ti ti-microphone" style="color:var(--red);font-size:20px;animation:pulse 1.2s infinite"></i>
@@ -840,6 +845,11 @@ button:focus-visible,.inp:focus-visible,.nav-i:focus-visible,.bnav-item:focus-vi
           <div style="align-self:flex-start;max-width:75%;padding:6px 10px;border-radius:12px;font-size:13px;background:var(--bub-theirs-bg,var(--card));color:var(--bub-theirs-fg,var(--text))" data-i18n="bubble_preview_theirs">Salut, tu as reçu la facture ?</div>
           <div style="align-self:flex-end;max-width:75%;padding:6px 10px;border-radius:12px;font-size:13px;background:var(--bub-mine-bg,var(--green));color:var(--bub-mine-fg,#04160e)" data-i18n="bubble_preview_mine">Oui, payée ce matin ✓</div>
         </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px"><i class="ti ti-ban" style="color:var(--red)"></i> <span data-i18n="card_blocked_contacts">Contacts bloqués</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px" data-i18n="blocked_contacts_desc">Les personnes bloquées ne peuvent plus t'écrire. Débloque-les pour reprendre la discussion.</div>
+        <div id="blocked-contacts-list"></div>
       </div>
       <div class="card" style="margin-bottom:16px;border-color:rgba(0,224,128,.2)">
         <div style="font-weight:700;font-size:14px;margin-bottom:6px"><i class="ti ti-gift" style="color:var(--green)"></i> <span data-i18n="card_referral">Parraine et gagne des jours d'essai</span></div>
@@ -1803,6 +1813,12 @@ btn_copy:"Kokopi",btn_edit:"Kobongisa",bnav_home:"Ndako",bnav_invoices:"Fakture"
 };
 const RTL_LANGS=["ar"];
 const LANG_NAMES={fr:"Français",en:"English",es:"Español",ar:"العربية",sw:"Kiswahili",ln:"Lingála"};
+Object.assign(I18N.fr,{"unblock_user_action": "Débloquer", "block_user_action": "Bloquer", "confirm_unblock": "Débloquer {name} ? Vous pourrez de nouveau vous écrire.", "toast_unblocked": "Contact débloqué ✓", "blocked_banner": "Tu as bloqué {name}. Vous ne pouvez plus vous écrire.", "card_blocked_contacts": "Contacts bloqués", "blocked_contacts_desc": "Les personnes bloquées ne peuvent plus t'écrire. Débloque-les pour reprendre la discussion.", "no_blocked_contacts": "Aucun contact bloqué.", "blocked_tag": "Bloqué", "blocked_since": "Bloqué le {date}"});
+Object.assign(I18N.en,{"unblock_user_action": "Unblock", "block_user_action": "Block", "confirm_unblock": "Unblock {name}? You will be able to message each other again.", "toast_unblocked": "Contact unblocked ✓", "blocked_banner": "You blocked {name}. You can no longer message each other.", "card_blocked_contacts": "Blocked contacts", "blocked_contacts_desc": "Blocked people can no longer message you. Unblock them to resume the chat.", "no_blocked_contacts": "No blocked contacts.", "blocked_tag": "Blocked", "blocked_since": "Blocked on {date}"});
+Object.assign(I18N.es,{"unblock_user_action": "Desbloquear", "block_user_action": "Bloquear", "confirm_unblock": "¿Desbloquear a {name}? Podrán volver a escribirse.", "toast_unblocked": "Contacto desbloqueado ✓", "blocked_banner": "Bloqueaste a {name}. Ya no pueden escribirse.", "card_blocked_contacts": "Contactos bloqueados", "blocked_contacts_desc": "Las personas bloqueadas ya no pueden escribirte. Desbloquéalas para retomar el chat.", "no_blocked_contacts": "Ningún contacto bloqueado.", "blocked_tag": "Bloqueado", "blocked_since": "Bloqueado el {date}"});
+Object.assign(I18N.ar,{"unblock_user_action": "إلغاء الحظر", "block_user_action": "حظر", "confirm_unblock": "إلغاء حظر {name}؟ ستتمكنان من المراسلة مجددًا.", "toast_unblocked": "تم إلغاء الحظر ✓", "blocked_banner": "لقد حظرت {name}. لا يمكنكما المراسلة بعد الآن.", "card_blocked_contacts": "جهات الاتصال المحظورة", "blocked_contacts_desc": "لا يمكن للأشخاص المحظورين مراسلتك. ألغِ الحظر لاستئناف المحادثة.", "no_blocked_contacts": "لا توجد جهات اتصال محظورة.", "blocked_tag": "محظور", "blocked_since": "محظور منذ {date}"});
+Object.assign(I18N.sw,{"unblock_user_action": "Ondoa kizuizi", "block_user_action": "Zuia", "confirm_unblock": "Ondoa kizuizi kwa {name}? Mtaweza kuandikiana tena.", "toast_unblocked": "Kizuizi kimeondolewa ✓", "blocked_banner": "Umemzuia {name}. Hamuwezi tena kuandikiana.", "card_blocked_contacts": "Watu uliowazuia", "blocked_contacts_desc": "Watu uliowazuia hawawezi kukuandikia. Ondoa kizuizi ili kuendelea na mazungumzo.", "no_blocked_contacts": "Hakuna uliyemzuia.", "blocked_tag": "Amezuiwa", "blocked_since": "Alizuiwa {date}"});
+Object.assign(I18N.ln,{"unblock_user_action": "Kofungola", "block_user_action": "Kokanga", "confirm_unblock": "Kofungola {name}? Bokoki lisusu kokomelana.", "toast_unblocked": "Moto afungolami ✓", "blocked_banner": "Okangi {name}. Bokoki lisusu kokomelana te.", "card_blocked_contacts": "Bato okangi", "blocked_contacts_desc": "Bato okangi bakoki kokomela yo te. Fungola bango mpo na kozongela lisolo.", "no_blocked_contacts": "Moto moko te akangami.", "blocked_tag": "Akangami", "blocked_since": "Akangami {date}"});
 Object.assign(I18N.fr,{"chat_customize": "Personnaliser cette discussion", "chat_customize_hint": "Ces réglages ne s'appliquent qu'à cette discussion.", "chat_theme_wallpaper": "Fond d'écran", "chat_theme_mine": "Couleur de tes messages", "chat_theme_theirs": "Couleur des messages reçus", "chat_theme_reset": "Revenir aux réglages par défaut", "card_default_wallpaper": "Fond d'écran par défaut", "default_theme_desc": "S'applique à toutes tes discussions, sauf celles que tu as personnalisées (menu ⋮ d'une discussion → Personnaliser).", "default_bubbles_title": "Couleurs des bulles par défaut", "wp_use_default": "Par défaut", "bubble_default": "Par défaut", "toast_theme_updated": "Couleurs mises à jour ✓", "bubble_preview_theirs": "Salut, tu as reçu la facture ?", "bubble_preview_mine": "Oui, payée ce matin ✓", "bubble_green": "Vert", "bubble_blue": "Bleu", "bubble_purple": "Violet", "bubble_pink": "Rose", "bubble_orange": "Orange", "bubble_teal": "Turquoise", "bubble_red": "Rouge", "bubble_slate": "Ardoise", "bubble_light": "Clair", "bubble_card": "Sombre"});
 Object.assign(I18N.en,{"chat_customize": "Customize this chat", "chat_customize_hint": "These settings apply to this chat only.", "chat_theme_wallpaper": "Wallpaper", "chat_theme_mine": "Your message color", "chat_theme_theirs": "Received message color", "chat_theme_reset": "Back to default settings", "card_default_wallpaper": "Default wallpaper", "default_theme_desc": "Applies to all your chats, except the ones you customized (chat menu ⋮ → Customize).", "default_bubbles_title": "Default bubble colors", "wp_use_default": "Default", "bubble_default": "Default", "toast_theme_updated": "Colors updated ✓", "bubble_preview_theirs": "Hi, did you get the invoice?", "bubble_preview_mine": "Yes, paid this morning ✓", "bubble_green": "Green", "bubble_blue": "Blue", "bubble_purple": "Purple", "bubble_pink": "Pink", "bubble_orange": "Orange", "bubble_teal": "Teal", "bubble_red": "Red", "bubble_slate": "Slate", "bubble_light": "Light", "bubble_card": "Dark"});
 Object.assign(I18N.es,{"chat_customize": "Personalizar este chat", "chat_customize_hint": "Estos ajustes solo se aplican a este chat.", "chat_theme_wallpaper": "Fondo de pantalla", "chat_theme_mine": "Color de tus mensajes", "chat_theme_theirs": "Color de los mensajes recibidos", "chat_theme_reset": "Volver a los ajustes por defecto", "card_default_wallpaper": "Fondo por defecto", "default_theme_desc": "Se aplica a todos tus chats, salvo los personalizados (menú ⋮ del chat → Personalizar).", "default_bubbles_title": "Colores de burbujas por defecto", "wp_use_default": "Por defecto", "bubble_default": "Por defecto", "toast_theme_updated": "Colores actualizados ✓", "bubble_preview_theirs": "Hola, ¿recibiste la factura?", "bubble_preview_mine": "Sí, pagada esta mañana ✓", "bubble_green": "Verde", "bubble_blue": "Azul", "bubble_purple": "Violeta", "bubble_pink": "Rosa", "bubble_orange": "Naranja", "bubble_teal": "Turquesa", "bubble_red": "Rojo", "bubble_slate": "Pizarra", "bubble_light": "Claro", "bubble_card": "Oscuro"});
@@ -3566,7 +3582,7 @@ function renderConvList(){
         </div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;justify-content:space-between"><b style="font-size:13px">${esc(c.name)}</b>${c.unread_count>0?`<span class="badge bb" style="font-size:10px">${c.unread_count}</span>`:''}</div>
-          <div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">${esc(c.last_message)||t("no_message")}</div>
+          <div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">${c.blocked_by_me?`<span style="color:var(--red)"><i class="ti ti-ban"></i> ${t("blocked_tag")}</span> · `:""}${esc(c.last_message)||t("no_message")}</div>
         </div>
       </div>`).join("");
 }
@@ -3577,6 +3593,7 @@ async function openConversation(convId,name){
   cancelReply();
   document.getElementById("chat-input-row").style.display="flex";
   document.getElementById("recording-row").style.display="none";
+  updateChatBlockUI();
   document.getElementById("chat-empty-state").style.display="none";
   document.getElementById("chat-active").style.display="flex";
   document.getElementById("msg-layout")?.classList.add("mobile-chat-open");
@@ -4417,15 +4434,73 @@ function toggleChatMoreMenu(){
   const menu=document.getElementById("chat-more-menu");
   menu.style.display=menu.style.display==="none"?"flex":"none";
 }
-async function blockCurrentContact(){
+function updateChatBlockUI(){
+  const conv=_conversations.find(c=>c.id===_currentConvId);
+  const blocked=!!(conv&&!conv.is_group&&conv.blocked_by_me);
+  const row=document.getElementById("chat-input-row");
+  const rec=document.getElementById("recording-row");
+  const banner=document.getElementById("chat-blocked-banner");
+  const label=document.getElementById("chat-block-label");
+  const blockBtn=document.getElementById("chat-block-btn");
+  if(blockBtn) blockBtn.style.display=conv&&!conv.is_group?"":"none";
+  if(label) label.textContent=t(blocked?"unblock_user_action":"block_user_action");
+  if(blocked){
+    if(row) row.style.display="none";
+    if(rec) rec.style.display="none";
+    document.getElementById("chat-blocked-text").textContent=t("blocked_banner").replace("{name}",conv.name);
+    if(banner) banner.style.display="block";
+  }else{
+    if(banner) banner.style.display="none";
+    if(row&&(!rec||rec.style.display==="none")) row.style.display="flex";
+  }
+}
+function setConversationBlocked(tenantId,blocked){
+  _conversations.forEach(c=>{if(!c.is_group&&c.other_tenant_id===tenantId)c.blocked_by_me=blocked;});
+  renderConvList();
+  updateChatBlockUI();
+}
+async function toggleBlockCurrentContact(){
   const conv=_conversations.find(c=>c.id===_currentConvId);
   if(!conv?.other_tenant_id)return;
+  document.getElementById("chat-more-menu").style.display="none";
+  if(conv.blocked_by_me){await unblockContact(conv.other_tenant_id,conv.name);return;}
   if(!confirm(t("confirm_block")))return;
   try{
     await api("POST","/messaging/block",{tenant_id:conv.other_tenant_id});
+    setConversationBlocked(conv.other_tenant_id,true);
     showToast(t("toast_blocked"));
-    document.getElementById("chat-more-menu").style.display="none";
+    loadBlockedContacts();
   }catch(e){showToast(e.message,"error");}
+}
+async function blockCurrentContact(){return toggleBlockCurrentContact();}
+async function unblockCurrentContact(){
+  const conv=_conversations.find(c=>c.id===_currentConvId);
+  if(conv?.other_tenant_id) await unblockContact(conv.other_tenant_id,conv.name);
+}
+async function unblockContact(tenantId,name){
+  if(!confirm(t("confirm_unblock").replace("{name}",name||"")))return;
+  try{
+    await api("POST","/messaging/unblock",{tenant_id:tenantId});
+    setConversationBlocked(tenantId,false);
+    showToast(t("toast_unblocked"));
+    loadBlockedContacts();
+  }catch(e){showToast(e.message,"error");}
+}
+async function loadBlockedContacts(){
+  const box=document.getElementById("blocked-contacts-list");if(!box)return;
+  try{
+    const list=await api("GET","/messaging/blocked");
+    if(!list.length){box.innerHTML=`<div style="font-size:13px;color:var(--muted)">${t("no_blocked_contacts")}</div>`;return;}
+    const fmt=d=>parseServerDate(d).toLocaleDateString(State.lang==="ar"?"ar":State.lang,{day:"numeric",month:"short",year:"numeric"});
+    box.innerHTML=list.map(b=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b)">
+      ${avatarHtml(b.avatar_url,b.name,34)}
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.name)}</div>
+        ${b.blocked_at?`<div style="font-size:11px;color:var(--muted)">${t("blocked_since").replace("{date}",fmt(b.blocked_at))}</div>`:""}
+      </div>
+      <button class="btn btn-o btn-sm" data-id="${esc(b.id)}" data-name="${esc(b.name)}" onclick="unblockContact(this.dataset.id,this.dataset.name)"><i class="ti ti-lock-open"></i> ${t("unblock_user_action")}</button>
+    </div>`).join("");
+  }catch(e){box.innerHTML=`<div style="font-size:13px;color:var(--red)">${esc(e.message)}</div>`;}
 }
 async function reportCurrentContact(){
   const conv=_conversations.find(c=>c.id===_currentConvId);
@@ -4970,6 +5045,7 @@ async function loadProfile(){
     applyAvatarPreview(p.avatar_url,p.name);
     if(State.tenant&&!_pendingDefaultWallpaper){State.tenant.chat_wallpaper=p.chat_wallpaper||"default";State.tenant.bubble_mine=p.bubble_mine||null;State.tenant.bubble_theirs=p.bubble_theirs||null;}
     renderDefaultThemeSettings();
+    loadBlockedContacts();
     const setVal=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.value=v;};
     setVal("prof-name",p.name); setVal("prof-company",p.company_name);
     setVal("prof-phone",p.phone); setVal("prof-country",p.country);
