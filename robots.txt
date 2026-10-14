@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /*?order=
+Disallow: /*?portal=
+Disallow: /*?staff=
+Disallow: /*?invite=
+Disallow: /*?accountant_invite=
+
+Sitemap: https://zenithdash.org/sitemap.xml
