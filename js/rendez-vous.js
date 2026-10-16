@@ -96,7 +96,7 @@ async function submitManualAppointment(){
 }
 let _pb={slug:null,page:null,service:null,date:null,time:null};
 async function checkBookingView(){
-  const q=new URLSearchParams(window.location.search);const slug=q.get("book"),ctok=q.get("bookcancel");
+  const q=new URLSearchParams(window.location.search);const slug=q.get("book"),ctok=q.get("bookcancel");if(ctok&&typeof zdClientLink==="function")zdClientLink("appointment",ctok);
   if(!slug&&!ctok)return false;
   document.getElementById("auth-screen").style.display="none";document.getElementById("landing").style.display="none";
   const v=document.getElementById("booking-view");v.style.display="block";
@@ -138,6 +138,7 @@ async function submitPublicBooking(){
     const r=await fetch(`${API_BASE}/book/${encodeURIComponent(_pb.slug)}/appointments`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service_id:_pb.service,date:_pb.date,time:_pb.time,
       customer_name:name.value.trim(),customer_phone:phone.value.trim(),customer_email:document.getElementById("pb-email").value.trim()||null,note:document.getElementById("pb-note").value.trim()||null})});
     const d=await r.json();if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur");
+    try{const ct=new URL(d.cancel_url).searchParams.get("bookcancel");if(ct&&typeof zdClientLink==="function")zdClientLink("appointment",ct);}catch(_){}
     const v=document.getElementById("booking-view");
     v.innerHTML=pbHeader()+`<div class="card" style="text-align:center"><div style="font-size:42px">✅</div><div style="font-size:18px;font-weight:800;margin:6px 0">${t("pb_booked")}</div>
       <div style="font-size:14px">${esc(d.service)} · ${new Date(d.date+"T00:00:00").toLocaleDateString(State.lang==="ar"?"ar":State.lang,{weekday:"long",day:"numeric",month:"long"})} · <b>${d.time}</b></div>

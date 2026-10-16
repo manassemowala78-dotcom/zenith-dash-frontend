@@ -90,6 +90,7 @@ function renderConvList(){
 }
 async function openConversation(convId,name){
   _currentConvId=convId;
+  _currentConvSnapshot=_conversations.find(c=>c.id===convId)||null;
   setViewOnceMode(null);
   setEphemeralDuration(null);
   cancelReply();
@@ -536,7 +537,12 @@ const BUBBLE_COLORS={
 const DEFAULT_BUBBLE_MINE="green",DEFAULT_BUBBLE_THEIRS="card";
 const _pendingConvTheme={};
 let _pendingDefaultWallpaper=null;
-function currentConversation(){return _conversations.find(c=>c.id===_currentConvId)||null;}
+let _currentConvSnapshot=null;
+function currentConversation(){
+  const found=_conversations.find(c=>c.id===_currentConvId);
+  if(found){_currentConvSnapshot=found;return found;}
+  return _currentConvSnapshot&&_currentConvSnapshot.id===_currentConvId?_currentConvSnapshot:null;
+}
 function defaultTheme(){
   return {wallpaper:State.tenant?.chat_wallpaper||"default",mine:State.tenant?.bubble_mine||DEFAULT_BUBBLE_MINE,theirs:State.tenant?.bubble_theirs||DEFAULT_BUBBLE_THEIRS};
 }
@@ -644,24 +650,8 @@ async function selectConversationWallpaper(key){
 async function uploadConversationWallpaper(file){
   resetFileInputs("#chat-wallpaper-input");
   const conv=currentConversation();if(!file||!conv)return;
-  const convId=conv.id,previous={...(conv.theme||{})};
-  const localUrl=URL.createObjectURL(file);
-  conv.theme={...previous,wallpaper:`custom:${localUrl}`};_pendingConvTheme[convId]=conv.theme;
-  applyConversationTheme();renderChatThemePanel();
-  showToast(t("uploading_label"));
-  try{
-    const compressed=await compressImageFile(file,1600,0.85);
-    const fd=new FormData();fd.append("file",compressed);
-    const r=await apiUpload(`/messaging/conversations/${convId}/wallpaper-image`,fd);
-    await preloadImage(r.url);
-    conv.theme={...conv.theme,wallpaper:r.theme.wallpaper};
-    if(_currentConvId===convId){applyConversationTheme();}
-    URL.revokeObjectURL(localUrl);
-    showToast(t("toast_wallpaper_updated"));
-  }catch(e){
-    conv.theme=previous;applyConversationTheme();URL.revokeObjectURL(localUrl);
-    showToast(e.message,"error");
-  }finally{delete _pendingConvTheme[convId];}
+  const compressed=await compressImageFile(file,1600,0.85);
+  startWallpaperUpload({scope:"conv",convId:conv.id,prevTheme:{...(conv.theme||{})},blob:compressed,name:compressed.name||"wallpaper.jpg"},false);
 }
 async function resetConversationTheme(){
   const conv=currentConversation();if(!conv)return;
@@ -686,18 +676,160 @@ function preloadImage(url){
   return new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=url;});
 }
 const _wallpaperRefreshTried=new Set();
+const WP_DB_NAME="zd-wallpapers",WP_PENDING_MAX_AGE=7*86400000,WP_CACHE_MAX=12;
+let _wpDbPromise=null,_wpApplySeq=0,_wpUploads=0,_wpResumeRunning=false;
+const _wpObjectUrls=new Map();
+function wpDb(){
+  if(!("indexedDB" in window))return Promise.reject(new Error("IndexedDB indisponible"));
+  if(!_wpDbPromise)_wpDbPromise=new Promise((resolve,reject)=>{
+    const req=indexedDB.open(WP_DB_NAME,1);
+    req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains("img"))d.createObjectStore("img");if(!d.objectStoreNames.contains("pending"))d.createObjectStore("pending");};
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>{_wpDbPromise=null;reject(req.error);};
+  });
+  return _wpDbPromise;
+}
+function wpIdb(store,mode,fn){
+  return wpDb().then(d=>new Promise((resolve,reject)=>{
+    const tx=d.transaction(store,mode);const req=fn(tx.objectStore(store));
+    tx.oncomplete=()=>resolve(req?req.result:undefined);
+    tx.onerror=tx.onabort=()=>reject(tx.error);
+  }));
+}
+function wpCacheKey(url){try{const u=new URL(url);return u.host+u.pathname;}catch(_){return null;}}
+async function wpStoreImage(cacheKey,blob){
+  if(!cacheKey||!blob)return;
+  try{
+    await wpIdb("img","readwrite",s=>s.put({blob,ts:Date.now()},cacheKey));
+    const keys=await wpIdb("img","readonly",s=>s.getAllKeys());
+    if(keys&&keys.length>WP_CACHE_MAX){
+      const all=await wpIdb("img","readonly",s=>s.getAll());
+      const rows=keys.map((k,i)=>[k,all[i]?.ts||0]).sort((a,b)=>a[1]-b[1]).slice(0,keys.length-WP_CACHE_MAX);
+      await wpIdb("img","readwrite",s=>{rows.forEach(([k])=>s.delete(k));return null;});
+    }
+  }catch(_){}
+}
+async function wpCacheRemote(url,cacheKey){
+  try{
+    const r=await fetch(url,{mode:"cors",credentials:"omit"});
+    if(!r.ok)return;
+    const blob=await r.blob();
+    if(blob&&blob.type.startsWith("image/"))await wpStoreImage(cacheKey,blob);
+  }catch(_){}
+}
+function setChatBackgroundImage(box,url){box.style.background=`url("${url}") center/cover no-repeat`;}
 function applyChatWallpaper(key){
   const box=document.getElementById("chat-messages");if(!box)return;
-  if(key&&key.startsWith("custom:")){
-    const url=key.slice(7);
-    box.style.background=`url("${url}") center/cover no-repeat`;
-    if(!url.startsWith("blob:")&&!_wallpaperRefreshTried.has(url)){
-      preloadImage(url).then(ok=>{if(!ok) refreshWallpaperUrls(url);});
+  const seq=++_wpApplySeq;
+  if(!(key&&key.startsWith("custom:"))){box.style.background=WALLPAPER_SWATCHES[key]||WALLPAPER_SWATCHES.default;return;}
+  const url=key.slice(7);
+  if(url.startsWith("blob:")){setChatBackgroundImage(box,url);return;}
+  const cacheKey=wpCacheKey(url);
+  const local=cacheKey&&_wpObjectUrls.get(cacheKey);
+  if(local){setChatBackgroundImage(box,local);return;}
+  const useNetwork=()=>{
+    if(seq!==_wpApplySeq)return;
+    setChatBackgroundImage(box,url);
+    if(!_wallpaperRefreshTried.has(url)){
+      preloadImage(url).then(ok=>{if(!ok)refreshWallpaperUrls(url);else if(cacheKey)wpCacheRemote(url,cacheKey);});
     }
-    return;
-  }
-  box.style.background=WALLPAPER_SWATCHES[key]||WALLPAPER_SWATCHES.default;
+  };
+  if(!cacheKey){useNetwork();return;}
+  wpIdb("img","readonly",s=>s.get(cacheKey)).then(row=>{
+    if(seq!==_wpApplySeq)return;
+    if(row&&row.blob){
+      const obj=URL.createObjectURL(row.blob);_wpObjectUrls.set(cacheKey,obj);
+      setChatBackgroundImage(box,obj);
+    }else useNetwork();
+  }).catch(useNetwork);
 }
+function wpPendingKey(job){return job.scope==="conv"?`conv:${job.convId}`:"default";}
+function wpShowLocal(job,objUrl){
+  const wp=`custom:${objUrl}`;
+  if(job.scope==="conv"){
+    const conv=_conversations.find(c=>c.id===job.convId);
+    const th={...(conv?.theme||job.prevTheme||{}),wallpaper:wp};
+    _pendingConvTheme[job.convId]=th;if(conv)conv.theme=th;
+  }else{
+    if(State.tenant)State.tenant.chat_wallpaper=wp;
+    _pendingDefaultWallpaper=wp;
+  }
+  applyConversationTheme();renderChatThemePanelIfOpen();renderDefaultThemeSettings();
+}
+function renderChatThemePanelIfOpen(){
+  const panel=document.getElementById("chat-theme-panel");
+  if(panel&&panel.style.display!=="none")renderChatThemePanel();
+}
+async function wpUploadRequest(path,fd){
+  const h={};if(State.token)h["Authorization"]=`Bearer ${State.token}`;
+  const r=await apiFetch(API_BASE+path,{method:"POST",headers:h,body:fd},false);
+  const retryable=r.status>=500||r.status===429||r.status===408;
+  try{return await readApiResponse(r);}catch(e){e.zdRetry=retryable;throw e;}
+}
+async function startWallpaperUpload(job,resumed){
+  const pendKey=wpPendingKey(job);
+  job.tenantId=job.tenantId||State.tenant?.id||null;job.ts=job.ts||Date.now();
+  const objUrl=URL.createObjectURL(job.blob);
+  wpShowLocal(job,objUrl);
+  try{await wpIdb("pending","readwrite",s=>s.put(job,pendKey));}catch(_){}
+  _wpUploads++;
+  showToast(t(resumed?"wp_upload_resumed":"wp_uploading"));
+  let keepPending=false;
+  try{
+    const fd=new FormData();fd.append("file",job.blob,job.name||"wallpaper.jpg");
+    const r=job.scope==="conv"
+      ?await wpUploadRequest(`/messaging/conversations/${job.convId}/wallpaper-image`,fd)
+      :await wpUploadRequest("/profile/wallpaper-image",fd);
+    const cacheKey=wpCacheKey(r.url);
+    if(cacheKey){_wpObjectUrls.set(cacheKey,objUrl);await wpStoreImage(cacheKey,job.blob);}
+    try{await wpIdb("pending","readwrite",s=>s.delete(pendKey));}catch(_){}
+    if(job.scope==="conv"){
+      delete _pendingConvTheme[job.convId];
+      const conv=_conversations.find(c=>c.id===job.convId);
+      if(conv)conv.theme={...(conv.theme||{}),wallpaper:r.theme?.wallpaper||`custom:${r.url}`};
+    }else{
+      _pendingDefaultWallpaper=null;
+      if(State.tenant){State.tenant.chat_wallpaper=`custom:${r.url}`;saveTenantLocal();}
+    }
+    applyConversationTheme();renderChatThemePanelIfOpen();renderDefaultThemeSettings();
+    showToast(t("toast_wallpaper_updated"));
+  }catch(e){
+    if(e.zdNetwork||e.zdRetry){
+      keepPending=true;
+      showToast(t("wp_upload_retry"),"error");
+    }else{
+      try{await wpIdb("pending","readwrite",s=>s.delete(pendKey));}catch(_){}
+      if(job.scope==="conv"){
+        delete _pendingConvTheme[job.convId];
+        const conv=_conversations.find(c=>c.id===job.convId);if(conv)conv.theme=job.prevTheme||{};
+      }else{
+        _pendingDefaultWallpaper=null;
+        if(State.tenant)State.tenant.chat_wallpaper=job.prevDefault||"default";
+      }
+      applyConversationTheme();renderChatThemePanelIfOpen();renderDefaultThemeSettings();
+      URL.revokeObjectURL(objUrl);
+      showToast(e.message,"error");
+    }
+  }finally{_wpUploads--;}
+  return !keepPending;
+}
+async function resumePendingWallpapers(){
+  if(_wpResumeRunning||!State.token||!State.tenant)return;
+  _wpResumeRunning=true;
+  try{
+    let keys=[],jobs=[];
+    try{keys=await wpIdb("pending","readonly",s=>s.getAllKeys());jobs=await wpIdb("pending","readonly",s=>s.getAll());}catch(_){return;}
+    for(let i=0;i<keys.length;i++){
+      const job=jobs[i];
+      if(!job||!job.blob||Date.now()-(job.ts||0)>WP_PENDING_MAX_AGE){try{await wpIdb("pending","readwrite",s=>s.delete(keys[i]));}catch(_){}continue;}
+      if(job.tenantId&&job.tenantId!==State.tenant.id)continue;
+      if(_wpUploads>0)continue;
+      await startWallpaperUpload(job,true);
+    }
+  }finally{_wpResumeRunning=false;}
+}
+window.addEventListener("online",()=>{setTimeout(()=>resumePendingWallpapers(),1500);});
+window.addEventListener("beforeunload",e=>{if(_wpUploads>0){e.preventDefault();e.returnValue="";}});
 function backToConvList(){
   document.getElementById("msg-layout")?.classList.remove("mobile-chat-open");
   _currentConvId=null;
@@ -902,26 +1034,8 @@ function toggleWallpaperMenuInChat(){
 async function uploadWallpaperImage(file){
   resetFileInputs('input[type=file][onchange^="uploadWallpaperImage"]');
   if(!file)return;
-  const previous=State.tenant?.chat_wallpaper||"default";
-  const localUrl=URL.createObjectURL(file);
-  if(State.tenant) State.tenant.chat_wallpaper=`custom:${localUrl}`;
-  _pendingDefaultWallpaper=State.tenant?.chat_wallpaper;
-  renderDefaultThemeSettings();applyConversationTheme();
-  showToast(t("uploading_label"));
-  try{
-    const compressed=await compressImageFile(file,1600,0.85);
-    const fd=new FormData();fd.append("file",compressed);
-    const r=await apiUpload("/profile/wallpaper-image",fd);
-    await preloadImage(r.url);
-    if(State.tenant){State.tenant.chat_wallpaper=`custom:${r.url}`;saveTenantLocal();}
-    renderDefaultThemeSettings();applyConversationTheme();
-    URL.revokeObjectURL(localUrl);
-    showToast(t("toast_wallpaper_updated"));
-  }catch(e){
-    if(State.tenant) State.tenant.chat_wallpaper=previous;
-    renderDefaultThemeSettings();applyConversationTheme();URL.revokeObjectURL(localUrl);
-    showToast(e.message,"error");
-  }finally{_pendingDefaultWallpaper=null;}
+  const compressed=await compressImageFile(file,1600,0.85);
+  startWallpaperUpload({scope:"default",prevDefault:State.tenant?.chat_wallpaper||"default",blob:compressed,name:compressed.name||"wallpaper.jpg"},false);
 }
 function showWallpaperPreview(key){
   const el=document.getElementById("wallpaper-custom-preview");if(!el)return;

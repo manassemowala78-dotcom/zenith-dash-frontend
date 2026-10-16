@@ -270,6 +270,7 @@ async function submitSalonPublic(){
   try{const r=await fetch(`${API_BASE}/public/salon/${encodeURIComponent(_sp.slug)}/appointments`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service_ids:_sp.sel,day:_sp.day,time:_sp.time,name:name.value.trim(),phone:phone.value.trim(),staff_id:_sp.staff||null,note:zdVal("sp-note")||null})});
     const d=await r.json();if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur");
     document.getElementById("sp-form").innerHTML=`<div style="text-align:center;padding:16px"><i class="ti ti-circle-check" style="font-size:42px;color:var(--green)"></i><div style="font-weight:800;font-size:18px;margin-top:6px">${esc(t("bt_pub_done"))}</div><div style="margin-top:6px">${esc(d.day)} · ${esc(d.time)} – ${esc(d.end)} · ${esc(d.staff_name)} · <b>${zdMoney(d.total)}</b></div>${d.order_token?`<div style="margin-top:10px;color:var(--amber);font-weight:700">${esc(t("oc_deposit_due").replace("{v}",zdMoney(d.deposit)))}</div><a class="btn btn-g" style="margin-top:8px" href="?order=${encodeURIComponent(d.order_token)}"><i class="ti ti-cash"></i> ${esc(t("oc_pay_deposit"))}</a>`:""}</div>`;
-    if(d.order_token&&typeof ocRemember==="function")ocRemember(d.order_token,"",d.name);}
+    if(d.order_token&&typeof ocRemember==="function")ocRemember(d.order_token,"",d.name);
+    if(d.id&&typeof zdClientLink==="function")zdClientLink("salon",d.id);}
   catch(e){showErr("sp-err",e.message);btn.disabled=false;}
 }

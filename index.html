@@ -27,9 +27,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Zenith Dash">
-<link rel="preload" href="/css/icons.woff2?v=9.1.3" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/icons.css?v=9.1.3">
-<link rel="stylesheet" href="/css/app.css?v=9.1.3">
+<link rel="preload" href="/css/icons.woff2?v=9.2.0" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/icons.css?v=9.2.0">
+<link rel="stylesheet" href="/css/app.css?v=9.2.0">
 </head>
 <body>
 <!-- PORTAIL CLIENT (accès public, sans compte) -->
@@ -40,6 +40,7 @@
   <div style="text-align:center;margin-bottom:20px"><div style="font-size:20px;font-weight:800"><span style="color:var(--green)">Zenith</span> Dash</div><div id="staff-company" style="color:var(--muted);font-size:13px;margin-top:6px"></div></div>
   <div id="staff-content"><div style="text-align:center;color:var(--muted);padding:40px 0">…</div></div>
 </div>
+<div id="client-space" style="display:none"></div>
 <div id="portal-view" style="display:none;max-width:720px;margin:0 auto;padding:24px 16px">
   <div style="text-align:center;margin-bottom:24px">
     <div style="font-size:20px;font-weight:800"><span style="color:var(--green)">Zenith</span> Dash</div>
@@ -48,6 +49,7 @@
   <div id="portal-extras"></div>
   <div id="portal-content"><div style="text-align:center;color:var(--muted);padding:40px 0">Chargement...</div></div>
 </div>
+<div id="public-legal-footer" class="legal-links" style="display:none;padding-bottom:24px"></div>
 
 <!-- ÉCRAN DE BLOCAGE (essai ou abonnement expiré) -->
 <div id="blocked-screen" style="display:none;min-height:100vh;min-height:100dvh;align-items:center;justify-content:center;padding:24px 16px">
@@ -88,6 +90,7 @@
 <h2>Un espace adapté à chaque secteur</h2>
 <ul><li>PME et services : facturation, CRM, stock, RH, paie et comptabilité.</li><li>Restaurant et bar : plan de salle, écran cuisine, addition partagée, menu QR, commandes à emporter et en livraison.</li><li>Hôtel : planning des chambres, réception, note de séjour, ménage, réservation et acompte en ligne.</li><li>Salon de beauté : agenda, rendez-vous en ligne, forfaits et commissions.</li><li>Commerce et pharmacie : caisse, codes-barres, prix de gros, carnet de crédit, lots et péremptions, ordonnancier.</li><li>Chambre froide : températures, registre HACCP, lots, bons d'entrée et de sortie, facturation du stockage.</li></ul>
 <p>Paiement des clients par Mobile Money (M-Pesa, Orange Money, Airtel Money), virement ou espèces. Active JavaScript pour utiliser l'application.</p>
+<p><a href="/legal/mentions-legales.html" style="color:#22c55e">Mentions légales</a> · <a href="/legal/conditions-generales.html" style="color:#22c55e">Conditions générales</a> · <a href="/legal/confidentialite.html" style="color:#22c55e">Confidentialité</a></p>
 </div></noscript>
 <div id="landing" style="display:none"></div>
 <div id="tour-overlay" style="display:none"><div id="tour-spot"></div><div id="tour-tip" class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b id="tour-title"></b><span id="tour-count" style="font-size:11px;color:var(--muted);font-family:var(--mono)"></span></div><div id="tour-text" style="font-size:13px;line-height:1.5;margin-bottom:12px"></div><div style="display:flex;justify-content:space-between;gap:8px"><button class="btn btn-o btn-sm" onclick="endTour()" data-i18n="tour_skip">Passer</button><button class="btn btn-g btn-sm" id="tour-next" onclick="nextTourStep()">Suivant</button></div></div></div>
@@ -116,6 +119,7 @@
         <div class="fgrp"><label class="fl">Votre nom</label><input class="inp" type="text" id="invite-accept-name" placeholder="Votre nom complet" required></div>
         <div class="fgrp"><label class="fl">Choisissez un mot de passe</label><input class="inp" type="password" id="invite-accept-password" placeholder="Min. 8 caractères" required></div>
         <div class="err-box" id="invite-accept-err"></div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px"><span data-i18n="terms_join_prefix">En rejoignant l'équipe, tu acceptes les</span> <a href="/legal/conditions-generales.html" target="_blank" rel="noopener" data-i18n="terms_link_cg">conditions générales</a> <span data-i18n="terms_and">et la</span> <a href="/legal/confidentialite.html" target="_blank" rel="noopener" data-i18n="terms_link_privacy">politique de confidentialité</a>.</div>
         <button class="btn btn-g" id="invite-accept-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-check"></i> Rejoindre l'équipe</button>
       </form>
     </div>
@@ -143,6 +147,7 @@
     </div>
     <div id="tab-register" class="auth-tab-content">
       <form onsubmit="handleRegister(event)">
+        <div id="reg-roles" class="reg-roles" role="radiogroup"></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_fullname">Nom complet</label><input class="inp" type="text" id="reg-name" placeholder="Votre nom" required></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_email">Email</label><input class="inp" type="email" id="reg-email" placeholder="vous@exemple.com" required></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_company">Entreprise</label><input class="inp" type="text" id="reg-company" data-i18n="lbl_company_ph" data-i18n-placeholder placeholder="Optionnel"></div>
@@ -150,10 +155,12 @@
         <div class="fgrp"><label class="fl" data-i18n="lbl_password">Mot de passe</label><input class="inp" type="password" id="reg-password" data-i18n="lbl_password_min" data-i18n-placeholder placeholder="Min. 8 caractères" required></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_sector">Secteur d'activité</label><div id="reg-sector-grid" class="sector-chips"></div><div id="reg-sector-hint" style="font-size:11px;color:var(--muted);margin-top:6px"></div></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_birth_date">Date de naissance (facultatif)</label><input class="inp" type="date" id="reg-birth" min="1900-01-01"><div style="font-size:11px;color:var(--muted);margin-top:4px" data-i18n="birth_hint">Tes contacts de la messagerie recevront un petit rappel le jour de ton anniversaire. Tu peux le désactiver dans ton profil.</div></div>
+        <label class="terms-check"><input type="checkbox" id="reg-terms"><span><span data-i18n="terms_accept_prefix">J'accepte les</span> <a href="/legal/conditions-generales.html" target="_blank" rel="noopener" data-i18n="terms_link_cg">conditions générales</a> <span data-i18n="terms_and">et la</span> <a href="/legal/confidentialite.html" target="_blank" rel="noopener" data-i18n="terms_link_privacy">politique de confidentialité</a></span></label>
         <div class="err-box" id="reg-err"></div>
         <button class="btn btn-g" id="reg-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-user-plus"></i> <span data-i18n="btn_register">Commencer l'essai gratuit</span></button>
       </form>
     </div>
+    <div id="auth-legal-links" class="legal-links"></div>
   </div>
 </div>
 
@@ -888,12 +895,7 @@
           <div><div style="font-family:var(--mono);font-size:10px;color:var(--cyan);margin-bottom:4px">🌍 <span data-i18n="intl_label">INTERNATIONAL (SWIFT USD)</span></div><div style="color:var(--muted)" data-i18n="intl_desc">Pour les clients hors RDC</div></div>
         </div>
       </div>
-      <div id="whats-new-section" style="display:none;margin-bottom:16px"></div>
-      <div class="billing-toggle">
-        <button class="toggle-btn active" id="toggle-m" onclick="setSubCycle('monthly')" data-i18n="toggle_monthly">Mensuel</button>
-        <button class="toggle-btn" id="toggle-a" onclick="setSubCycle('annual')"><span data-i18n="toggle_annual">Annuel</span> <span style="color:var(--green);font-size:11px" data-i18n="annual_discount">~17% de réduction</span></button>
-      </div>
-      <div class="plans-grid" id="plans-grid"></div>
+      <div id="ab-root"></div>
     </div>
 
     <!-- ANALYTICS -->
@@ -969,7 +971,7 @@
       </div>
       <div class="card" style="margin-bottom:16px;border-color:rgba(0,224,128,.2)">
         <div style="font-weight:700;font-size:14px;margin-bottom:6px"><i class="ti ti-gift" style="color:var(--green)"></i> <span data-i18n="card_referral">Parraine et gagne des jours d'essai</span></div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Partage ton code — toi et ton filleul recevez chacun 5 jours d'essai en plus.</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px"><span data-i18n="card_referral_x">Chaque entreprise inscrite avec ton code te rapproche d'une réduction à vie (jusqu'à −45 %) et, pendant ton essai, de jours gratuits en plus.</span> <a href="#" onclick="event.preventDefault();navigate('billing')" style="color:var(--green)" data-i18n="card_referral_link">Voir mes paliers</a></div>
         <div id="referral-box" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <div style="font-family:var(--mono);font-size:18px;font-weight:800;letter-spacing:3px;background:var(--s);padding:8px 16px;border-radius:8px;border:1px solid var(--b)" id="referral-code-display">—</div>
           <button class="btn btn-o btn-sm" onclick="copyReferralLink()"><i class="ti ti-copy"></i> <span data-i18n="btn_copy_link">Copier le lien</span></button>
@@ -1073,6 +1075,11 @@
           <div style="font-weight:700;font-size:14px;margin-bottom:4px"><i class="ti ti-shield-lock" style="color:var(--green)"></i> <span data-i18n="priv_title">Confidentialité dans la messagerie</span></div>
           <div style="font-size:12px;color:var(--muted);margin-bottom:6px" data-i18n="priv_desc">Choisis ce que les personnes avec qui tu discutes peuvent voir sur ta fiche.</div>
           <div id="privacy-box"></div>
+        </div>
+        <div class="card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px"><i class="ti ti-file-certificate" style="color:var(--blue)"></i> <span data-i18n="legal_card_title">Informations légales</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px" data-i18n="legal_card_desc">Les documents qui encadrent ton utilisation de Zenith Dash.</div>
+          <div id="profile-legal-links" class="legal-links" style="justify-content:flex-start;flex-direction:column;gap:8px;font-size:13px"></div>
         </div>
       </div>
       <div class="grid2">
@@ -1582,6 +1589,16 @@
     <div class="modal-title"><i class="ti ti-file-text" style="color:var(--green)"></i> <span data-i18n="shop_terms_title">Conditions de vente</span></div>
     <div id="shop-terms-body" style="white-space:pre-wrap;font-size:13px;line-height:1.6;max-height:60vh;overflow-y:auto"></div>
     <div class="modal-footer"><button class="btn btn-g btn-sm" onclick="document.getElementById('modal-shop-terms').style.display='none'" data-i18n="btn_close">Fermer</button></div>
+  </div>
+</div>
+<div id="modal-terms-update" class="modal-overlay">
+  <div class="modal" style="width:480px">
+    <div class="modal-title"><i class="ti ti-file-certificate" style="color:var(--green)"></i> <span data-i18n="terms_update_title">Nos conditions évoluent</span></div>
+    <div style="font-size:13px;line-height:1.6;margin-bottom:12px" data-i18n="terms_update_text">Pour continuer à utiliser Zenith Dash, prends connaissance de nos conditions générales et de notre politique de confidentialité, puis accepte-les.</div>
+    <div class="legal-links" style="justify-content:flex-start;margin:0 0 12px" id="terms-update-links"></div>
+    <label class="terms-check"><input type="checkbox" id="terms-update-check"><span data-i18n="terms_update_check">J'ai lu et j'accepte ces documents</span></label>
+    <div class="err-box" id="terms-update-err"></div>
+    <div class="modal-footer"><button class="btn btn-o btn-sm" onclick="doLogout();closeTermsModal()" data-i18n="terms_logout">Se déconnecter</button><button class="btn btn-g btn-sm" id="terms-update-btn" onclick="acceptCurrentTerms()"><i class="ti ti-check"></i> <span data-i18n="terms_update_btn">Accepter et continuer</span></button></div>
   </div>
 </div>
 <div id="modal-contact-info" class="modal-overlay" onclick="if(event.target===this)closeContactInfo()">
@@ -2379,40 +2396,41 @@
   </div>
 </div>
 
-<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.1.3" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.1.3" defer><\/script>':""))})();</script>
-<script src="/js/vendor/qrcode.min.js?v=9.1.3" defer></script>
-<script src="/js/base-1.js?v=9.1.3" defer></script>
-<script src="/js/securite-roles.js?v=9.1.3" defer></script>
-<script src="/js/hors-ligne.js?v=9.1.3" defer></script>
-<script src="/js/facturation.js?v=9.1.3" defer></script>
-<script src="/js/stock-caisse.js?v=9.1.3" defer></script>
-<script src="/js/rh-paie.js?v=9.1.3" defer></script>
-<script src="/js/compta-ohada.js?v=9.1.3" defer></script>
-<script src="/js/marketing.js?v=9.1.3" defer></script>
-<script src="/js/plateforme.js?v=9.1.3" defer></script>
-<script src="/js/accueil-aide.js?v=9.1.3" defer></script>
-<script src="/js/import.js?v=9.1.3" defer></script>
-<script src="/js/achats.js?v=9.1.3" defer></script>
-<script src="/js/relances-auto.js?v=9.1.3" defer></script>
-<script src="/js/boutique.js?v=9.1.3" defer></script>
-<script src="/js/projets.js?v=9.1.3" defer></script>
-<script src="/js/immobilisations-rapports.js?v=9.1.3" defer></script>
-<script src="/js/rendez-vous.js?v=9.1.3" defer></script>
-<script src="/js/cabinet.js?v=9.1.3" defer></script>
-<script src="/js/listes.js?v=9.1.3" defer></script>
-<script src="/js/juridique.js?v=9.1.3" defer></script>
-<script src="/js/contacts-confidentialite.js?v=9.1.3" defer></script>
-<script src="/js/secteurs.js?v=9.1.3" defer></script>
-<script src="/js/restaurant.js?v=9.1.3" defer></script>
-<script src="/js/bar.js?v=9.1.3" defer></script>
-<script src="/js/froid.js?v=9.1.3" defer></script>
-<script src="/js/hotel.js?v=9.1.3" defer></script>
-<script src="/js/salon.js?v=9.1.3" defer></script>
-<script src="/js/commerce.js?v=9.1.3" defer></script>
-<script src="/js/commandes.js?v=9.1.3" defer></script>
-<script src="/js/coeur-1.js?v=9.1.3" defer></script>
-<script src="/js/coeur-2.js?v=9.1.3" defer></script>
-<script src="/js/coeur-3.js?v=9.1.3" defer></script>
+<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.2.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.2.0" defer><\/script>':""))})();</script>
+<script src="/js/vendor/qrcode.min.js?v=9.2.0" defer></script>
+<script src="/js/base-1.js?v=9.2.0" defer></script>
+<script src="/js/securite-roles.js?v=9.2.0" defer></script>
+<script src="/js/hors-ligne.js?v=9.2.0" defer></script>
+<script src="/js/facturation.js?v=9.2.0" defer></script>
+<script src="/js/stock-caisse.js?v=9.2.0" defer></script>
+<script src="/js/rh-paie.js?v=9.2.0" defer></script>
+<script src="/js/compta-ohada.js?v=9.2.0" defer></script>
+<script src="/js/marketing.js?v=9.2.0" defer></script>
+<script src="/js/plateforme.js?v=9.2.0" defer></script>
+<script src="/js/accueil-aide.js?v=9.2.0" defer></script>
+<script src="/js/import.js?v=9.2.0" defer></script>
+<script src="/js/achats.js?v=9.2.0" defer></script>
+<script src="/js/relances-auto.js?v=9.2.0" defer></script>
+<script src="/js/boutique.js?v=9.2.0" defer></script>
+<script src="/js/projets.js?v=9.2.0" defer></script>
+<script src="/js/immobilisations-rapports.js?v=9.2.0" defer></script>
+<script src="/js/rendez-vous.js?v=9.2.0" defer></script>
+<script src="/js/cabinet.js?v=9.2.0" defer></script>
+<script src="/js/listes.js?v=9.2.0" defer></script>
+<script src="/js/juridique.js?v=9.2.0" defer></script>
+<script src="/js/contacts-confidentialite.js?v=9.2.0" defer></script>
+<script src="/js/secteurs.js?v=9.2.0" defer></script>
+<script src="/js/restaurant.js?v=9.2.0" defer></script>
+<script src="/js/bar.js?v=9.2.0" defer></script>
+<script src="/js/froid.js?v=9.2.0" defer></script>
+<script src="/js/hotel.js?v=9.2.0" defer></script>
+<script src="/js/salon.js?v=9.2.0" defer></script>
+<script src="/js/commerce.js?v=9.2.0" defer></script>
+<script src="/js/commandes.js?v=9.2.0" defer></script>
+<script src="/js/abonnements.js?v=9.2.0" defer></script>
+<script src="/js/coeur-1.js?v=9.2.0" defer></script>
+<script src="/js/coeur-2.js?v=9.2.0" defer></script>
+<script src="/js/coeur-3.js?v=9.2.0" defer></script>
 
 </body>
 </html>

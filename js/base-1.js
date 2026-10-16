@@ -1,4 +1,4 @@
-const APP_BUILD="9.1.3 · 12/10/2026";
+const APP_BUILD="9.2.0 · 15/10/2026";
 const ZD_ENV=(()=>{const host=window.location.hostname;if(host==="localhost"||host==="127.0.0.1")return "local";if(host.includes("staging"))return "staging";return "production";})();
 const API_URLS={local:"http://localhost:8000/v1",staging:"https://zenith-dash-staging.up.railway.app/v1",production:"https://zenith-dash-production.up.railway.app/v1"};
 const API_BASE=API_URLS[ZD_ENV];
@@ -62,6 +62,8 @@ function applyLanguageNow(lang){
   }catch(_){}
   try{if(document.getElementById("landing")?.style.display==="block"&&typeof renderLanding==="function")renderLanding();}catch(_){}
   try{if(typeof renderLegalLinks==="function")renderLegalLinks();}catch(_){}
+  try{if(typeof abRenderRegRoles==="function")abRenderRegRoles();}catch(_){}
+  try{if(document.getElementById("client-space")?.style.display==="block"&&typeof csRender==="function"&&_cs.data)csRender();}catch(_){}
   try{if(State.token&&State.tenant&&typeof applySectorUI==="function"){applySectorUI();const act=document.querySelector(".page.active")?.id?.replace("page-","");if(act){document.querySelector(`.sidebar .nav-i[data-p="${act}"]`)?.classList.add("active");if(typeof SECTOR_PAGE_LOADERS!=="undefined"&&SECTOR_PAGE_LOADERS[act])loadSectorPage(act);}}}catch(_){}
 }
 
@@ -214,7 +216,7 @@ let _lastRenderedDayKey=null;
 
 function planBadge(plan){
   const c={trial:"badge-trial",sandbox:"badge-gray",starter:"bg",professional:"bb",business:"bp",business_plus:"bp",enterprise:"ba"};
-  const labels={trial:t("plan_badge_trial"),sandbox:"SANDBOX",starter:"STARTER",professional:"PRO",business:"BUSINESS",business_plus:"BUSINESS+",enterprise:"ENTERPRISE"};
+  const labels={trial:t("plan_badge_trial"),sandbox:"SANDBOX",starter:"STARTER",professional:t("ab_tier_essentiel").toUpperCase(),business:t("ab_tier_pro").toUpperCase(),business_plus:t("ab_tier_premium").toUpperCase(),enterprise:"ENTREPRISE"};
   return`<span class="badge ${c[plan]||"bb"}">${labels[plan]||plan?.toUpperCase()}</span>`;
 }
 function statusBadge(s){

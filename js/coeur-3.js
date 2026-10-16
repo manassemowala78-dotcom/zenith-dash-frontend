@@ -367,7 +367,7 @@ async function loadProfile(){
     if(p.referral_code){
       set("referral-code-display",p.referral_code);
       const link=`${window.location.origin}${window.location.pathname}?ref=${p.referral_code}`;
-      _shareTexts.referral=`Rejoins-moi sur ZenithDash et gagne 5 jours d'essai en plus : ${link}`;
+      _shareTexts.referral=(typeof abTr==="function"?abTr("ab_ref_share",{c:p.referral_code,l:link}):link);
       _referralLink=link;
     }
   }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
@@ -421,12 +421,12 @@ async function loadAdminStats(){
   try{
     const s=await api("GET","/admin/stats");
     set("stat-total-users",s.total_users);
-    const planLabels={trial:t("plan_trial"),sandbox:t("plan_sandbox"),starter:"Starter",professional:"Professional",business:"Business",business_plus:"Business Plus",enterprise:"Enterprise"};
+    const planLabels={trial:t("plan_trial"),sandbox:t("plan_sandbox")+" / clients",starter:"Starter",professional:"Essentiel",business:"Pro",business_plus:"Premium",enterprise:"Entreprise"};
     const box=document.getElementById("stat-by-plan");
     box.innerHTML=Object.entries(s.by_plan).map(([plan,count])=>`
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--b)">
         <span style="color:var(--muted)">${esc(planLabels[plan]||plan)}</span><b>${count}</b>
-      </div>`).join("")+`<div style="display:flex;justify-content:space-between;padding:6px 0 0;margin-top:4px;color:var(--green)"><span>${t("active_subs_label")}</span><b>${s.active_subscriptions}</b></div>`;
+      </div>`).join("")+`<div style="display:flex;justify-content:space-between;padding:6px 0 0;margin-top:4px;color:var(--green)"><span>${t("active_subs_label")}</span><b>${s.active_subscriptions}</b></div><div style="display:flex;justify-content:space-between;padding:4px 0 0;color:var(--muted)"><span>Comptes clients (gratuits)</span><b>${s.client_accounts||0}</b></div>`;
   }catch(e){console.error(e);}
 }
 async function loadPendingWires(){
@@ -434,12 +434,12 @@ async function loadPendingWires(){
   try{
     const wires=await api("GET","/admin/pending-wires");
     if(!wires.length){box.innerHTML=`<div style="color:var(--muted);font-size:13px">${t("no_pending_wires")}</div>`;return;}
-    const planLabels={starter:"Starter",professional:"Professional",business:"Business",business_plus:"Business Plus",enterprise:"Enterprise"};
+    const planLabels={starter:"Starter",professional:"Essentiel",business:"Pro",business_plus:"Premium",enterprise:"Entreprise"};
     box.innerHTML=wires.map(w=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--b)">
       <div>
         <div style="font-weight:700;font-size:13px">${esc(w.tenant_name)} <span style="color:var(--muted);font-weight:400">— ${esc(w.tenant_email)}</span></div>
         <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px">
-          ${w.plan?`<span class="badge bb">${esc(planLabels[w.plan]||w.plan)}</span>`:""} ${w.billing_cycle==='annual'?t("toggle_annual"):t("toggle_monthly")} · $${w.amount_usd.toFixed(2)} · ${esc(w.reference)} · ${fmtDate(w.created_at)}
+          ${w.selection_label?`<span class="badge bb">${esc(w.selection_label)}</span>`:w.plan?`<span class="badge bb">${esc(planLabels[w.plan]||w.plan)}</span>`:""} ${w.billing_cycle==='annual'?t("toggle_annual"):t("toggle_monthly")} · $${w.amount_usd.toFixed(2)} · ${esc(w.reference)} · ${fmtDate(w.created_at)}
         </div>
       </div>
       <button class="btn btn-g btn-sm" onclick="confirmPendingWire('${esc(w.reference)}')"><i class="ti ti-check"></i> ${t("btn_unlock")}</button>
@@ -472,7 +472,7 @@ async function adminConfirmWire(){
 
 function renderAdminStats(users){
   const box=document.getElementById("admin-stats-cards");if(!box||!users)return;
-  const planLabels={trial:"Essai",sandbox:"Sandbox",starter:"Starter",professional:"Professional",business:"Business",business_plus:"Business Plus",enterprise:"Enterprise"};
+  const planLabels={trial:"Essai",sandbox:"Clients (gratuit)",starter:"Starter",professional:"Essentiel",business:"Pro",business_plus:"Premium",enterprise:"Entreprise"};
   const counts={};
   users.forEach(u=>{
     if(u.is_creator)return;
@@ -502,16 +502,17 @@ async function loadAdminUsers(){
     renderAdminStats(users);
     if(!users?.length){tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px">Aucun utilisateur.</td></tr>`;return;}
     tbody.innerHTML=users.map(u=>`<tr>
-      <td style="font-weight:600">${esc(u.name)}${u.is_creator?' <span class="badge bgold">CRÉATEUR</span>':''}</td>
+      <td style="font-weight:600">${esc(u.name)}${u.is_creator?' <span class="badge bgold">CRÉATEUR</span>':''}${u.account_type==="client"?' <span class="badge badge-gray">CLIENT</span>':''}${u.has_deal?' <span class="badge bp" title="Remise personnalisée">REMISE</span>':''}${u.has_gifts?' <span class="badge bp" title="Accès offert">OFFERT</span>':''}${u.filleuls?` <span class="badge bg" title="Filleuls">${u.filleuls} filleul${u.filleuls>1?"s":""}</span>`:''}</td>
       <td style="font-family:var(--mono);font-size:12px">${esc(u.email)}</td>
       <td>${planBadge(u.plan)}</td>
       <td style="font-family:var(--mono);font-size:12px">${u.plan==='trial'?(u.trial_expired?'<span style="color:var(--red)">Expiré</span>':(u.trial_expires_at?formatCountdown(parseServerDate(u.trial_expires_at)-new Date()):`${u.trial_days_remaining}j`)):'—'}</td>
-      <td>${u.is_subscribed?`<span class="badge bg">${esc(u.subscribed_plan)}</span>`:'<span class="badge badge-gray">Non</span>'}</td>
+      <td>${u.is_subscribed?`<span class="badge bg">${esc(u.entitled?Object.entries(u.entitled).map(([k,v])=>(t("sector_short_"+k)||k)+" "+(t("ab_tier_"+v)||v)).join(" + "):(u.plan_label||u.subscribed_plan))}</span>`:'<span class="badge badge-gray">Non</span>'}</td>
       <td>${esc(u.country)||"—"}</td>
       <td style="font-family:var(--mono);font-size:11px">${fmtDate(u.created_at)}</td>
       <td style="font-family:var(--mono);font-size:11px">${fmtDate(u.last_seen_at)}</td>
       <td>${u.is_active?'<span class="badge bg">Actif</span>':'<span class="badge br">Banni</span>'}</td>
       <td style="display:flex;gap:5px;flex-wrap:wrap">
+        ${u.is_creator?"":`<button class="btn btn-sm btn-g" onclick="abAdminOffer('${u.id}')"><i class="ti ti-discount-2"></i> Conditions</button>`}
         ${u.is_creator?"":`<button class="btn btn-sm btn-b" onclick="resetTrial('${u.id}','${escJs(u.name)}')"><i class="ti ti-clock-play"></i> Renouveler essai</button>`}
         ${u.is_creator?"":u.is_active
           ?`<button class="btn btn-sm btn-r" onclick="banUser('${u.id}','${escJs(u.name)}')"><i class="ti ti-ban"></i> Bannir</button>`
@@ -558,10 +559,11 @@ async function handleRegister(e){
   if(!registerTermsOk())return;
   const btn=document.getElementById("reg-btn");const label=btn.innerHTML;btn.textContent=t("reg_creating");btn.disabled=true;
   try{
+    const isClient=typeof _regAccountType==="string"&&_regAccountType==="client";
     await register({name:document.getElementById("reg-name").value,email:document.getElementById("reg-email").value,
-      password:document.getElementById("reg-password").value,company_name:document.getElementById("reg-company").value||null,
-      referral_code:document.getElementById("reg-referral").value.trim()||null,birth_date:registerBirthValue(),accept_terms:true,
-      sector:(typeof _regSector==="string"?_regSector:"pme")});
+      password:document.getElementById("reg-password").value,company_name:isClient?null:(document.getElementById("reg-company").value||null),
+      referral_code:isClient?null:(document.getElementById("reg-referral").value.trim()||null),birth_date:registerBirthValue(),accept_terms:true,
+      sector:isClient?null:(typeof _regSector==="string"?_regSector:"pme"),account_type:isClient?"client":"manager"});
     window._zdJustRegistered=true;
     showAppLayout();
   }catch(err){showErr("reg-err",err.message);btn.innerHTML=label;btn.disabled=false;}
@@ -1020,6 +1022,7 @@ async function checkPortalView(){
     const r=await fetch(`${API_BASE}/portal/${token}`);
     const d=await r.json();
     if(!r.ok) throw new Error(d.detail||"Lien invalide");
+    if(typeof zdClientLink==="function")zdClientLink("portal",token);
     document.getElementById("portal-company").textContent=d.company_name;
     const s=await renderPortalExtras(token);
     const rich=!!s?.enriched;
@@ -1167,6 +1170,7 @@ Object.getOwnPropertyNames(window).filter(n=>/^submit[A-Z]/.test(n)).forEach(wra
 document.addEventListener("DOMContentLoaded",async ()=>{
   applyLanguage(State.lang);
   setTheme(State.theme);
+  if(typeof abRenderRegRoles==="function")abRenderRegRoles();
   const isPortal=await checkPortalView();
   if(isPortal) return;
   if(await checkStaffView()) return;

@@ -479,7 +479,7 @@ async function ocSubmit(){
     window.location.href=`${window.location.pathname}?order=${encodeURIComponent(r.token)}`;
   }catch(e){showErr("oc-err",e.message);b.disabled=false;}
 }
-function ocRemember(token,number,business){try{const l=JSON.parse(localStorage.getItem("zd_my_orders")||"[]").filter(x=>x.token!==token);l.unshift({token,number,business,at:Date.now()});localStorage.setItem("zd_my_orders",JSON.stringify(l.slice(0,20)));}catch(_){}}
+function ocRemember(token,number,business){if(typeof zdClientLink==="function")zdClientLink("order",token);try{const l=JSON.parse(localStorage.getItem("zd_my_orders")||"[]").filter(x=>x.token!==token);l.unshift({token,number,business,at:Date.now()});localStorage.setItem("zd_my_orders",JSON.stringify(l.slice(0,20)));}catch(_){}}
 
 // ── Suivi de commande (?order=) ──
 let _oct=null,_octTimer=null;

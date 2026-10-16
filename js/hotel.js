@@ -266,6 +266,7 @@ async function submitHotelPublic(){
     document.getElementById("hp-types").innerHTML=`<div class="card" style="text-align:center;padding:20px"><i class="ti ti-circle-check" style="font-size:42px;color:var(--green)"></i><div style="font-weight:800;font-size:18px;margin-top:6px">${esc(t("ht_pub_done"))}</div>
       <div style="margin-top:6px">${esc(d.type)} · ${htDate(d.check_in)} → ${htDate(d.check_out)} · ${d.nights} ${esc(t("ht_nights"))} · <b>${zdMoney(d.total)}</b></div><div class="mono" style="margin-top:4px">${esc(d.number)}</div><div style="font-size:12px;color:var(--muted);margin-top:6px">${esc(t("ht_pub_done_hint"))}</div>
       ${d.order_token?`<div style="margin-top:12px;color:var(--amber);font-weight:700">${esc(t("oc_deposit_due").replace("{v}",zdMoney(d.deposit)))}</div><a class="btn btn-g" style="margin-top:8px" href="?order=${encodeURIComponent(d.order_token)}"><i class="ti ti-cash"></i> ${esc(t("oc_pay_deposit"))}</a>`:""}</div>`;
-    if(d.order_token&&typeof ocRemember==="function")ocRemember(d.order_token,d.number,d.name);}
+    if(d.order_token&&typeof ocRemember==="function")ocRemember(d.order_token,d.number,d.name);
+    if(d.id&&typeof zdClientLink==="function")zdClientLink("hotel",d.id);}
   catch(e){showErr("hp-err",e.message);btn.disabled=false;}
 }

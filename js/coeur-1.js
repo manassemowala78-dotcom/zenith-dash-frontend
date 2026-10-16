@@ -129,6 +129,8 @@ async function loadNotifBadge(){
 }
 
 async function showAppLayout(){
+  if(State.tenant?.account_type==="client"&&typeof showClientSpace==="function"){showClientSpace();return;}
+  const cs=document.getElementById("client-space");if(cs)cs.style.display="none";
   await upgradeLegacySession();
   State.restricted=!!State.tenant?.access_blocked&&!State.tenant?.is_creator;
   applyMemberUI();
@@ -168,8 +170,10 @@ async function showAppLayout(){
       }
     }
   }catch(_){}
+  if(State.tenant?.account_type==="client"&&typeof showClientSpace==="function"){showClientSpace();return;}
   State.restricted=!!State.tenant?.access_blocked&&!State.tenant?.is_creator;
   applyRestrictedUI();
+  if(typeof resumePendingWallpapers==="function")setTimeout(()=>resumePendingWallpapers(),800);
   const deepLink=consumeDeepLink();
   if(!(await openDeepLink(deepLink.page,deepLink.conv,deepLink.action))) navigate(State.restricted?"billing":"dashboard");
   document.body.classList.add("zd-app-visible");
@@ -846,37 +850,8 @@ async function sendReminder(invoiceId,channels){
 }
 
 let _subCycle="monthly"; let _lastWire=null;
-async function loadBilling(){
-  try{
-    const plans=await api("GET","/billing/plans");
-    const grid=document.getElementById("plans-grid");if(!grid)return;
-    const order=["starter","professional","business","business_plus","enterprise"];
-    const colors={starter:"var(--green)",professional:"var(--blue)",business:"var(--purple)",business_plus:"#f472b6",enterprise:"var(--amber)"};
-    grid.innerHTML=order.filter(k=>plans[k]).map(k=>{
-      const p=plans[k];
-      const price=_subCycle==="annual"?p.price_annual:p.price_monthly;
-      const matrix=p.feature_matrix||[];
-      return`<div class="plan-card ${k==="professional"?"featured":""}">
-        <div style="font-family:var(--mono);font-size:10px;color:${colors[k]};text-transform:uppercase;margin-bottom:8px">${p.name}</div>
-        <div style="font-size:28px;font-weight:800">$${price}</div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">USD/${_subCycle==="annual"?"an":"mois"}</div>
-        <div style="font-size:11px;color:var(--muted);margin:8px 0 12px;font-style:italic">${p.tagline}</div>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
-          ${matrix.map(f=>`<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:${f.included?"var(--text)":"var(--muted)"}">
-            <i class="ti ${f.included?"ti-check":"ti-lock"}" style="color:${f.included?"var(--green)":"var(--muted)"};font-size:13px"></i>
-            <span>${f.label}${!f.included?` <span style="opacity:.6">(${f.required_plan})</span>`:""}</span>
-          </div>`).join("")}
-        </div>
-        <button class="btn btn-g" style="width:100%" onclick="initSubscribe('${k}')"><i class="ti ti-building-bank"></i> ${t("btn_subscribe")}</button>
-      </div>`;}).join("");
-  }catch(e){console.error(e);showToast(e.message||"Erreur de chargement","error");}
-}
-function setSubCycle(cycle){
-  _subCycle=cycle;
-  document.getElementById("toggle-m").classList.toggle("active",cycle==="monthly");
-  document.getElementById("toggle-a").classList.toggle("active",cycle==="annual");
-  loadBilling();
-}
+async function loadBilling(){return abLoadBilling();}
+function setSubCycle(cycle){_subCycle=cycle;if(typeof abSetCycle==="function")abSetCycle(cycle);}
 async function initSubscribe(plan){try{const r=await api("POST","/billing/subscribe",{plan,billing_cycle:_subCycle});_lastWire=r;showWireModal(r);}catch(e){showToast(e.message,"error");}}
 function showWireModal(r){
   const ins=r.instructions; const nw=ins.national_wire; const iw=ins.international_wire;
