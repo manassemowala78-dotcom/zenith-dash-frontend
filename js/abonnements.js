@@ -1,6 +1,12 @@
 // ── ABONNEMENTS PAR SECTEUR, PARRAINAGE, OFFRES ADMIN, ESPACE CLIENT (9.2) ──
 const AB_TIERS=["essentiel","pro","premium"];
-let _ab={cat:null,offer:null,ref:null,sel:{},cycle:"monthly",quote:null,seq:0,timer:null};
+let _ab={cat:null,offer:null,ref:null,sel:{},cycle:"monthly",months:1,quote:null,seq:0,timer:null};
+const AB_MONTH_CHIPS=[1,3,6,10,20,30];
+function abCycleOf(n){return n===1?"monthly":n===10?"annual":"m"+n;}
+function abMonthsOf(c){if(!c||c==="monthly")return 1;if(c==="annual")return 10;const m=/^m(\d+)$/.exec(c);return m?Math.max(1,Math.min(36,+m[1])):1;}
+function abMonthPct(n){let p=0;(_ab.cat?.months?.tiers||[[1,0]]).forEach(([a,b])=>{if(n>=a)p=b;});return p;}
+function abFree(n){return Math.floor(n/10)*2;}
+function abCycleLabel(c){const n=abMonthsOf(c);if(n===1)return t("ab_cycle_monthly");const f=abFree(n);return abTr(f?"ab_months_free":"ab_months_n",{n,f});}
 let _regAccountType="manager";
 
 function abTr(key,vars){let s=t(key);Object.entries(vars||{}).forEach(([k,v])=>{s=s.split("{"+k+"}").join(v);});return s;}
@@ -58,16 +64,25 @@ function abInitSel(){
   }
   const g=abGifts();
   Object.keys(sel).forEach(k=>{if(g[k]&&AB_TIERS.indexOf(sel[k])<=AB_TIERS.indexOf(g[k]))delete sel[k];});
-  if(o.subscription?.billing_cycle==="annual")_ab.cycle="annual";
+  if(o.subscription?.billing_cycle){_ab.months=abMonthsOf(o.subscription.billing_cycle);_ab.cycle=abCycleOf(_ab.months);}
   _ab.sel=sel;
 }
 function abPick(k,tier){
   if(tier===null||_ab.sel[k]===tier)delete _ab.sel[k];else _ab.sel[k]=tier;
   abRenderSectors();abRequote();
 }
-function abSetCycle(c){_ab.cycle=c;document.querySelectorAll("#ab-cycle button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.c===c?"true":"false"));abRenderSectors();abRequote();}
+function abSetCycle(c){abSetMonths(abMonthsOf(c));}
+function abSetMonths(n){_ab.months=Math.max(1,Math.min(_ab.cat?.months?.max||36,n));_ab.cycle=abCycleOf(_ab.months);abRenderMonths();abRequote();}
+function abMonthsHtml(){
+  const n=_ab.months,p=abMonthPct(n),f=abFree(n),max=_ab.cat?.months?.max||36;
+  const nx=(_ab.cat?.months?.tiers||[]).find(([a])=>a>n);
+  return `<div class="ab-mo-row"><div class="ab-mstep" role="group" aria-label="${esc(t("ab_months_label"))}"><button type="button" onclick="abSetMonths(${n-1})" ${n<=1?"disabled":""} aria-label="${esc(t("ab_months_less"))}">−</button><output>${n}<small>${esc(t(n>1?"ab_months_unit_p":"ab_months_unit"))}</small></output><button type="button" onclick="abSetMonths(${n+1})" ${n>=max?"disabled":""} aria-label="${esc(t("ab_months_more"))}">+</button></div>
+    <div class="ab-mo-info">${p?`<span class="ab-pill ok">−${p} %</span>`:""}${f?`<span class="ab-pill gift">${esc(abTr("ab_months_gift",{f}))}</span>`:""}<span class="ab-mo-acc">${esc(abTr("ab_months_access",{a:n+f}))}</span></div></div>
+    <div class="ab-mo-chips">${AB_MONTH_CHIPS.filter(c=>c<=max).map(c=>`<button type="button" class="${c===n?"on":""}" onclick="abSetMonths(${c})">${c===1?esc(t("ab_cycle_monthly")):esc(abTr("ab_months_n",{n:c}))}</button>`).join("")}</div>
+    <div class="ab-mo-next">${nx?esc(abTr(nx[0]%10===0&&nx[0]>=10?"ab_months_next_gift":"ab_months_next",{n:nx[0]-n,p:nx[1]})):esc(t("ab_months_max"))}</div>`;
+}
+function abRenderMonths(){const b=document.getElementById("ab-months");if(b)b.innerHTML=abMonthsHtml();}
 function abPriceLabel(p){
-  if(_ab.cycle==="annual"){const a=p*_ab.cat.annual.factor;return `<b>${abMoney(a)}</b><small>${esc(t("ab_per_year"))}</small><s>${abMoney(p*12)}</s>`;}
   return `<b>${abMoney(p)}</b><small>${esc(t("ab_per_month"))}</small>`;
 }
 function abSectorCard(s){
@@ -90,11 +105,15 @@ function abStatusHtml(){
   if(o.is_company)parts.push(`<div class="ab-note">${esc(t("ab_company_note"))}</div>`);
   if(o.subscription&&Object.keys(o.subscription.selection||{}).length){
     const lab=Object.entries(o.subscription.selection).map(([k,v])=>`${abShort(k)} ${abTierLabel(AB_TIERS.indexOf(v))}`).join(" + ");
-    parts.push(`<div class="ab-banner ok"><i class="ti ti-circle-check"></i><div><b>${esc(t("ab_current"))}</b> : ${esc(lab)} · ${esc(o.subscription.billing_cycle==="annual"?t("ab_cycle_annual"):t("ab_cycle_monthly"))}${o.subscription.expires_at?` · ${esc(abTr("ab_until",{d:abDate(o.subscription.expires_at)}))}`:""}</div></div>`);
+    parts.push(`<div class="ab-banner ok"><i class="ti ti-circle-check"></i><div><b>${esc(t("ab_current"))}</b> : ${esc(lab)} · ${esc(abCycleLabel(o.subscription.billing_cycle))}${o.subscription.expires_at?` · ${esc(abTr("ab_until",{d:abDate(o.subscription.expires_at)}))}`:""}</div></div>`);
   }
+  if(o.payments_blocked)parts.push(`<div class="ab-banner bad"><i class="ti ti-ban"></i><div><b>${esc(t("ab_pay_blocked_t"))}</b><div>${esc(t("ab_pay_blocked_x"))}</div></div></div>`);
+  if(o.last_rejected)parts.push(`<div class="ab-banner bad"><i class="ti ti-alert-triangle"></i><div><b>${esc(abTr("ab_rejected_t",{r:o.last_rejected.reference}))}</b><div>${esc(o.last_rejected.reason||"")}</div></div></div>`);
   if(o.pending){
-    parts.push(`<div class="ab-banner wait"><i class="ti ti-clock"></i><div><b>${esc(t("ab_pending_t"))}</b><div>${esc(abTr("ab_pending_x",{r:o.pending.reference,a:abMoney(o.pending.amount_usd)}))}</div>
-      <button type="button" class="btn btn-sm btn-g" style="margin-top:8px" onclick="abPendingWa('${esc(o.pending.reference)}')"><i class="ti ti-brand-whatsapp"></i> ${esc(t("ab_pending_wa"))}</button></div></div>`);
+    const pd=o.pending;
+    parts.push(`<div class="ab-banner wait"><i class="ti ti-clock"></i><div style="flex:1;min-width:0"><b>${esc(t("ab_pending_t"))}</b><div>${esc(abTr("ab_pending_x",{r:pd.reference,a:abMoney(pd.amount_usd)}))}</div>
+      ${pd.expires_at&&!pd.proof_sent?`<div class="ab-small">${esc(abTr("ab_pending_exp",{d:abDate(pd.expires_at)}))}</div>`:""}
+      ${pd.proof_sent?`<div class="ab-proof-ok"><i class="ti ti-check"></i> ${esc(abTr("ab_proof_sent",{d:abDate(pd.proof_at),x:pd.client_txn||""}))}</div>`:abProofForm(pd.reference,"pb")}</div></div>`);
   }
   if(o.deal){
     const scope=o.deal.scope==="all"?t("ab_deal_all"):abTr("ab_deal_some",{s:o.deal.sectors.map(abShort).join(", ")});
@@ -143,12 +162,12 @@ function abRender(){
   const root=document.getElementById("ab-root");if(!root)return;
   const c=_ab.cat;
   root.innerHTML=`${abStatusHtml()}
-    <div class="ab-head"><div><div style="font-weight:800;font-size:17px">${esc(t("ab_title_sectors"))}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${esc(abTr("ab_sub_sectors",{a:c.sector_discounts[0][1],b:c.sector_discounts[1][1],c:c.sector_discounts[2][1],d:c.sector_discounts[3][1]}))}</div></div>
-      <div class="ab-cycle" id="ab-cycle" role="group"><button type="button" data-c="monthly" aria-pressed="${_ab.cycle==="monthly"}" onclick="abSetCycle('monthly')">${esc(t("ab_cycle_monthly"))}</button><button type="button" data-c="annual" aria-pressed="${_ab.cycle==="annual"}" onclick="abSetCycle('annual')">${esc(t("ab_cycle_annual"))} <small>· ${esc(t("ab_cycle_annual_note"))}</small></button></div></div>
+    <div class="ab-head"><div><div style="font-weight:800;font-size:17px">${esc(t("ab_title_sectors"))}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${esc(abTr("ab_sub_sectors2",{a:c.sector_discounts[0][1],b:c.sector_discounts[1][1],c:c.sector_discounts[2][1],d:c.sector_discounts[3][1]}))}</div></div>
+      <div class="ab-months" id="ab-months"></div></div>
     <div class="ab-grid"><div class="ab-sectors" id="ab-sectors"></div><aside class="ab-sum card" aria-live="polite"><div style="font-weight:700;font-size:15px;margin-bottom:10px">${esc(t("ab_summary"))}</div><div id="ab-sum"></div></aside></div>
     ${abTiersTable()}${abReferralHtml()}
     <button type="button" class="ab-mbar" id="ab-mbar" hidden onclick="document.getElementById('ab-sum')?.closest('.ab-sum')?.scrollIntoView({behavior:'smooth',block:'start'})"><span id="ab-mbar-l"></span><b id="ab-mbar-v"></b><i class="ti ti-chevron-down"></i></button>`;
-  abRenderSectors();abRequote();abWatchSummary();
+  abRenderMonths();abRenderSectors();abRequote();abWatchSummary();
 }
 let _abSumObs=null,_abSumVisible=false;
 function abWatchSummary(){
@@ -161,7 +180,7 @@ function abUpdateMbar(){
   const bar=document.getElementById("ab-mbar");if(!bar)return;
   const q=_ab.quote;
   if(!q||_abSumVisible){bar.hidden=true;return;}
-  document.getElementById("ab-mbar-l").textContent=_ab.cycle==="annual"?t("ab_total_a"):t("ab_total_m");
+  document.getElementById("ab-mbar-l").textContent=_ab.months===1?t("ab_total_m"):abTr("ab_total_n",{n:_ab.months});
   document.getElementById("ab-mbar-v").textContent=abMoney(q.total);
   bar.hidden=false;
 }
@@ -186,7 +205,9 @@ function abRenderSummary(){
   if(q.sector_discount>0)h+=L(esc(abTr("ab_sector_disc",{n:q.sector_count,p:q.sector_discount_pct})),"−"+abMoney(q.sector_discount),"disc");
   if(q.referral_discount>0)h+=L(esc(abTr("ab_ref_disc",{n:q.referral_filleuls,p:q.referral_pct})),"−"+abMoney(q.referral_discount),"disc");
   if(q.capped)h+=`<div class="ab-cap">${esc(abTr("ab_cap",{p:q.cap_pct}))}</div>`;
-  h+=`<div class="ab-total"><span>${esc(_ab.cycle==="annual"?t("ab_total_a"):t("ab_total_m"))}</span><b>${abMoney(q.total)}</b></div>`;
+  if(q.months>1)h=L(esc(abTr(q.free_months?"ab_sum_dur_free":"ab_sum_dur",{n:q.months,f:q.free_months,a:q.access_months})),q.duration_pct?`−${q.duration_pct} %`:"","dur")+h;
+  h+=`<div class="ab-total"><span>${esc(q.months===1?t("ab_total_m"):abTr("ab_total_n",{n:q.months}))}</span><b>${abMoney(q.total)}</b></div>`;
+  if(q.months>1&&q.per_access_month)h+=`<div class="ab-small">${esc(abTr("ab_per_access",{p:abMoney(q.per_access_month)}))}</div>`;
   if(q.saving_vs_monthly>0)h+=`<div class="ab-save">${esc(abTr("ab_saving",{s:abMoney(q.saving_vs_monthly)}))}</div>`;
   const nG=q.gifts.length;
   h+=`<div class="ab-chips">${q.users?`<span>${esc(abTr("ab_users",{n:q.users}))}</span>`:""}${q.sectors.length?`<span>${esc(abTr("ab_sectors_n",{n:q.sectors.length}))}</span>`:""}${nG?`<span class="g">${esc(abTr("ab_gifted_n",{n:nG}))}</span>`:""}</div>`;
@@ -196,6 +217,28 @@ function abRenderSummary(){
   h+=`<div style="font-size:11px;color:var(--muted);margin-top:8px">${esc(t("ab_pay_note"))}</div>`;
   box.innerHTML=h;
   abUpdateMbar();
+}
+function abProofForm(ref,px){
+  return `<div class="ab-proof" id="${px}-proof"><div class="ab-proof-t">${esc(t("ab_proof_t"))}</div>
+    <input class="inp" id="${px}-txn" placeholder="${esc(t("ab_proof_txn_ph"))}" autocomplete="off">
+    <label class="ab-proof-file"><input type="file" id="${px}-file" accept="image/*,application/pdf" onchange="abProofPicked('${px}')"><i class="ti ti-paperclip"></i> <span id="${px}-fname">${esc(t("ab_proof_pick"))}</span></label>
+    <button type="button" class="btn btn-g btn-sm" id="${px}-send" onclick="abSendProof('${esc(ref)}','${px}')"><i class="ti ti-send"></i> ${esc(t("ab_proof_send"))}</button>
+    <div class="ab-small">${esc(t("ab_proof_note"))}</div></div>`;
+}
+function abProofPicked(px){const f=document.getElementById(px+"-file")?.files?.[0];const n=document.getElementById(px+"-fname");if(n)n.textContent=f?f.name:t("ab_proof_pick");}
+async function abSendProof(ref,px){
+  const txn=(document.getElementById(px+"-txn")?.value||"").trim(),f=document.getElementById(px+"-file")?.files?.[0];
+  if(txn.length<4){showToast(t("ab_proof_need_txn"),"error");return;}
+  if(!f){showToast(t("ab_proof_need_file"),"error");return;}
+  const btn=document.getElementById(px+"-send");if(btn)btn.disabled=true;
+  try{
+    const up=f.type.startsWith("image/")&&typeof compressImageFile==="function"?await compressImageFile(f,1800,0.85):f;
+    const fd=new FormData();fd.append("file",up,up.name||f.name);fd.append("txn",txn);
+    await apiUpload(`/billing/wire/${encodeURIComponent(ref)}/proof`,fd);
+    showToast(t("ab_proof_ok"));
+    if(px==="wm")closeWireModal();
+    _ab.offer=await api("GET","/billing/my-offer");abRender();
+  }catch(e){showToast(e.message,"error");if(btn)btn.disabled=false;}
 }
 async function abSubscribe(){
   const q=_ab.quote;if(!q||q.nothing_to_pay)return;
@@ -310,7 +353,7 @@ function csRender(){
   const d=_cs.data;const box=document.getElementById("client-space");
   const items=(d.items||[]).filter(i=>_cs.tab==="all"||i.group===_cs.tab);
   const counts={all:(d.items||[]).length};Object.keys(CS_GROUPS).forEach(g=>counts[g]=(d.items||[]).filter(i=>i.group===g).length);
-  const secOpts=(window._zdSectors||[]).length?window._zdSectors.map(s=>`<option value="${s.key}">${esc(abSectorLabel(s.key))}</option>`).join(""):["pme","restaurant","bar","hotel","beauty","retail","pharmacy","cold"].map(k=>`<option value="${k}">${esc(t("sector_"+k)!=="sector_"+k?t("sector_"+k):k)}</option>`).join("");
+  const secOpts=(window._zdSectors||[]).length?window._zdSectors.map(s=>`<option value="${s.key}">${esc(abSectorLabel(s.key))}</option>`).join(""):["pme","restaurant","bar","hotel","beauty","retail","pharmacy","cold","school","embassy"].map(k=>`<option value="${k}">${esc(t("sector_"+k)!=="sector_"+k?t("sector_"+k):k)}</option>`).join("");
   box.innerHTML=`<div class="cs-wrap"><div class="cs-top"><div class="logo"><div class="logo-icon">⚡</div>Zenith <span>Dash</span></div><button class="btn btn-o btn-sm" onclick="doLogout();document.getElementById('client-space').style.display='none'"><i class="ti ti-logout"></i> ${esc(t("cs_logout"))}</button></div>
     <h1 class="cs-h1">${esc(abTr("cs_hello",{n:(d.name||"").split(" ")[0]}))}</h1><div class="cs-sub">${esc(t("cs_sub"))}</div>
     <div class="cs-tabs" role="tablist">${["all",...Object.keys(CS_GROUPS)].map(g=>`<button type="button" role="tab" aria-selected="${_cs.tab===g}" class="${_cs.tab===g?"on":""}" onclick="_cs.tab='${g}';csRender()">${esc(t(g==="all"?"cs_tab_all":CS_GROUPS[g]))} <span>${counts[g]}</span></button>`).join("")}</div>

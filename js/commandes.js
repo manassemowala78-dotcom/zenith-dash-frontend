@@ -196,7 +196,7 @@ function ocPrint(id){
 let _ocSet=null,_ocCatalog=null,_ocColdClients=null;
 function ocSettingsHtml(){
   const s=_oc.settings;_ocSet=JSON.parse(JSON.stringify(s));
-  const mods=s.modules||[];const can=!isTeamMember()||State.tenant?.member_role==="admin";
+  const mods=s.modules||[];const can=!isTeamMember()||zdIsMgrRole();
   const ck=(k,lbl,cond=true)=>cond?`<label class="oc-check"><input type="checkbox" id="ocs-${k}" ${s[k]?"checked":""} ${can?"":"disabled"}> ${esc(t(lbl))}</label>`:"";
   const pv=s.payment_preview||{};const bank=pv.bank;
   const links=Object.entries(s.links||{});
@@ -232,7 +232,7 @@ function ocSettingsHtml(){
   </div></div>`;
 }
 function ocRenderMomo(){
-  const box=document.getElementById("ocs-momo");if(!box)return;const can=!isTeamMember()||State.tenant?.member_role==="admin";
+  const box=document.getElementById("ocs-momo");if(!box)return;const can=!isTeamMember()||zdIsMgrRole();
   const prov=_oc.settings.providers||{};
   box.innerHTML=(_ocSet.mobile_accounts||[]).map((a,i)=>`<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap"><select class="inp" style="flex:0 0 130px" onchange="_ocSet.mobile_accounts[${i}].provider=this.value" ${can?"":"disabled"}>${Object.entries(prov).map(([k,v])=>`<option value="${k}"${k===a.provider?" selected":""}>${esc(v)}</option>`).join("")}</select><input class="inp" style="flex:1;min-width:130px" inputmode="tel" placeholder="${esc(t("oc_set_number"))}" value="${esc(a.number||"")}" oninput="_ocSet.mobile_accounts[${i}].number=this.value" ${can?"":"disabled"}><input class="inp" style="flex:1;min-width:120px" placeholder="${esc(t("oc_set_holder"))}" value="${esc(a.name||"")}" oninput="_ocSet.mobile_accounts[${i}].name=this.value" ${can?"":"disabled"}>${can?`<button class="btn btn-o btn-sm" onclick="_ocSet.mobile_accounts.splice(${i},1);ocRenderMomo()"><i class="ti ti-trash"></i></button>`:""}</div>`).join("")+
     (can?`<button class="btn btn-o btn-sm" onclick="_ocSet.mobile_accounts.push({provider:'mpesa',number:'',name:''});ocRenderMomo()"><i class="ti ti-plus"></i> ${esc(t("oc_set_add_number"))}</button>`:"");
@@ -243,7 +243,7 @@ async function ocAfterSettingsRender(){
   Object.entries(s.links||{}).forEach(([k,u])=>{try{const q=qrcode(0,"M");q.addData(u);q.make();const el=document.getElementById("ocq-"+k);if(el){el.innerHTML=q.createSvgTag({cellSize:2,margin:0,scalable:true});const sv=el.querySelector("svg");if(sv){sv.style.width="100%";sv.style.height="100%";}}}catch(_){}});
   if((s.modules||[]).includes("hotel")){try{const h=await api("GET","/hotel/settings");const el=document.getElementById("ocs-hotel-dep");if(el)el.textContent=h.deposit_pct>0?t("oc_set_hotel_deposit").replace("{p}",h.deposit_pct):t("oc_set_hotel_deposit0");}catch(_){}}
   if((s.modules||[]).includes("retail")){
-    try{const c=await api("GET","/retail/catalog");_ocCatalog=Array.isArray(c)?c:(c.products||c.items||[]);const hid=new Set(_ocSet.store_hidden||[]);const can=!isTeamMember()||State.tenant?.member_role==="admin";
+    try{const c=await api("GET","/retail/catalog");_ocCatalog=Array.isArray(c)?c:(c.products||c.items||[]);const hid=new Set(_ocSet.store_hidden||[]);const can=!isTeamMember()||zdIsMgrRole();
       const box=document.getElementById("ocs-catalog");if(box)box.innerHTML=_ocCatalog.map(p=>`<label class="oc-check" style="padding:3px 0"><input type="checkbox" ${hid.has(p.id)?"":"checked"} ${can?"":"disabled"} onchange="ocToggleHidden('${p.id}',!this.checked)"> ${esc(p.name)}${p.rx?` <span class="badge ba">${esc(t("oc_rx_badge"))}</span>`:""}</label>`).join("")||zdEmpty(t("rt_no_products"));}catch(_){}
   }
   if((s.modules||[]).includes("cold")){

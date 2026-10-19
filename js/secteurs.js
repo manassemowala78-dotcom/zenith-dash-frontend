@@ -2,14 +2,14 @@
 // Menu, tableau de bord et pages métier selon le secteur du compte.
 const SECTOR_META={pme:{icon:"briefcase",color:"#10b981"},restaurant:{icon:"tools-kitchen-2",color:"#f97316"},bar:{icon:"glass-full",color:"#a855f7"},
   cold:{icon:"snowflake",color:"#06b6d4"},hotel:{icon:"bed",color:"#3b82f6"},beauty:{icon:"scissors",color:"#ec4899"},
-  retail:{icon:"building-store",color:"#eab308"},pharmacy:{icon:"pill",color:"#22c55e"}};
+  retail:{icon:"building-store",color:"#eab308"},pharmacy:{icon:"pill",color:"#22c55e"},school:{icon:"building-community",color:"#0ea5e9"},embassy:{icon:"building-bank",color:"#6366f1"}};
 const SECTOR_KEYS=Object.keys(SECTOR_META);
-const SECTOR_MODULES={pme:[],restaurant:["resto"],bar:["bar","resto"],cold:["cold"],hotel:["hotel"],beauty:["beauty"],retail:["retail"],pharmacy:["retail","pharmacy"]};
+const SECTOR_MODULES={pme:[],restaurant:["resto"],bar:["bar","resto"],cold:["cold"],hotel:["hotel"],beauty:["beauty"],retail:["retail"],pharmacy:["retail","pharmacy"],school:["school"],embassy:["embassy"]};
 // Pages de chaque module : [page, icône, clé de traduction, module d'équipe]
 const MODULE_PAGES={
   resto:[["restofloor","armchair","nav_resto_floor","sales"],["restokitchen","chef-hat","nav_resto_kitchen","sales"],["restoresa","calendar-event","nav_resto_resa","sales"],
          ["restomenu","book-2","nav_resto_menu","sales"],["restostock","basket","nav_resto_stock","stock"],["restoreport","report-money","nav_resto_report","reports"]],
-  bar:[["bartabs","notes","nav_bar_tabs","sales"],["bardeposits","bottle","nav_bar_deposits","sales"],["barinventory","clipboard-list","nav_bar_inventory","stock"],["barsettings","clock-hour-5","nav_bar_settings","sales"]],
+  bar:[["barsheet","table","nav_bar_sheet","sales"],["bartabs","notes","nav_bar_tabs","sales"],["bardeposits","bottle","nav_bar_deposits","sales"],["barinventory","clipboard-list","nav_bar_inventory","stock"],["barsettings","clock-hour-5","nav_bar_settings","sales"]],
   cold:[["coldrooms","temperature","nav_cold_rooms","sales"],["coldlots","box","nav_cold_lots","sales"],["coldmoves","truck","nav_cold_moves","sales"],
         ["coldhaccp","clipboard-check","nav_cold_haccp","sales"],["coldbilling","receipt","nav_cold_billing","accounting"]],
   hotel:[["hotelfront","door-enter","nav_hotel_front","sales"],["hotelplanning","calendar-stats","nav_hotel_planning","sales"],["hotelhk","bucket","nav_hotel_hk","sales"],
@@ -19,12 +19,19 @@ const MODULE_PAGES={
   retail:[["retailpos","cash-register","nav_retail_pos","sales"],["retailcatalog","packages","nav_retail_catalog","sales"],["retailcredits","notebook","nav_retail_credits","sales"],
           ["retaillots","calendar-due","nav_retail_lots","stock"],["retailreport","chart-bar","nav_retail_report","reports"]],
   pharmacy:[["retailrx","prescription","nav_pharma_rx","sales"]],
+  school:[["schoolstudents","users","nav_school_students","sales"],["schoolclasses","building","nav_school_classes","sales"],["schoolattendance","checklist","nav_school_attendance","sales"],
+          ["schoolgrades","report","nav_school_grades","sales"],["schoolexams","calendar-event","nav_school_exams","sales"],["schoolfees","cash","nav_school_fees","accounting"],
+          ["schoolteachers","user-star","nav_school_teachers","hr"],["schooldiscipline","alert-triangle","nav_school_discipline","sales"],["schoolservices","truck","nav_school_services","sales"],
+          ["schoollibrary","book-2","nav_school_library","sales"],["schooldocs","file-certificate","nav_school_docs","sales"],["schoolsettings","settings","nav_school_settings","sales"]],
+  embassy:[["embvisas","id","nav_emb_visa","sales"],["embappts","calendar-event","nav_emb_appts","sales"],["embpassports","book","nav_emb_passport","sales"],["embcivil","certificate","nav_emb_civil","sales"],
+           ["emblegal","signature","nav_emb_legal","sales"],["embregistry","users","nav_emb_registry","sales"],["embvisitors","door-enter","nav_emb_visitors","sales"],["embcrisis","alert-triangle","nav_emb_crisis","sales"],
+           ["embstaff","shield-lock","nav_emb_staff","hr"],["embstats","chart-bar","nav_emb_stats","reports"],["embposts","building","nav_emb_posts","sales"]],
 };
 const SECTOR_HIDE={restaurant:["crm","quotes","projects","booking","pos","pricelist"],bar:["crm","quotes","projects","booking","pos","pricelist"],
   cold:["pos","shop","booking","projects","pricelist"],hotel:["crm","pos","shop","booking","projects","pricelist"],
-  beauty:["booking","crm","quotes","projects","pos","pricelist"],retail:["pos","booking","projects","crm","pricelist"],pharmacy:["pos","booking","projects","crm","pricelist","shop"]};
-const SECTOR_BNAV={restaurant:["restofloor","restokitchen","restomenu"],bar:["restofloor","bartabs","restokitchen"],cold:["coldrooms","coldlots","coldmoves"],
-  hotel:["hotelfront","hotelplanning","hotelhk"],beauty:["beautyagenda","beautyclients","beautyservices"],retail:["retailpos","retailcatalog","retailcredits"],pharmacy:["retailpos","retailrx","retaillots"]};
+  beauty:["booking","crm","quotes","projects","pos","pricelist"],retail:["pos","booking","projects","crm","pricelist"],pharmacy:["pos","booking","projects","crm","pricelist","shop"],school:["pos","booking","projects","crm","pricelist","shop","quotes"],embassy:["pos","booking","projects","crm","pricelist","shop","quotes"]};
+const SECTOR_BNAV={restaurant:["restofloor","restokitchen","restomenu"],bar:["barsheet","restofloor","bartabs"],cold:["coldrooms","coldlots","coldmoves"],
+  hotel:["hotelfront","hotelplanning","hotelhk"],beauty:["beautyagenda","beautyclients","beautyservices"],retail:["retailpos","retailcatalog","retailcredits"],pharmacy:["retailpos","retailrx","retaillots"],school:["schoolattendance","schoolgrades","schoolstudents"],embassy:["embvisas","embappts","embregistry"]};
 const SECTOR_PAGE_LOADERS={};
 const SECTOR_PAGE_MODULE={};
 Object.entries(MODULE_PAGES).forEach(([m,pages])=>pages.forEach(p=>{SECTOR_PAGE_MODULE[p[0]]=m;if(typeof PAGE_MODULES==="object")PAGE_MODULES[p[0]]=p[3];}));
@@ -240,7 +247,7 @@ async function saveWelcomeDescription(){
   if(v){try{await api("PATCH","/profile/",{business_description:v});State.tenant.business_description=v;localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));}catch(e){showToast(e.message,"error");return;}}
   _welcomeStep=2;renderSectorWelcome();
 }
-const SECTOR_DEMO={resto:"/resto/setup-demo",cold:"/cold/setup-demo",hotel:"/hotel/setup-demo",beauty:"/beauty/setup-demo",retail:"/retail/setup-demo",bar:"/bar/setup-demo"};
+const SECTOR_DEMO={resto:"/resto/setup-demo",cold:"/cold/setup-demo",hotel:"/hotel/setup-demo",beauty:"/beauty/setup-demo",retail:"/retail/setup-demo",bar:"/bar/setup-demo",school:"/school/setup-demo",embassy:"/embassy/setup-demo"};
 async function runSectorDemos(){
   const btn=document.getElementById("welcome-demo-btn");if(btn)btn.disabled=true;
   const mods=(State.tenant?.sector_modules||[]).filter(x=>SECTOR_DEMO[x]);

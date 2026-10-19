@@ -48,6 +48,7 @@ if(window.ResizeObserver){
   if(_trialBarEl) _layoutResizeObserver.observe(_trialBarEl);
 }
 function navigate(page){
+  if(typeof zdPageGuard==="function")page=zdPageGuard(page);
   if(!memberCanOpen(page)){
     if(document.querySelector(".page.active")) showToast(t("role_forbidden_page"),"error");
     page="dashboard";
@@ -116,7 +117,7 @@ async function loadPage(p){
     case"notifications": await loadNotifications();break;
     case"ai":         await loadAI();break;
     case"admin":      loadCreatorDashboard();loadPartners();await loadAdminUsers();await loadPendingWires();await loadAdminStats();break;
-    default: if(typeof loadSectorPage==="function") await loadSectorPage(p);
+    default: if(typeof V93_PAGES!=="undefined"&&V93_PAGES[p]){await V93_PAGES[p]();break;} if(typeof loadSectorPage==="function") await loadSectorPage(p);
   }
 }
 
@@ -129,7 +130,8 @@ async function loadNotifBadge(){
 }
 
 async function showAppLayout(){
-  if(State.tenant?.account_type==="client"&&typeof showClientSpace==="function"){showClientSpace();return;}
+  if(State.tenant?.account_type==="client"&&typeof zdShowClientApp==="function"){await zdShowClientApp();return;}
+  if(typeof zdLeaveClientUI==="function")zdLeaveClientUI();
   const cs=document.getElementById("client-space");if(cs)cs.style.display="none";
   await upgradeLegacySession();
   State.restricted=!!State.tenant?.access_blocked&&!State.tenant?.is_creator;
@@ -188,6 +190,7 @@ async function showAppLayout(){
   refreshOfflineBar();flushOutbox();maybeShowInstallBanner();
   loadNotifBadge();
   syncPushSubscription();
+  if(typeof zdAfterAppLayout==="function")zdAfterAppLayout();
 }
 
 // ── DASHBOARD ────────────────────────────────────────────────────────────────
@@ -876,11 +879,9 @@ function showWireModal(r){
       <b>${t("bank_label")} :</b> ${iw.bank_name}<br><b>${t("correspondent_label")} :</b> ${iw.correspondent_bank} (${iw.correspondent_bic})<br>
       <b>${t("currency_label")} :</b> ${iw.currency}
     </div>
-    <div style="margin-top:16px;background:rgba(0,224,128,.06);border:1px solid rgba(0,224,128,.2);border-radius:10px;padding:14px">
-      <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:var(--green)">📲 ${t("confirm_payment_title")}</div>
-      <a href="https://wa.me/${(ins.whatsapp?.number||"+212774887385").replace(/[^0-9]/g,"")}?text=Bonjour%2C%20j%27ai%20effectu%C3%A9%20mon%20virement%20ZenithDash.%20R%C3%A9f%C3%A9rence%20%3A%20${ins.reference}%20-%20Plan%20${ins.plan}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">
-        <i class="ti ti-brand-whatsapp"></i> ${t("whatsapp_send_ref")}
-      </a>
+    <div style="margin-top:16px">
+      ${r.expires_at?`<div style="font-size:12px;color:var(--muted);margin-bottom:8px"><i class="ti ti-clock"></i> ${esc(t("ab_pending_exp").replace("{d}",fmtDate(r.expires_at)))}</div>`:""}
+      ${typeof abProofForm==="function"?abProofForm(ins.reference,"wm"):""}
     </div>`);
   document.getElementById("wire-modal").style.display="flex";
 }

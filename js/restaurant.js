@@ -1,7 +1,7 @@
 // ── MODULE RESTAURANT (9.0) : salle, commandes, cuisine, carte, réservations ──
 const _rs={floor:null,area:null,edit:false,menu:null,order:null,cat:null,search:"",tab:"menu",kitchenStation:"kitchen",kitchenCount:null,resaDay:null,menuTab:"menu",settings:null,pay:null,reportDay:null};
 const RS_STATUS_COLORS={free:"var(--muted)",occupied:"var(--amber)",ready:"var(--green)",bill:"var(--blue)",reserved:"var(--purple)"};
-function rsIsManager(){return !isTeamMember()||State.tenant?.member_role==="admin";}
+function rsIsManager(){return !isTeamMember()||zdIsMgrRole();}
 async function rsMenu(force){if(!_rs.menu||force)_rs.menu=await api("GET","/resto/menu");return _rs.menu;}
 
 // ── Salle ──

@@ -2,6 +2,7 @@ const PAGE_MODULES={booking:"sales",assets:"accounting",creports:"reports",shop:
   employees:"hr",leaves:"hr",payroll:"hr",expenses:"accounting",pl:"accounting",reminders:"accounting",bank:"accounting",margin:"accounting",calendar:"accounting",
   reports:"reports",analytics:"reports",ai:"reports",projects:"projects",objectives:"projects",files:"files",integrations:"integrations",audit:"audit"};
 function isTeamMember(){return !!State.tenant?.member_role;}
+function zdIsMgrRole(){return State.tenant?.member_role==="admin"||!!State.tenant?.member_manager;}
 function memberCanOpen(page){
   if(!isTeamMember())return true;
   if(page==="team")return false;

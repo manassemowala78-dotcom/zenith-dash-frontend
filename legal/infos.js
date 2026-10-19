@@ -1,21 +1,23 @@
 window.ZD_LEGAL={
   marque:"Zenith Dash",
-  editeur:"",
-  forme_juridique:"",
+  editeur:"Manasse Mowala",
+  forme_juridique:"Auto-entrepreneur (personne physique)",
+  rnae:"",
+  ice:"",
   capital:"",
   rccm:"",
   id_nat:"",
   numero_fiscal:"",
-  adresse:"",
-  directeur_publication:"",
-  email:"",
+  adresse:"2WVH+7R2, Route principale Fès–Meknès, Fès, Maroc",
+  directeur_publication:"Manasse Mowala",
+  email:"manassemowala78@gmail.com",
   whatsapp:"+212 774 887 385",
   site:"https://zenithdash.org",
-  pays_droit_applicable:"",
-  tribunal:"",
+  pays_droit_applicable:"Maroc",
+  tribunal:"Fès",
   delai_activation:"2 jours ouvrés",
   delai_remboursement:"14 jours",
-  date_mise_a_jour:"14 octobre 2026"
+  date_mise_a_jour:"19 octobre 2026"
 };
 (function(){
   var L=window.ZD_LEGAL,labels={editeur:"nom ou raison sociale de l'éditeur",forme_juridique:"forme juridique",rccm:"numéro RCCM ou registre du commerce",numero_fiscal:"numéro fiscal",adresse:"adresse du siège",directeur_publication:"nom du directeur de la publication",email:"adresse e-mail de contact",pays_droit_applicable:"pays dont la loi s'applique",tribunal:"ville du tribunal compétent"};

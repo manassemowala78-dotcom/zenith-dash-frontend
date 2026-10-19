@@ -75,8 +75,11 @@ function renderConvList(){
   const totalUnread=_conversations.reduce((s,c)=>s+c.unread_count,0);
   const badge=document.getElementById("msg-unread-badge");
   if(badge) badge.style.display=totalUnread>0?"inline-flex":"none";
+  if(typeof zdRenderConvFilters==="function")zdRenderConvFilters();
   if(!_conversations.length){box.innerHTML=`<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">${t("no_conversations")}</div>`;return;}
-  box.innerHTML=_conversations.map(c=>`
+  const _list=typeof zdConvFiltered==="function"?zdConvFiltered():_conversations;
+  if(!_list.length){box.innerHTML=`<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">${esc(typeof zdConvEmptyText==="function"?zdConvEmptyText():t("no_conversations"))}</div>`;return;}
+  box.innerHTML=_list.map(c=>`
       <div onclick="openConversation('${c.id}','${escJs(c.name)}')" style="padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--b);display:flex;gap:10px;align-items:center;${c.id===_currentConvId?'background:var(--c2)':''}">
         <div style="position:relative;flex-shrink:0">
           ${c.is_group?`<div style="width:40px;height:40px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center"><i class="ti ti-users-group" style="color:var(--purple);font-size:18px"></i></div>`:avatarHtml(c.other_avatar_url,c.name,40)}
@@ -225,7 +228,7 @@ function appendMessageBubble(m){
       <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">${m.reply_to.deleted?t("message_deleted_placeholder"):esc(m.reply_to.content)}</div>
     </div>`:"";
   const reactionsHtml=(m.reactions&&m.reactions.length)?`<div style="margin-top:4px;font-size:11px">${m.reactions.map(r=>r.emoji).join(" ")}</div>`:"";
-  const translateBtn=(m.content&&m.message_type==="text")?`<i class="ti ti-language" style="cursor:pointer;opacity:.6;margin-left:6px;font-size:12px" onclick="translateMessage('${m.id}',this)" title="${t("msg_translate_title")}"></i>`:"";
+  const translateBtn=(m.content&&m.message_type==="text")?`<i class="ti ti-language zd-ai" style="cursor:pointer;opacity:.6;margin-left:6px;font-size:12px" onclick="translateMessage('${m.id}',this)" title="${t("msg_translate_title")}"></i>`:"";
   const viewOnceBadge=m.view_once?`<i class="ti ti-eye" style="opacity:.6;margin-left:4px;font-size:11px" title="${t("view_once_toggle")}"></i>`:"";
   const viewedBadge=(m.view_once&&m.viewed_at)?` · ${t("viewed_indicator")}`:"";
   const readTicks=mine?(m.total_others!=null

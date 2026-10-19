@@ -1,4 +1,4 @@
-const APP_BUILD="9.2.0 · 15/10/2026";
+const APP_BUILD="9.4.0 · 19/10/2026";
 const ZD_ENV=(()=>{const host=window.location.hostname;if(host==="localhost"||host==="127.0.0.1")return "local";if(host.includes("staging"))return "staging";return "production";})();
 const API_URLS={local:"http://localhost:8000/v1",staging:"https://zenith-dash-staging.up.railway.app/v1",production:"https://zenith-dash-production.up.railway.app/v1"};
 const API_BASE=API_URLS[ZD_ENV];
@@ -106,7 +106,7 @@ async function readApiResponse(r){
     if(Array.isArray(det)) m=det.map(x=>x&&x.msg).filter(Boolean).join(" · ");
     else if(det&&typeof det==="object") m=det.message||det.error;
     else m=det;
-    throw new Error(m||`${t("server_error")} (${r.status})`);
+    const err=new Error(m||`${t("server_error")} (${r.status})`);err.status=r.status;err.data=d;throw err;
   }
   return d;
 }

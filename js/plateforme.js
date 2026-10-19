@@ -25,6 +25,7 @@ async function openCompaniesModal(){
       ${x.is_current?"":`<button class="btn btn-g btn-sm" onclick="switchCompany('${x.id}')"><i class="ti ti-switch-horizontal"></i> ${t("btn_open")}</button>`}</div>`;}).join("")}
     ${ov?`<div style="margin-top:12px;padding:10px;border-radius:10px;background:var(--bg);font-size:13px"><b>${t("company_total")}</b> — ${t("company_month")} <b style="color:var(--green)">${fmtUSD(ov.totals.revenue_month)}</b> · ${t("company_receivables")} <b>${fmtUSD(ov.totals.receivables)}</b> · ${ov.totals.invoices_month} ${t("company_invoices_month")}</div>`:""}
     <div style="margin-top:14px">${c.can_create?`<div style="display:flex;gap:6px"><input class="inp" id="new-company-name" placeholder="${t("company_name_ph")}"><button class="btn btn-g btn-sm" onclick="createCompany()"><i class="ti ti-plus"></i> ${t("btn_create")}</button></div>
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;margin-top:8px;cursor:pointer"><input type="checkbox" id="new-company-copy" style="margin-top:2px"> <span>${t("company_copy_settings")}</span></label>
       <div style="font-size:11px;color:var(--muted);margin-top:6px">${t("company_limit").replace("{n}",c.limit===-1?"∞":c.limit)}</div>`:`<div style="font-size:12px;color:var(--amber)"><i class="ti ti-lock"></i> ${t("companies_locked")}</div>`}</div>`;
   document.getElementById("modal-companies").style.display="flex";
 }
@@ -32,7 +33,7 @@ function closeCompaniesModal(){document.getElementById("modal-companies").style.
 async function createCompany(){
   const name=document.getElementById("new-company-name").value.trim();
   if(!name){flagMissingFields([document.getElementById("new-company-name")]);return;}
-  try{await api("POST","/companies",{company_name:name});showToast(t("toast_company_created"));openCompaniesModal();}catch(e){showToast(e.message,"error");}
+  try{await api("POST","/companies",{company_name:name,copy_settings:!!document.getElementById("new-company-copy")?.checked});showToast(t("toast_company_created"));openCompaniesModal();}catch(e){showToast(e.message,"error");}
 }
 async function switchCompany(id){
   try{

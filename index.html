@@ -27,11 +27,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Zenith Dash">
-<link rel="preload" href="/css/icons.woff2?v=9.2.0" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/icons.css?v=9.2.0">
-<link rel="stylesheet" href="/css/app.css?v=9.2.0">
+<link rel="preload" href="/css/icons.woff2?v=9.4.0" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/icons.css?v=9.4.0">
+<link rel="stylesheet" href="/css/app.css?v=9.4.0">
 </head>
-<body>
+<body class="zd-no-ai">
 <!-- PORTAIL CLIENT (accès public, sans compte) -->
 <div id="booking-view" style="display:none;max-width:560px;margin:0 auto;padding:18px 14px 40px"></div>
 <div id="shop-view" style="display:none;max-width:980px;margin:0 auto;padding:16px 14px"></div>
@@ -182,7 +182,8 @@
     <div class="nav-g">
       <div class="nav-lbl" data-i18n="nav_principal">Principal</div>
       <div class="nav-i active" data-p="dashboard" onclick="navigate('dashboard')"><i class="ti ti-layout-dashboard"></i><span data-i18n="nav_dashboard">Dashboard</span></div>
-      <div class="nav-i" data-p="messaging" onclick="navigate('messaging')"><i class="ti ti-message-circle"></i><span data-i18n="nav_messaging">Messagerie</span> <span class="nav-badge" id="msg-unread-badge" style="display:none">!</span></div>
+      <div class="nav-i" data-p="myspace" data-client="1" onclick="navigate('myspace')"><i class="ti ti-shopping-bag"></i><span data-i18n="nav_myspace">Mon espace client</span></div>
+      <div class="nav-i" data-p="messaging" data-client="1" onclick="navigate('messaging')"><i class="ti ti-message-circle"></i><span data-i18n="nav_messaging">Messagerie</span> <span class="nav-badge" id="msg-unread-badge" style="display:none">!</span></div>
       <div class="nav-i" data-p="announcements" onclick="navigate('announcements')"><i class="ti ti-speakerphone"></i><span data-i18n="ann_title">Nouveautés</span></div>
     </div>
     <div class="nav-g">
@@ -201,6 +202,7 @@
       <div class="nav-i" data-p="employees" onclick="navigate('employees')"><i class="ti ti-user-check"></i><span data-i18n="nav_employes">Employés</span></div>
       <div class="nav-i" data-p="leaves" onclick="navigate('leaves')"><i class="ti ti-calendar-off"></i><span data-i18n="nav_conges">Congés</span></div>
       <div class="nav-i" data-p="attendance" onclick="navigate('attendance')"><i class="ti ti-clock-check"></i><span data-i18n="nav_attendance">Présences</span></div>
+      <div class="nav-i" data-p="pointage" onclick="navigate('pointage')"><i class="ti ti-device-tablet"></i><span data-i18n="nav_pointage">Pointage tablette</span></div>
       <div class="nav-i" data-p="claims" onclick="navigate('claims')"><i class="ti ti-receipt-2"></i><span data-i18n="nav_claims">Notes de frais</span></div>
       <div class="nav-i" data-p="payroll" onclick="navigate('payroll')"><i class="ti ti-receipt"></i><span data-i18n="nav_paie">Paie</span></div>
     </div>
@@ -229,13 +231,13 @@
       <div class="nav-i" data-p="objectives" onclick="navigate('objectives')"><i class="ti ti-target-arrow"></i><span data-i18n="nav_objectifs">Objectifs & KPIs</span></div>
       <div class="nav-i" data-p="projects" onclick="navigate('projects')"><i class="ti ti-briefcase"></i><span data-i18n="nav_projets">Projets</span></div>
       <div class="nav-i" data-p="calendar" onclick="navigate('calendar')"><i class="ti ti-calendar"></i><span data-i18n="nav_calendrier">Calendrier</span></div>
-      <div class="nav-i" data-p="notifications" onclick="navigate('notifications')"><i class="ti ti-bell"></i><span data-i18n="nav_notifications">Notifications</span> <span class="nav-badge" id="notif-badge" style="display:none">0</span></div>
+      <div class="nav-i" data-p="notifications" data-client="1" onclick="navigate('notifications')"><i class="ti ti-bell"></i><span data-i18n="nav_notifications">Notifications</span> <span class="nav-badge" id="notif-badge" style="display:none">0</span></div>
     </div>
     <div class="nav-g">
       <div class="nav-lbl" data-i18n="nav_finance">Finance</div>
       <div class="nav-i" data-p="billing" id="nav-billing" onclick="navigate('billing')"><i class="ti ti-building-bank"></i><span data-i18n="nav_abonnements">Abonnements</span></div>
       <div class="nav-i" data-p="analytics" onclick="navigate('analytics')"><i class="ti ti-brain"></i><span data-i18n="nav_analytics">IA Analytics</span></div>
-      <div class="nav-i" data-p="ai" onclick="navigate('ai')"><i class="ti ti-robot"></i><span data-i18n="nav_ia">Assistant IA</span></div>
+      <div class="nav-i zd-ai" data-p="ai" onclick="navigate('ai')"><i class="ti ti-robot"></i><span data-i18n="nav_ia">Assistant IA</span></div>
       <div class="nav-i" data-p="reports" onclick="navigate('reports')"><i class="ti ti-chart-bar"></i><span data-i18n="nav_rapports">Rapports</span></div>
     </div>
     <div class="nav-g">
@@ -248,7 +250,7 @@
       <div class="nav-i" data-p="files" onclick="navigate('files')"><i class="ti ti-folder"></i>Fichiers</div>
       <div class="nav-i" data-p="bank" onclick="navigate('bank')"><i class="ti ti-building-bank"></i>Rapprochement bancaire</div>
       <div class="nav-i" data-p="integrations" onclick="navigate('integrations')"><i class="ti ti-plug"></i><span data-i18n="nav_integrations">Intégrations</span></div>
-      <div class="nav-i" data-p="profile" onclick="navigate('profile')"><i class="ti ti-settings"></i><span data-i18n="nav_profil">Profil & Banque</span></div>
+      <div class="nav-i" data-p="profile" data-client="1" onclick="navigate('profile')"><i class="ti ti-settings"></i><span data-i18n="nav_profil">Profil & Banque</span></div>
       <div class="nav-i" data-p="admin" id="nav-admin" onclick="navigate('admin')" style="display:none"><i class="ti ti-shield"></i><span data-i18n="nav_admin">Admin</span></div>
     </div>
   </aside>
@@ -309,6 +311,7 @@
             <i class="ti ti-search" style="color:var(--muted)"></i>
             <input class="inp" id="global-search-input" placeholder="Rechercher une personne ou un mot..." data-i18n-ph="global_search_ph" style="flex:1;border:none;background:transparent" oninput="globalSearchDebounced()">
           </div>
+          <div id="conv-filters" class="conv-filters" role="tablist"></div>
           <div id="global-search-results" style="display:none;flex:1;overflow-y:auto"></div>
           <div id="conv-list" style="flex:1;overflow-y:auto"><div style="text-align:center;color:var(--muted);padding:20px;font-size:13px" data-i18n="loading">Chargement...</div></div>
         </div>
@@ -518,7 +521,7 @@
       <div class="sh">
         <div><div class="st" data-i18n="q_title">Devis</div><div class="ss" data-i18n="q_sub">Créez et convertissez vos devis en factures</div></div>
         <div style="display:flex;gap:8px">
-          <button class="btn btn-o btn-sm" onclick="openEstimateModal()"><i class="ti ti-calculator"></i> <span data-i18n="q_estimate_btn">Estimation rapide</span></button>
+          <button class="btn btn-o btn-sm zd-ai" onclick="openEstimateModal()"><i class="ti ti-calculator"></i> <span data-i18n="q_estimate_btn">Estimation rapide</span></button>
           <button class="btn btn-g btn-sm" onclick="openQuoteModal()"><i class="ti ti-plus"></i> <span data-i18n="q_new">Nouveau devis</span></button>
         </div>
       </div>
@@ -868,7 +871,7 @@
             <div class="fgrp"><label class="fl" data-i18n="fld_overhead_pct">Frais généraux (%)</label><input class="inp" type="number" id="margin-overhead" placeholder="15" value="15"></div>
             <div class="fgrp"><label class="fl" data-i18n="fld_tax_rate">Taux d'imposition (%)</label><input class="inp" type="number" id="margin-tax" placeholder="20" value="20"></div>
           </div>
-          <div class="fgrp" style="display:flex;align-items:center;gap:10px">
+          <div class="fgrp zd-ai" style="display:flex;align-items:center;gap:10px">
             <input type="checkbox" id="margin-ask-ai" style="width:16px;height:16px">
             <label for="margin-ask-ai" style="font-size:13px;cursor:pointer" data-i18n="fld_ask_ai_margin">Demander une analyse IA (recommandations personnalisées)</label>
           </div>
@@ -1840,7 +1843,7 @@
     <div onclick="navigate('calendar');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-calendar" style="font-size:22px;color:var(--blue)"></i><span style="font-size:10px;font-family:var(--mono)">Calendrier</span></div>
     <div onclick="navigate('notifications');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-bell" style="font-size:22px;color:var(--amber)"></i><span style="font-size:10px;font-family:var(--mono)">Notifs</span></div>
     <div onclick="navigate('analytics');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-brain" style="font-size:22px;color:var(--purple)"></i><span style="font-size:10px;font-family:var(--mono)">IA Analytics</span></div>
-    <div onclick="navigate('ai');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-robot" style="font-size:22px;color:var(--pink)"></i><span style="font-size:10px;font-family:var(--mono)">Assistant IA</span></div>
+    <div class="zd-ai" onclick="navigate('ai');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-robot" style="font-size:22px;color:var(--pink)"></i><span style="font-size:10px;font-family:var(--mono)">Assistant IA</span></div>
     <div onclick="navigate('reports');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-chart-bar" style="font-size:22px;color:var(--blue)"></i><span style="font-size:10px;font-family:var(--mono)">Rapports</span></div>
     <div onclick="navigate('billing');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-building-bank" style="font-size:22px;color:var(--green)"></i><span style="font-size:10px;font-family:var(--mono)">Plans</span></div>
     <div onclick="navigate('team');closeMoreMenu()" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:var(--card);cursor:pointer"><i class="ti ti-users-group" style="font-size:22px;color:var(--cyan)"></i><span style="font-size:10px;font-family:var(--mono)">Équipe</span></div>
@@ -2119,7 +2122,7 @@
 <div id="modal-quote" class="modal-overlay" onclick="if(event.target===this)closeQuoteModal()">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-file-description" style="color:var(--purple)"></i> Nouveau devis</div>
-    <div class="fgrp" style="background:var(--c2);border-radius:10px;padding:12px;border:1px solid var(--b)">
+    <div class="fgrp zd-ai" style="background:var(--c2);border-radius:10px;padding:12px;border:1px solid var(--b)">
       <label class="fl"><i class="ti ti-sparkles" style="color:var(--purple)"></i> Décris le besoin, l'IA propose les lignes</label>
       <div style="display:flex;gap:8px">
         <input class="inp" id="quote-ai-desc" placeholder="Ex: rénovation cuisine 15m², peinture et carrelage">
@@ -2396,41 +2399,47 @@
   </div>
 </div>
 
-<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.2.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.2.0" defer><\/script>':""))})();</script>
-<script src="/js/vendor/qrcode.min.js?v=9.2.0" defer></script>
-<script src="/js/base-1.js?v=9.2.0" defer></script>
-<script src="/js/securite-roles.js?v=9.2.0" defer></script>
-<script src="/js/hors-ligne.js?v=9.2.0" defer></script>
-<script src="/js/facturation.js?v=9.2.0" defer></script>
-<script src="/js/stock-caisse.js?v=9.2.0" defer></script>
-<script src="/js/rh-paie.js?v=9.2.0" defer></script>
-<script src="/js/compta-ohada.js?v=9.2.0" defer></script>
-<script src="/js/marketing.js?v=9.2.0" defer></script>
-<script src="/js/plateforme.js?v=9.2.0" defer></script>
-<script src="/js/accueil-aide.js?v=9.2.0" defer></script>
-<script src="/js/import.js?v=9.2.0" defer></script>
-<script src="/js/achats.js?v=9.2.0" defer></script>
-<script src="/js/relances-auto.js?v=9.2.0" defer></script>
-<script src="/js/boutique.js?v=9.2.0" defer></script>
-<script src="/js/projets.js?v=9.2.0" defer></script>
-<script src="/js/immobilisations-rapports.js?v=9.2.0" defer></script>
-<script src="/js/rendez-vous.js?v=9.2.0" defer></script>
-<script src="/js/cabinet.js?v=9.2.0" defer></script>
-<script src="/js/listes.js?v=9.2.0" defer></script>
-<script src="/js/juridique.js?v=9.2.0" defer></script>
-<script src="/js/contacts-confidentialite.js?v=9.2.0" defer></script>
-<script src="/js/secteurs.js?v=9.2.0" defer></script>
-<script src="/js/restaurant.js?v=9.2.0" defer></script>
-<script src="/js/bar.js?v=9.2.0" defer></script>
-<script src="/js/froid.js?v=9.2.0" defer></script>
-<script src="/js/hotel.js?v=9.2.0" defer></script>
-<script src="/js/salon.js?v=9.2.0" defer></script>
-<script src="/js/commerce.js?v=9.2.0" defer></script>
-<script src="/js/commandes.js?v=9.2.0" defer></script>
-<script src="/js/abonnements.js?v=9.2.0" defer></script>
-<script src="/js/coeur-1.js?v=9.2.0" defer></script>
-<script src="/js/coeur-2.js?v=9.2.0" defer></script>
-<script src="/js/coeur-3.js?v=9.2.0" defer></script>
+<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.4.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.4.0" defer><\/script>':""))})();</script>
+<script src="/js/vendor/qrcode.min.js?v=9.4.0" defer></script>
+<script src="/js/base-1.js?v=9.4.0" defer></script>
+<script src="/js/securite-roles.js?v=9.4.0" defer></script>
+<script src="/js/hors-ligne.js?v=9.4.0" defer></script>
+<script src="/js/facturation.js?v=9.4.0" defer></script>
+<script src="/js/stock-caisse.js?v=9.4.0" defer></script>
+<script src="/js/rh-paie.js?v=9.4.0" defer></script>
+<script src="/js/compta-ohada.js?v=9.4.0" defer></script>
+<script src="/js/marketing.js?v=9.4.0" defer></script>
+<script src="/js/plateforme.js?v=9.4.0" defer></script>
+<script src="/js/accueil-aide.js?v=9.4.0" defer></script>
+<script src="/js/import.js?v=9.4.0" defer></script>
+<script src="/js/achats.js?v=9.4.0" defer></script>
+<script src="/js/relances-auto.js?v=9.4.0" defer></script>
+<script src="/js/boutique.js?v=9.4.0" defer></script>
+<script src="/js/projets.js?v=9.4.0" defer></script>
+<script src="/js/immobilisations-rapports.js?v=9.4.0" defer></script>
+<script src="/js/rendez-vous.js?v=9.4.0" defer></script>
+<script src="/js/cabinet.js?v=9.4.0" defer></script>
+<script src="/js/listes.js?v=9.4.0" defer></script>
+<script src="/js/juridique.js?v=9.4.0" defer></script>
+<script src="/js/contacts-confidentialite.js?v=9.4.0" defer></script>
+<script src="/js/secteurs.js?v=9.4.0" defer></script>
+<script src="/js/restaurant.js?v=9.4.0" defer></script>
+<script src="/js/bar.js?v=9.4.0" defer></script>
+<script src="/js/froid.js?v=9.4.0" defer></script>
+<script src="/js/hotel.js?v=9.4.0" defer></script>
+<script src="/js/salon.js?v=9.4.0" defer></script>
+<script src="/js/commerce.js?v=9.4.0" defer></script>
+<script src="/js/commandes.js?v=9.4.0" defer></script>
+<script src="/js/abonnements.js?v=9.4.0" defer></script>
+<script src="/js/coeur-1.js?v=9.4.0" defer></script>
+<script src="/js/coeur-2.js?v=9.4.0" defer></script>
+<script src="/js/coeur-3.js?v=9.4.0" defer></script>
+<script src="/js/v93.js?v=9.4.0" defer></script>
+<script src="/js/bar-fiche.js?v=9.4.0" defer></script>
+<script src="/js/ecole.js?v=9.4.0" defer></script>
+<script src="/js/ambassade.js?v=9.4.0" defer></script>
+<script src="/js/pointage.js?v=9.4.0" defer></script>
+<script src="/js/espaces.js?v=9.4.0" defer></script>
 
 </body>
 </html>
