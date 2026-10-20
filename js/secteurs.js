@@ -223,8 +223,7 @@ function openSectorWelcome(skipDescription){
 }
 function renderSectorWelcome(){
   const u=State.tenant||{};const sec=u.sector||"pme";const m=SECTOR_META[sec]||SECTOR_META.pme;
-  const demoModules=(u.sector_modules||[]).filter(x=>SECTOR_DEMO[x]);
-  if(_welcomeStep===2&&(!demoModules.length||u.sector_plan_ok===false)){zdCloseModal("modal-sector-welcome");setTimeout(()=>{try{startTour(false);}catch(_){}},500);return;}
+  if(_welcomeStep===2){zdCloseModal("modal-sector-welcome");setTimeout(()=>{try{startTour(false);}catch(_){}},500);return;}
   let html;
   if(_welcomeStep===1){
     html=`<div style="text-align:center;margin-bottom:10px"><div style="width:54px;height:54px;border-radius:14px;margin:0 auto;display:flex;align-items:center;justify-content:center;background:${m.color}22;color:${m.color};font-size:28px"><i class="ti ti-${m.icon}"></i></div></div>
@@ -233,12 +232,6 @@ function renderSectorWelcome(){
       <textarea class="inp" id="welcome-desc" maxlength="512" rows="5" placeholder="${esc(t("welcome_desc_ph_"+sec)!=="welcome_desc_ph_"+sec?t("welcome_desc_ph_"+sec):t("welcome_desc_ph"))}" oninput="document.getElementById('welcome-count').textContent=this.value.length+'/512'">${esc(u.business_description||"")}</textarea>
       <div style="text-align:right;font-size:11px;color:var(--muted);margin-top:4px" id="welcome-count">${(u.business_description||"").length}/512</div>
       <div class="modal-footer"><button class="btn btn-o btn-sm" onclick="_welcomeStep=2;renderSectorWelcome()">${esc(t("btn_skip"))}</button><button class="btn btn-g btn-sm" onclick="saveWelcomeDescription()">${esc(t("btn_next"))} <i class="ti ti-arrow-right"></i></button></div>`;
-  }else{
-    html=`<div class="modal-title"><i class="ti ti-rocket" style="color:${m.color}"></i> ${esc(t("welcome_demo_title").replace("{s}",sectorLabel(sec)))}</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">${esc(t("welcome_demo_text"))}</div>
-      ${demoModules.map(x=>`<div class="card2" style="padding:12px;border-radius:10px;margin-bottom:8px"><b>${esc(t("module_"+x))}</b><div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(t("demo_desc_"+x))}</div></div>`).join("")}
-      <div class="err-box" id="welcome-err"></div>
-      <div class="modal-footer"><button class="btn btn-o btn-sm" onclick="finishSectorWelcome()">${esc(t("welcome_start_empty"))}</button><button class="btn btn-g btn-sm" id="welcome-demo-btn" onclick="runSectorDemos()"><i class="ti ti-sparkles"></i> ${esc(t("welcome_load_demo"))}</button></div>`;
   }
   const ov=zdModal("modal-sector-welcome",html,540);ov.dataset.sticky="1";
 }
@@ -246,14 +239,6 @@ async function saveWelcomeDescription(){
   const v=zdVal("welcome-desc");
   if(v){try{await api("PATCH","/profile/",{business_description:v});State.tenant.business_description=v;localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));}catch(e){showToast(e.message,"error");return;}}
   _welcomeStep=2;renderSectorWelcome();
-}
-const SECTOR_DEMO={resto:"/resto/setup-demo",cold:"/cold/setup-demo",hotel:"/hotel/setup-demo",beauty:"/beauty/setup-demo",retail:"/retail/setup-demo",bar:"/bar/setup-demo",school:"/school/setup-demo",embassy:"/embassy/setup-demo"};
-async function runSectorDemos(){
-  const btn=document.getElementById("welcome-demo-btn");if(btn)btn.disabled=true;
-  const mods=(State.tenant?.sector_modules||[]).filter(x=>SECTOR_DEMO[x]);
-  for(const m of mods){try{await api("POST",SECTOR_DEMO[m]);}catch(e){if(!/déjà|already/i.test(e.message))showToast(e.message,"error");}}
-  showToast(t("welcome_demo_done"));finishSectorWelcome();
-  const first=(MODULE_PAGES[mods[0]]||[])[0];if(first)navigate(first[0]);
 }
 function finishSectorWelcome(){zdCloseModal("modal-sector-welcome");setTimeout(()=>{try{startTour(false);}catch(_){}},600);}
 

@@ -117,19 +117,25 @@ function renderLanding(){
     <footer class="ld-footer">© ${new Date().getFullYear()} Zenith Dash · <a href="#" onclick="event.preventDefault();openHelpFromLanding()">${t("nav_help")}</a>${legalLinksHtml()}</footer>`;
   if(_landingPlans)renderLandingPricing();
 }
+function ldPromoNote(c,P){
+  const f=k=>t(k).replace("{a}",c.sector_discounts[0][1]).replace("{b}",c.sector_discounts[1][1]).replace("{c}",c.sector_discounts[2][1]).replace("{d}",c.sector_discounts[3][1]);
+  const s=P("sectors"),m=P("duration");if(!s&&!m)return "";
+  return `<div class="ld-pnote"><i class="ti ti-discount-2"></i> ${esc(s&&m?f("ld_pricing_note"):s?f("ld_note_sectors"):t("ld_note_annual"))}</div>`;
+}
 function renderLandingPricing(){
   const box=document.getElementById("ld-plans");if(!box||!_landingPlans||!_landingPlans.sectors)return;
-  const c=_landingPlans,an=_landingCycle==="annual",f=an?c.annual.factor:1;
+  const c=_landingPlans,P=k=>!(c.promos&&c.promos[k]&&c.promos[k].active===false),an=_landingCycle==="annual"&&P("duration"),f=an?c.annual.factor:1;
   const tiers=["essentiel","pro","premium"];
   const money=v=>{const n=Math.round(v*100)/100;return (Number.isInteger(n)?n:n.toFixed(2).replace(".",","))+" $";};
   const short=k=>t("sector_short_"+k)!=="sector_short_"+k?t("sector_short_"+k):k;
   const rows=c.sectors.map(s=>`<tr><td><i class="ti ti-${esc(s.icon)}" style="color:${s.color}"></i> ${esc(t("sector_"+s.key)!=="sector_"+s.key?t("sector_"+s.key):s.label)}</td>${s.prices.map(p=>`<td class="ld-pc">${p==null?"—":money(p*f)}</td>`).join("")}</tr>`).join("");
   box.innerHTML=`<div class="ld-ptable-wrap"><table class="ld-ptable"><thead><tr><th>${esc(t("ld_sector_col"))}</th>${tiers.map(k=>`<th>${esc(t("ab_tier_"+k))}<small>${esc(t(an?"ld_per_year":"ld_per_month"))}</small></th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>
-    <div class="ld-pnote"><i class="ti ti-discount-2"></i> ${esc(t("ld_pricing_note").replace("{a}",c.sector_discounts[0][1]).replace("{b}",c.sector_discounts[1][1]).replace("{c}",c.sector_discounts[2][1]).replace("{d}",c.sector_discounts[3][1]))}</div>
+    ${ldPromoNote(c,P)}
     <div class="ld-plans">${tiers.map((k,i)=>`<div class="ld-plan${i===1?" featured":""}">${i===1?`<div class="ld-pop">${t("ld_popular")}</div>`:""}<div class="ld-plan-name">${esc(t("ab_tier_"+k))}</div>
       <div class="ld-muted" style="font-size:12px;margin-bottom:10px">${esc(t("ab_users").replace("{n}",c.tiers[i].users))}</div><ul>${t("ab_tf_"+i).split("|").map(x=>`<li>✓ ${esc(x)}</li>`).join("")}</ul>
       <button class="btn ${i===1?"btn-g":"btn-o"}" style="width:100%" onclick="hideLanding('register')">${t("ld_start")}</button></div>`).join("")}</div>
-    <div class="ld-pnote"><i class="ti ti-gift"></i> ${esc(t("ld_ref_note"))}</div>`;
+    ${P("referral")?`<div class="ld-pnote"><i class="ti ti-gift"></i> ${esc(t("ld_ref_note"))}</div>`:""}`;
+  const tb=document.querySelectorAll("#ld-pricing .toggle-btn");if(tb.length===2)tb[1].hidden=!P("duration");
 }
 function openHelpFromLanding(){
   const l=document.getElementById("landing");

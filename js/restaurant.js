@@ -18,7 +18,7 @@ SECTOR_PAGE_LOADERS.restofloor=async el=>{
      ${hasModule("bar")?`<button class="btn btn-o btn-sm" onclick="rsNewOrder('tab')"><i class="ti ti-notes"></i> ${esc(t("bar_new_tab"))}</button>`:""}
      ${rsIsManager()?`<button class="btn btn-sm ${_rs.edit?"btn-g":"btn-o"}" onclick="_rs.edit=!_rs.edit;navigate('restofloor')"><i class="ti ti-layout-board"></i> ${esc(t(_rs.edit?"rs_edit_done":"rs_edit_plan"))}</button>`:""}`)+
     (empty?`<div class="card" style="text-align:center;padding:26px"><i class="ti ti-armchair" style="font-size:34px;color:var(--muted)"></i><div style="margin:10px 0;color:var(--muted)">${esc(t("rs_no_tables"))}</div>
-      ${rsIsManager()?`<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn btn-g btn-sm" onclick="rsDemo()"><i class="ti ti-sparkles"></i> ${esc(t("welcome_load_demo"))}</button><button class="btn btn-o btn-sm" onclick="rsTableModal()"><i class="ti ti-plus"></i> ${esc(t("rs_add_table"))}</button></div>`:""}</div>`:
+      ${rsIsManager()?`<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn btn-g btn-sm" onclick="rsTableModal()"><i class="ti ti-plus"></i> ${esc(t("rs_add_table"))}</button></div>`:""}</div>`:
     `<div class="rs-areas">${areas.map(a=>`<button class="toggle-btn${_rs.area===a?" active":""}" onclick="_rs.area='${escJs(a)}';navigate('restofloor')">${esc(a==="all"?t("rs_all_areas"):a)}</button>`).join("")}
       ${_rs.edit?`<button class="btn btn-g btn-sm" style="margin-left:auto" onclick="rsTableModal()"><i class="ti ti-plus"></i> ${esc(t("rs_add_table"))}</button>`:""}</div>
      <div class="rs-legend">${["free","occupied","ready","bill","reserved"].map(s=>`<span><i style="background:${RS_STATUS_COLORS[s]}"></i>${esc(t("rs_st_"+s))}</span>`).join("")}</div>
@@ -75,7 +75,6 @@ async function submitRsNewOrder(kind){
     zdCloseModal("modal-rs-open");rsOpenOrder(o.id);
   }catch(e){showToast(e.message,"error");}
 }
-async function rsDemo(){try{const r=await api("POST","/resto/setup-demo");showToast(t("rs_demo_done").replace("{t}",r.tables).replace("{i}",r.items));_rs.menu=null;navigate("restofloor");}catch(e){showToast(e.message,"error");}}
 function rsTableModal(id){
   const tb=id?_rs.floor.tables.find(x=>x.id===id):null;
   zdModal("modal-rs-table",`<div class="modal-title"><i class="ti ti-armchair"></i> ${esc(t(tb?"rs_edit_table":"rs_add_table"))}</div>
@@ -289,7 +288,7 @@ function rsRenderPay(){
   const o=_rs.order,p=_rs.pay;const amt=rsPayAmount();
   const methods=zdMethodOptions(p.method,["account"].concat(hasModule("hotel")?["room"]:[]));
   const unpaid=o.lines.filter(l=>l.status!=="void"&&l.qty-(l.paid_qty||0)>0);
-  const sugg=(_rs.settings?.tip_suggestions)||[5,10,15];
+  const sugg=(_rs.settings?.tip_suggestions)||[];
   zdModal("modal-rs-pay",`<div class="modal-title"><i class="ti ti-cash" style="color:var(--green)"></i> ${esc(t("rs_pay_title"))} · ${esc(o.table_name||o.kind_label)} <span class="mono" style="margin-left:auto">${esc(t("rs_due"))} ${zdMoney(o.due)}</span></div>
     <div class="rs-steps" style="margin-bottom:10px">${["all","lines","split","amount"].map(m=>`<button class="toggle-btn${p.mode===m?" active":""}" onclick="_rs.pay.mode='${m}';rsRenderPay()">${esc(t("rs_pm_"+m))}</button>`).join("")}</div>
     ${p.mode==="lines"?`<div class="card2" style="padding:8px;border-radius:10px;margin-bottom:10px;max-height:220px;overflow:auto">${unpaid.map(l=>{const left=l.qty-(l.paid_qty||0);const v=p.lines[l.id]||0;return `<div class="rs-payline"><span style="flex:1">${esc(l.name)} <span style="color:var(--muted)">(${zdQty(left)})</span></span><span class="mono">${zdMoney(l.amount/l.qty)}</span>
@@ -458,7 +457,7 @@ SECTOR_PAGE_LOADERS.restomenu=async el=>{
         <span class="mono" style="font-weight:700">${zdMoney(i.price)}</span>
         <label class="rs-avail" title="${esc(t("rs_available"))}"><input type="checkbox" ${i.available?"checked":""} onchange="rsToggleAvail('${i.id}',this.checked)"> <span>${esc(t(i.available?"rs_available":"rs_sold_out"))}</span></label>
         ${mgr?`<button class="btn btn-o btn-sm" onclick="rsItemModal('${i.id}')"><i class="ti ti-pencil"></i></button>`:""}</div>`).join("")||`<div style="font-size:12px;color:var(--muted)">${esc(t("rs_no_items"))}</div>`}</div>`).join(""):
-      `<div class="card" style="text-align:center;padding:26px">${zdEmpty(t("rs_menu_empty"),"book-2")}${mgr?`<button class="btn btn-g btn-sm" onclick="rsDemo()"><i class="ti ti-sparkles"></i> ${esc(t("welcome_load_demo"))}</button>`:""}</div>`);
+      `<div class="card" style="text-align:center;padding:26px">${zdEmpty(t("rs_menu_empty"),"book-2")}${mgr?`<button class="btn btn-g btn-sm" onclick="rsItemModal()"><i class="ti ti-plus"></i> ${esc(t("rs_new_item"))}</button>`:""}</div>`);
 };
 async function submitRsSettings(){
   const body={service_pct:zdNum("rs-s-service")||0,delivery_fee:zdNum("rs-s-delivery")||0,kitchen_late_min:parseInt(zdVal("rs-s-late"))||20,open:zdVal("rs-s-open"),close:zdVal("rs-s-close"),

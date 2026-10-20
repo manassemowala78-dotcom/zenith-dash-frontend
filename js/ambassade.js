@@ -39,7 +39,6 @@ async function embCasesPage(el,kind,pg){
       </tbody></table></div><div class="sc-hint" style="color:var(--muted)">${esc(t("emb_advance_x"))}</div>`:zdEmpty(t("emb_no_cases"),"file-text")}</div>`;
 }
 function embTypeLabel(c){const d=c.details||{};const k={visa:"visa_type",passport:"request_type",civil:"act_type",legal:"doc_type"}[c.kind];if(k&&d[k])return t("emb_o_"+d[k])!=="emb_o_"+d[k]?t("emb_o_"+d[k]):d[k];if(c.kind==="registry")return c.city||"—";return "—";}
-async function embDemo(){try{await api("POST","/embassy/setup-demo");await embBase(true);showToast(t("emb_demo_ok"));navigate("embvisas");}catch(e){showToast(e.message,"error");}}
 function embNewCase(kind,appt){
   const me=embMe();const posts=(_emb.set.posts||[]).filter(p=>p.active&&(me.post_ids==null||me.post_ids.includes(p.id)));
   const fee=(_emb.set.fees||{})[kind]||0;

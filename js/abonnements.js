@@ -3,10 +3,13 @@ const AB_TIERS=["essentiel","pro","premium"];
 let _ab={cat:null,offer:null,ref:null,sel:{},cycle:"monthly",months:1,quote:null,seq:0,timer:null};
 const AB_MONTH_CHIPS=[1,3,6,10,20,30];
 function abCycleOf(n){return n===1?"monthly":n===10?"annual":"m"+n;}
-function abMonthsOf(c){if(!c||c==="monthly")return 1;if(c==="annual")return 10;const m=/^m(\d+)$/.exec(c);return m?Math.max(1,Math.min(36,+m[1])):1;}
+function abMonthsOf(c){c=String(c||"").replace(/-nf$/,"");if(!c||c==="monthly")return 1;if(c==="annual")return 10;const m=/^m(\d+)$/.exec(c);return m?Math.max(1,Math.min(36,+m[1])):1;}
 function abMonthPct(n){let p=0;(_ab.cat?.months?.tiers||[[1,0]]).forEach(([a,b])=>{if(n>=a)p=b;});return p;}
 function abFree(n){return Math.floor(n/10)*2;}
-function abCycleLabel(c){const n=abMonthsOf(c);if(n===1)return t("ab_cycle_monthly");const f=abFree(n);return abTr(f?"ab_months_free":"ab_months_n",{n,f});}
+function abPromo(k){const p=_ab.cat?.promos?.[k];return !p||p.active!==false;}
+function abPromoUntil(k){const p=_ab.cat?.promos?.[k];return p&&p.active!==false?p.until:null;}
+function abFreeNow(n){return abPromo("duration")?abFree(n):0;}
+function abCycleLabel(c){const n=abMonthsOf(c);if(n===1)return t("ab_cycle_monthly");const f=/-nf$/.test(String(c||""))?0:abFree(n);return abTr(f?"ab_months_free":"ab_months_n",{n,f});}
 let _regAccountType="manager";
 
 function abTr(key,vars){let s=t(key);Object.entries(vars||{}).forEach(([k,v])=>{s=s.split("{"+k+"}").join(v);});return s;}
@@ -15,7 +18,7 @@ function abTierLabel(i){return t("ab_tier_"+AB_TIERS[i]);}
 function abSectorLabel(k){const s=(_ab.cat?.sectors||[]).find(x=>x.key===k);return t("sector_"+k)!=="sector_"+k?t("sector_"+k):(s?s.label:k);}
 function abShort(k){return t("sector_short_"+k)!=="sector_short_"+k?t("sector_short_"+k):abSectorLabel(k).split(" /")[0];}
 function abDate(d){if(!d)return "";const x=/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(d+"T12:00:00"):parseServerDate(d);return x.toLocaleDateString(State.lang==="ar"?"ar":State.lang||"fr");}
-async function abCatalog(){if(!_ab.cat){const r=await fetch(`${API_BASE}/billing/catalog`);_ab.cat=await r.json();}return _ab.cat;}
+async function abCatalog(force){if(!_ab.cat||force){const r=await fetch(`${API_BASE}/billing/catalog`);_ab.cat=await r.json();}return _ab.cat;}
 
 // ── Inscription : client ou gérant ──
 function abRegRole(role){
@@ -46,7 +49,7 @@ async function abLoadBilling(){
   const root=document.getElementById("ab-root");if(!root)return;
   if(!_ab.cat)root.innerHTML=`<div style="color:var(--muted);padding:20px">${t("loading")}</div>`;
   try{
-    await abCatalog();
+    await abCatalog(true);
     const [offer,ref]=await Promise.all([api("GET","/billing/my-offer"),api("GET","/referral/status").catch(()=>null)]);
     _ab.offer=offer;_ab.ref=ref;
     abInitSel();abRender();
@@ -74,12 +77,12 @@ function abPick(k,tier){
 function abSetCycle(c){abSetMonths(abMonthsOf(c));}
 function abSetMonths(n){_ab.months=Math.max(1,Math.min(_ab.cat?.months?.max||36,n));_ab.cycle=abCycleOf(_ab.months);abRenderMonths();abRequote();}
 function abMonthsHtml(){
-  const n=_ab.months,p=abMonthPct(n),f=abFree(n),max=_ab.cat?.months?.max||36;
+  const n=_ab.months,p=abMonthPct(n),f=abFreeNow(n),max=_ab.cat?.months?.max||36,du=abPromoUntil("duration");
   const nx=(_ab.cat?.months?.tiers||[]).find(([a])=>a>n);
   return `<div class="ab-mo-row"><div class="ab-mstep" role="group" aria-label="${esc(t("ab_months_label"))}"><button type="button" onclick="abSetMonths(${n-1})" ${n<=1?"disabled":""} aria-label="${esc(t("ab_months_less"))}">−</button><output>${n}<small>${esc(t(n>1?"ab_months_unit_p":"ab_months_unit"))}</small></output><button type="button" onclick="abSetMonths(${n+1})" ${n>=max?"disabled":""} aria-label="${esc(t("ab_months_more"))}">+</button></div>
-    <div class="ab-mo-info">${p?`<span class="ab-pill ok">−${p} %</span>`:""}${f?`<span class="ab-pill gift">${esc(abTr("ab_months_gift",{f}))}</span>`:""}<span class="ab-mo-acc">${esc(abTr("ab_months_access",{a:n+f}))}</span></div></div>
+    <div class="ab-mo-info">${p?`<span class="ab-pill ok">−${p} %</span>`:""}${f?`<span class="ab-pill gift">${esc(abTr("ab_months_gift",{f}))}</span>`:""}<span class="ab-mo-acc">${esc(abTr("ab_months_access",{a:n+f}))}</span>${du&&(p||f)?`<span class="ab-pill until">${esc(abTr("ab_promo_until",{d:abDate(du)}))}</span>`:""}</div></div>
     <div class="ab-mo-chips">${AB_MONTH_CHIPS.filter(c=>c<=max).map(c=>`<button type="button" class="${c===n?"on":""}" onclick="abSetMonths(${c})">${c===1?esc(t("ab_cycle_monthly")):esc(abTr("ab_months_n",{n:c}))}</button>`).join("")}</div>
-    <div class="ab-mo-next">${nx?esc(abTr(nx[0]%10===0&&nx[0]>=10?"ab_months_next_gift":"ab_months_next",{n:nx[0]-n,p:nx[1]})):esc(t("ab_months_max"))}</div>`;
+    <div class="ab-mo-next">${!abPromo("duration")?esc(t("ab_months_nopromo")):nx?esc(abTr(nx[0]%10===0&&nx[0]>=10?"ab_months_next_gift":"ab_months_next",{n:nx[0]-n,p:nx[1]})):esc(t("ab_months_max"))}</div>`;
 }
 function abRenderMonths(){const b=document.getElementById("ab-months");if(b)b.innerHTML=abMonthsHtml();}
 function abPriceLabel(p){
@@ -136,6 +139,9 @@ function abTiersTable(){
   return `<div class="card" style="margin-top:16px"><div style="font-weight:700;font-size:14px;margin-bottom:12px">${esc(t("ab_tiers_title"))}</div><div class="ab-tf">${[0,1,2].map(i=>`<div class="ab-tf-col"><div class="ab-tf-h">${esc(abTierLabel(i))}<small>${esc(abTr("ab_users",{n:cat.tiers[i].users}))}</small></div><ul>${feats[i].map(f=>`<li><i class="ti ti-check"></i> ${esc(f)}</li>`).join("")}</ul></div>`).join("")}</div>
     <div style="font-size:12px;color:var(--muted);margin-top:10px">${esc(abTr("ab_users_note",{n:cat.extra_sector_users}))}</div></div>`;
 }
+function abSubText(){const c=_ab.cat,v={a:c.sector_discounts[0][1],b:c.sector_discounts[1][1],c:c.sector_discounts[2][1],d:c.sector_discounts[3][1]},s=abPromo("sectors"),m=abPromo("duration");
+  return s&&m?abTr("ab_sub_sectors2",v):s?abTr("ab_sub_sectors_only",v):m?t("ab_sub_months_only"):t("ab_sub_plain");}
+function abPromoChip(k,whileKey){const p=_ab.cat?.promos?.[k]||(k==="referral"?_ab.ref?.promo:null);if(p&&p.active===false)return "";const u=p&&p.until;return `<span class="ab-pill until">${esc(u?abTr("ab_promo_until",{d:abDate(u)}):t(whileKey))}</span>`;}
 function abReferralHtml(){
   const r=_ab.ref;if(!r)return "";
   const steps=r.discount_tiers.map(([n,p])=>`<div class="ab-step${r.best>=n?" done":""}"><div class="n">${esc(abTr("ab_ref_step",{n:n+(n===35?"+":"")}))}</div><div class="v">−${p} %</div></div>`).join("");
@@ -145,7 +151,8 @@ function abReferralHtml(){
   const tnext=r.next_trial?abTr("ab_ref_trial_next",{n:r.next_trial.missing,d:(_ab.cat?.trial_days||14)+r.next_trial.days}):abTr("ab_ref_trial_max",{d:(_ab.cat?.trial_days||14)+r.trial_bonus_max});
   return `<div class="card ab-ref" style="margin-top:16px"><div style="font-weight:700;font-size:15px"><i class="ti ti-gift" style="color:var(--green)"></i> ${esc(t("ab_ref_title"))}</div>
     <div style="font-size:13px;color:var(--muted);margin:6px 0 12px">${esc(t("ab_ref_x"))}</div>
-    <div class="ab-ref-top"><span>${esc(t("ab_ref_code"))} <code>${esc(r.code||"—")}</code></span><span>${esc(t("ab_ref_filleuls"))} <b>${r.filleuls}</b></span><span>${esc(t("ab_ref_disc_now"))} <b>${r.discount_pct} %</b></span></div>
+    <div class="ab-ref-top"><span>${esc(t("ab_ref_code"))} <code>${esc(r.code||"—")}</code></span><span>${esc(t("ab_ref_filleuls"))} <b>${r.filleuls}</b></span><span>${esc(t("ab_ref_disc_now"))} <b>${r.discount_pct} %</b></span>${r.promo&&r.promo.active===false?"":abPromoChip("referral","ab_promo_while_ref")}</div>
+    ${r.promo&&r.promo.active===false?`<div class="ab-banner paused"><i class="ti ti-player-pause"></i><div>${esc(r.tier_pct?abTr("ab_ref_paused",{n:r.best,p:r.tier_pct}):t("ab_ref_paused0"))}</div></div>`:""}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button class="btn btn-o btn-sm" onclick="abCopyRef()"><i class="ti ti-copy"></i> ${esc(t("ab_ref_copy"))}</button><button class="btn btn-sm" style="background:#25D366;color:#fff" onclick="abShareRef()"><i class="ti ti-brand-whatsapp"></i> ${esc(t("ab_ref_wa"))}</button></div>
     <div class="usage-bar" style="height:8px"><div class="usage-bar-fill" style="width:${pct}%;background:var(--green)"></div></div>
     <div style="font-size:12px;color:var(--muted);margin:6px 0 10px">${esc(next)}</div>
@@ -162,7 +169,7 @@ function abRender(){
   const root=document.getElementById("ab-root");if(!root)return;
   const c=_ab.cat;
   root.innerHTML=`${abStatusHtml()}
-    <div class="ab-head"><div><div style="font-weight:800;font-size:17px">${esc(t("ab_title_sectors"))}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${esc(abTr("ab_sub_sectors2",{a:c.sector_discounts[0][1],b:c.sector_discounts[1][1],c:c.sector_discounts[2][1],d:c.sector_discounts[3][1]}))}</div></div>
+    <div class="ab-head"><div><div style="font-weight:800;font-size:17px">${esc(t("ab_title_sectors"))}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${esc(abSubText())}</div></div>
       <div class="ab-months" id="ab-months"></div></div>
     <div class="ab-grid"><div class="ab-sectors" id="ab-sectors"></div><aside class="ab-sum card" aria-live="polite"><div style="font-weight:700;font-size:15px;margin-bottom:10px">${esc(t("ab_summary"))}</div><div id="ab-sum"></div></aside></div>
     ${abTiersTable()}${abReferralHtml()}
@@ -202,10 +209,11 @@ function abRenderSummary(){
   h+=q.gifts.map(g=>L(esc(abTr("ab_offered_line",{s:abShort(g.sector),t:abTierLabel(AB_TIERS.indexOf(g.tier))})),"0 $","gift")).join("");
   if(q.rows.length)h+=L(esc(t("ab_sum")),abMoney(q.sum),"sub");
   if(q.admin_discount>0)h+=L(esc(abTr("ab_admin_disc",{p:String(q.admin_pct).replace(".",",")})),"−"+abMoney(q.admin_discount),"disc");
-  if(q.sector_discount>0)h+=L(esc(abTr("ab_sector_disc",{n:q.sector_count,p:q.sector_discount_pct})),"−"+abMoney(q.sector_discount),"disc");
-  if(q.referral_discount>0)h+=L(esc(abTr("ab_ref_disc",{n:q.referral_filleuls,p:q.referral_pct})),"−"+abMoney(q.referral_discount),"disc");
+  const U=k=>q.promos&&q.promos[k]&&q.promos[k].until?abTr("ab_until_short",{d:abDate(q.promos[k].until)}):"";
+  if(q.sector_discount>0)h+=L(esc(abTr("ab_sector_disc",{n:q.sector_count,p:q.sector_discount_pct})+U("sectors")),"−"+abMoney(q.sector_discount),"disc");
+  if(q.referral_discount>0)h+=L(esc(abTr("ab_ref_disc",{n:q.referral_filleuls,p:q.referral_pct})+U("referral")),"−"+abMoney(q.referral_discount),"disc");
   if(q.capped)h+=`<div class="ab-cap">${esc(abTr("ab_cap",{p:q.cap_pct}))}</div>`;
-  if(q.months>1)h=L(esc(abTr(q.free_months?"ab_sum_dur_free":"ab_sum_dur",{n:q.months,f:q.free_months,a:q.access_months})),q.duration_pct?`−${q.duration_pct} %`:"","dur")+h;
+  if(q.months>1)h=L(esc(abTr(q.free_months?"ab_sum_dur_free":"ab_sum_dur",{n:q.months,f:q.free_months,a:q.access_months})+(q.duration_pct||q.free_months?U("duration"):"")),q.duration_pct?`−${q.duration_pct} %`:"","dur")+h;
   h+=`<div class="ab-total"><span>${esc(q.months===1?t("ab_total_m"):abTr("ab_total_n",{n:q.months}))}</span><b>${abMoney(q.total)}</b></div>`;
   if(q.months>1&&q.per_access_month)h+=`<div class="ab-small">${esc(abTr("ab_per_access",{p:abMoney(q.per_access_month)}))}</div>`;
   if(q.saving_vs_monthly>0)h+=`<div class="ab-save">${esc(abTr("ab_saving",{s:abMoney(q.saving_vs_monthly)}))}</div>`;
@@ -281,7 +289,7 @@ function abAdminRender(){
     </div>
     <div style="font-size:12px;color:var(--muted);margin:10px 0">Modifiable à tout moment : tu peux changer le pourcentage, ajouter une date de fin ou la retirer.</div>
     <div class="card2" style="margin-top:6px"><div style="font-weight:700;margin-bottom:6px">Parrainage</div>
-      <div style="font-size:13px;margin-bottom:6px">${o.referred_by?`Invité par <b>${esc(o.referred_by.name)}</b> (${esc(o.referred_by.email)})`:"Inscrit sans code de parrainage"} · Filleuls : <b>${o.referral.filleuls}</b> · Palier acquis : <b>${o.referral.best}</b> (−${o.referral.discount_pct} % à vie)</div>
+      <div style="font-size:13px;margin-bottom:6px">${o.referred_by?`Invité par <b>${esc(o.referred_by.name)}</b> (${esc(o.referred_by.email)})`:"Inscrit sans code de parrainage"} · Filleuls : <b>${o.referral.filleuls}</b> · Palier acquis : <b>${o.referral.best}</b> (−${o.referral.tier_pct??o.referral.discount_pct} %${o.referral.promo&&o.referral.promo.active===false?", offre de parrainage en pause":""})</div>
       ${(o.filleuls||[]).length?`<div style="max-height:200px;overflow:auto">${o.filleuls.map(f=>`<div class="ab-fl"><span>${esc(f.company)} <span style="color:var(--muted);font-size:11px">${esc(f.email)}${f.account_type==="client"?" · client":""}</span></span><button class="btn btn-sm ${f.void?"btn-g":"btn-o"}" onclick="abAdminVoid('${f.id}',${!f.void})">${f.void?"Rétablir":"Retirer"}</button></div>`).join("")}</div>`:`<div style="font-size:12px;color:var(--muted)">Aucun filleul.</div>`}
       <div style="font-size:11px;color:var(--muted);margin-top:6px">« Retirer » un filleul suspect recalcule ses paliers.</div></div>
     <div class="modal-footer"><button class="btn btn-o btn-sm" onclick="zdCloseModal('modal-ab-admin')">Fermer</button><button class="btn btn-g btn-sm" onclick="abAdminSave()"><i class="ti ti-device-floppy"></i> Enregistrer</button></div>`;

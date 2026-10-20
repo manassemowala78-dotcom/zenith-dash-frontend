@@ -6,8 +6,9 @@ function scMgr(){return !(typeof isTeamMember==="function"&&isTeamMember())||zdI
 function scNum(v,d){return (Math.round((+v||0)*100)/100).toLocaleString("fr-FR",{maximumFractionDigits:d??2}).replace(/[   ]/g," ");}
 function scMoney(v){const c=_sc.set?.currency||"USD";return scNum(v)+" "+(c==="CDF"?"FC":c==="USD"?"$":c);}
 function scPct(v){return v==null?"—":scNum(v,1)+" %";}
-function scMention(k){return k?t("sc_m_"+k):"—";}
-function scMentionBadge(k){return k?`<span class="badge ${k==="e"?"br":k==="s"?"ba":"bg"}">${esc(scMention(k))}</span>`:"";}
+function scMention(k){return k?(["gd","d","s","e"].includes(k)?t("sc_m_"+k):k):"—";}
+function scMentionBadge(k,passed){return k?`<span class="badge ${passed===false||k==="e"?"br":"bg"}">${esc(scMention(k))}</span>`:(passed===false?`<span class="badge br">${esc(t("sc_adjourned"))}</span>`:"");}
+function scEvals(){return _sc.set?.grading?.evals||[];}
 function scRank(r,n){return r?abTr("sc_rank_of",{r,n}):"—";}
 function scDayName(d){return typeof bkDayName==="function"?bkDayName(d):["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"][d];}
 function scPeriods(){return _sc.set?.periods||[];}
@@ -28,8 +29,7 @@ function scStudentOpts(list,sel){
   const by={};list.forEach(s=>{(by[s.class_name||t("sc_no_class")]=by[s.class_name||t("sc_no_class")]||[]).push(s);});
   return `<option value="">${esc(t("sc_pick_student"))}</option>`+Object.entries(by).map(([c,ss])=>`<optgroup label="${esc(c)}">${ss.map(s=>`<option value="${s.id}" ${s.id===sel?"selected":""}>${esc(s.name)} · ${esc(s.matricule)}</option>`).join("")}</optgroup>`).join("");
 }
-function scNoClass(el,msg){el.innerHTML=sectorPageHead(esc(t(msg)),"")+`<div class="card">${zdEmpty(t(!scMgr()&&(State.tenant||{}).member_role==="sc_teacher"?"sc_no_class_mine":"sc_need_class"),"building")}<div style="text-align:center;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">${scMgr()?`<button class="btn btn-g btn-sm" onclick="navigate('schoolclasses')"><i class="ti ti-plus"></i> ${esc(t("sc_add_class"))}</button>${!_sc.set?.demo_done?`<button class="btn btn-o btn-sm" onclick="scDemo()">${esc(t("sc_demo"))}</button>`:""}`:""}</div></div>`;}
-async function scDemo(){try{await api("POST","/school/setup-demo");_scStudents=null;await scBase(true);showToast(t("sc_demo_ok"));navigate("schoolstudents");}catch(e){showToast(e.message,"error");}}
+function scNoClass(el,msg){el.innerHTML=sectorPageHead(esc(t(msg)),"")+`<div class="card">${zdEmpty(t(!scMgr()&&(State.tenant||{}).member_role==="sc_teacher"?"sc_no_class_mine":"sc_need_class"),"building")}<div style="text-align:center;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">${scMgr()?`<button class="btn btn-g btn-sm" onclick="navigate('schoolclasses')"><i class="ti ti-plus"></i> ${esc(t("sc_add_class"))}</button>`:""}</div></div>`;}
 function scWaBtn(url){return url?`<a class="btn btn-o btn-sm" href="${esc(url)}" target="_blank" rel="noopener"><i class="ti ti-brand-whatsapp"></i> WhatsApp</a>`:"";}
 
 // ── Élèves et inscriptions ──
@@ -111,7 +111,7 @@ function scRenderFile(){
   if(tab==="info")body=scStudentForm(s)+`<div class="sc-hint" id="st-h"></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-g btn-sm" onclick="scSaveStudent()"><i class="ti ti-device-floppy"></i> ${esc(t("btn_save"))}</button></div>`+
     (s.siblings.length?`<div class="sc-sub">${esc(t("sc_siblings"))}</div>${s.siblings.map(x=>`<div class="sc-line"><a href="#" onclick="event.preventDefault();scOpenStudent('${x.id}','info')">${esc(x.name)}</a><span>${esc(x.class_name||"")}</span></div>`).join("")}`:"")+
     `<div class="sc-sub">${esc(t("sc_history"))}</div>${(s.history||[]).map(h=>`<div class="sc-line"><span>${esc(abDate(h.day))}</span><span>${esc(t("sc_ev_"+h.event)!=="sc_ev_"+h.event?t("sc_ev_"+h.event):h.event)}${h.year?" · "+esc(h.year):""}</span></div>`).join("")||`<div class="sc-hint">—</div>`}`;
-  else if(tab==="grades")body=s.periods.map(p=>`<div class="sc-line"><span><b>${esc(p.name)}</b></span><span>${p.max?`${scPct(p.pct)} ${scMentionBadge(p.mention)} · ${esc(scRank(p.rank,p.class_size))}`:"—"}</span><span>${p.max?`<button class="btn btn-o btn-sm" onclick="scBulletin('${s.id}','${p.index}')"><i class="ti ti-file-text"></i> ${esc(t("sc_bulletin"))}</button>`:""}</span></div>`).join("")+
+  else if(tab==="grades")body=s.periods.map(p=>`<div class="sc-line"><span><b>${esc(p.name)}</b></span><span>${p.max?`${scPct(p.pct)} ${scMentionBadge(p.mention,p.passed)} · ${esc(scRank(p.rank,p.class_size))}`:"—"}</span><span>${p.max?`<button class="btn btn-o btn-sm" onclick="scBulletin('${s.id}','${p.index}')"><i class="ti ti-file-text"></i> ${esc(t("sc_bulletin"))}</button>`:""}</span></div>`).join("")+
     `<div style="margin-top:10px"><button class="btn btn-o btn-sm" onclick="scBulletin('${s.id}','year')"><i class="ti ti-file-text"></i> ${esc(t("sc_bulletin_year"))}</button></div>`;
   else if(tab==="att")body=`<div class="kgrid" style="margin-bottom:10px"><div class="kpi r"><div class="kl">${esc(t("sc_absences"))}</div><div class="kv">${s.attendance.absent}</div></div><div class="kpi a"><div class="kl">${esc(t("sc_lates"))}</div><div class="kv">${s.attendance.late}</div></div><div class="kpi b"><div class="kl">${esc(t("sc_unjustified"))}</div><div class="kv">${s.attendance.unjustified}</div></div></div>`+
     (s.attendance.recent.map(a=>`<div class="sc-line"><span>${esc(abDate(a.day))}</span><span>${scAttBadge(a.status)}${a.justified?` <span class="badge bb">${esc(t("sc_justified"))}</span>`:""}</span><span>${esc(a.note||"")}</span></div>`).join("")||zdEmpty(t("sc_no_absence"),"checklist"));
@@ -153,16 +153,16 @@ SECTOR_PAGE_LOADERS.schoolclasses=async el=>{
   await scBase(true);const mgr=scMgr();const cl=_sc.classes;
   if(!_sc.cls||!cl.find(c=>c.id===_sc.cls))_sc.cls=cl[0]?.id||"";
   const c=cl.find(x=>x.id===_sc.cls);const tt=c?await api("GET",`/school/timetable?class_id=${c.id}`):[];
-  el.innerHTML=sectorPageHead(esc(t("nav_school_classes")),esc(t("sc_classes_sub")),mgr?`<button class="btn btn-g btn-sm" onclick="scClassModal()"><i class="ti ti-plus"></i> ${esc(t("sc_add_class"))}</button>${!cl.length&&!_sc.set.demo_done?`<button class="btn btn-o btn-sm" onclick="scDemo()">${esc(t("sc_demo"))}</button>`:""}`:"")+
+  el.innerHTML=sectorPageHead(esc(t("nav_school_classes")),esc(t("sc_classes_sub")),mgr?`<button class="btn btn-g btn-sm" onclick="scClassModal()"><i class="ti ti-plus"></i> ${esc(t("sc_add_class"))}</button>`:"")+
     (cl.length?`<div class="sc-classes">${cl.map(x=>`<button type="button" class="sc-cls${x.id===_sc.cls?" on":""}" onclick="_sc.cls='${x.id}';navigate('schoolclasses')"><b>${esc(x.name)}</b><small>${esc(abTr("sc_cls_line",{n:x.students,c:x.capacity||"∞"}))}${x.titular_name?" · "+esc(x.titular_name):""}</small></button>`).join("")}</div>`:`<div class="card">${zdEmpty(t(!scMgr()&&(State.tenant||{}).member_role==="sc_teacher"?"sc_no_class_mine":"sc_need_class"),"building")}</div>`)+
     (c?`<div class="card" style="margin-bottom:12px"><div class="sc-head"><b>${esc(c.name)}</b><span class="sc-hint" style="color:var(--muted)">${esc([c.level,c.option,c.room].filter(Boolean).join(" · "))}</span>
         ${mgr?`<span style="margin-left:auto;display:flex;gap:6px"><button class="btn btn-o btn-sm" onclick="scClassModal('${c.id}')"><i class="ti ti-pencil"></i></button><button class="btn btn-o btn-sm" onclick="scDelClass('${c.id}')" aria-label="${esc(t("btn_delete"))}"><i class="ti ti-trash"></i></button></span>`:""}</div>
       <div class="sc-sub">${esc(t("sc_courses"))} · ${esc(abTr("sc_max_points",{p:c.max_points}))}</div>
-      <div class="tbl-wrap"><table class="sc-t"><thead><tr><th>${esc(t("sc_course"))}</th><th class="r">${esc(t("sc_weight"))}</th><th class="r">${esc(t("sc_max"))}</th><th>${esc(t("sc_teacher"))}</th><th></th></tr></thead><tbody>
-        ${c.courses.map(k=>`<tr><td>${mgr?`<input class="inp" value="${esc(k.name)}" onchange="scPatchCourse('${k.id}',{name:this.value.trim()})" aria-label="${esc(t("sc_course"))}">`:esc(k.name)}</td><td class="r">${mgr?`<input class="inp sc-w" type="number" min="1" max="100" value="${k.weight}" onchange="scPatchCourse('${k.id}',{weight:parseInt(this.value,10)||1})" aria-label="${esc(t("sc_weight"))}">`:k.weight}</td><td class="r">${k.weight*10}</td>
-          <td>${mgr?`<select class="inp" onchange="scPatchCourse('${k.id}',{teacher_id:this.value})" aria-label="${esc(t("sc_teacher"))}">${scTeacherOpts(k.teacher_id)}</select>`:esc(k.teacher_name||"—")}</td><td class="r">${mgr?`<button class="btn btn-o btn-sm" onclick="scDelCourse('${k.id}')" aria-label="${esc(t("btn_delete"))}"><i class="ti ti-x"></i></button>`:""}</td></tr>`).join("")||`<tr><td colspan="5">${zdEmpty(t("sc_no_course"),"book")}</td></tr>`}
+      <div class="tbl-wrap"><table class="sc-t"><thead><tr><th>${esc(t("sc_course"))}</th><th class="r">${esc(t("sc_max_period"))}</th><th>${esc(t("sc_teacher"))}</th><th></th></tr></thead><tbody>
+        ${c.courses.map(k=>`<tr><td>${mgr?`<input class="inp" value="${esc(k.name)}" onchange="scPatchCourse('${k.id}',{name:this.value.trim()})" aria-label="${esc(t("sc_course"))}">`:esc(k.name)}</td><td class="r">${mgr?`<input class="inp sc-w" type="number" min="1" max="10000" step="any" value="${k.max}" onchange="if(+this.value>0)scPatchCourse('${k.id}',{max:+this.value})" aria-label="${esc(t("sc_max_period"))}">`:k.max}</td>
+          <td>${mgr?`<select class="inp" onchange="scPatchCourse('${k.id}',{teacher_id:this.value})" aria-label="${esc(t("sc_teacher"))}">${scTeacherOpts(k.teacher_id)}</select>`:esc(k.teacher_name||"—")}</td><td class="r">${mgr?`<button class="btn btn-o btn-sm" onclick="scDelCourse('${k.id}')" aria-label="${esc(t("btn_delete"))}"><i class="ti ti-x"></i></button>`:""}</td></tr>`).join("")||`<tr><td colspan="4">${zdEmpty(t("sc_no_course"),"book")}</td></tr>`}
       </tbody></table></div>
-      ${mgr?`<div class="sc-form" style="margin-top:10px"><input class="inp" id="nc-n" placeholder="${esc(t("sc_course_ph"))}"><input class="inp" id="nc-w" type="number" min="1" max="100" value="4" aria-label="${esc(t("sc_weight"))}"><select class="inp" id="nc-t" aria-label="${esc(t("sc_teacher"))}">${scTeacherOpts("")}</select><button class="btn btn-o btn-sm" onclick="scAddCourse('${c.id}')"><i class="ti ti-plus"></i> ${esc(t("sc_add_course"))}</button></div>
+      ${mgr?`<div class="sc-form" style="margin-top:10px"><input class="inp" id="nc-n" placeholder="${esc(t("sc_course_ph"))}"><input class="inp" id="nc-w" type="number" min="1" max="10000" step="any" placeholder="${esc(t("sc_max_ph"))}" aria-label="${esc(t("sc_max_period"))}"><select class="inp" id="nc-t" aria-label="${esc(t("sc_teacher"))}">${scTeacherOpts("")}</select><button class="btn btn-o btn-sm" onclick="scAddCourse('${c.id}')"><i class="ti ti-plus"></i> ${esc(t("sc_add_course"))}</button></div>
         ${cl.length>1?`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)">${esc(t("sc_copy_from"))} <select class="inp" id="cp-from" style="width:auto">${cl.filter(x=>x.id!==c.id).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("")}</select><button class="btn btn-o btn-sm" onclick="scCopyCourses('${c.id}')">${esc(t("sc_copy_go"))}</button></div>`:""}`:""}</div>
     <div class="card"><div class="sc-head"><b>${esc(t("sc_timetable"))}</b><button class="btn btn-o btn-sm" style="margin-left:auto" onclick="scPrintTimetable()"><i class="ti ti-printer"></i></button></div>
       <div class="sc-tt">${SC_DAYS.map(d=>`<div class="sc-tt-d"><div class="sc-tt-h">${esc(scDayName(d))}</div>${tt.filter(s=>s.day===d).map(s=>`<div class="sc-slot"><b>${esc(s.start)}–${esc(s.end)}</b><span>${esc(s.course_name)}</span><small>${esc([s.teacher_name,s.room].filter(Boolean).join(" · "))}</small>${mgr?`<button onclick="scDelSlot('${s.id}')" aria-label="${esc(t("btn_delete"))}">×</button>`:""}</div>`).join("")||`<div class="sc-hint" style="color:var(--muted)">—</div>`}</div>`).join("")}</div>
@@ -184,9 +184,14 @@ async function scSaveClass(id){
   catch(e){const h=document.getElementById("cl-h");h.style.color="var(--red)";h.textContent=e.message;}
 }
 async function scDelClass(id){if(!confirm(t("sc_del_class_confirm")))return;try{await api("DELETE",`/school/classes/${id}`);_sc.cls="";navigate("schoolclasses");}catch(e){showToast(e.message,"error");}}
-async function scAddCourse(cid){const n=zdVal("nc-n");if(!n){flagMissingFields([document.getElementById("nc-n")]);return;}
-  try{await api("POST",`/school/classes/${cid}/courses`,{name:n,weight:parseInt(zdVal("nc-w"),10)||1,teacher_id:zdVal("nc-t")||null});navigate("schoolclasses");}catch(e){showToast(e.message,"error");}}
-async function scPatchCourse(id,b){if(b.name==="")return navigate("schoolclasses");try{await api("PATCH",`/school/courses/${id}`,b);showToast(t("toast_saved"));navigate("schoolclasses");}catch(e){showToast(e.message,"error");navigate("schoolclasses");}}
+async function scAddCourse(cid,back){const n=zdVal("nc-n");const mx=zdNum("nc-w");
+  if(!n||!(mx>0)){flagMissingFields([!n?document.getElementById("nc-n"):null,!(mx>0)?document.getElementById("nc-w"):null].filter(Boolean));return;}
+  try{await api("POST",`/school/classes/${cid}/courses`,{name:n,max:mx,teacher_id:zdVal("nc-t")||null});_sc.classes=null;
+    if(back==="schoolsettings"&&_sc.gb){_sc.classes=await api("GET","/school/classes");scGbRender();showToast(t("toast_saved"));}else navigate(back||"schoolclasses");}catch(e){showToast(e.message,"error");}}
+async function scPatchCourse(id,b,back){const pg=back||"schoolclasses";if(b.name==="")return navigate(pg);
+  const keep=pg==="schoolsettings"&&_sc.gb;
+  try{await api("PATCH",`/school/courses/${id}`,b);_sc.classes=null;showToast(t("toast_saved"));if(keep){_sc.classes=await api("GET","/school/classes");scGbRender();}else navigate(pg);}
+  catch(e){showToast(e.message,"error");if(keep){_sc.classes=await api("GET","/school/classes");scGbRender();}else navigate(pg);}}
 async function scDelCourse(id){if(!confirm(t("sc_del_course_confirm")))return;try{await api("DELETE",`/school/courses/${id}`);navigate("schoolclasses");}catch(e){showToast(e.message,"error");}}
 async function scCopyCourses(cid){try{const r=await api("POST",`/school/classes/${cid}/copy-courses`,{from_class_id:zdVal("cp-from")});showToast(abTr("sc_copied",{n:r.copied}));navigate("schoolclasses");}catch(e){showToast(e.message,"error");}}
 async function scAddSlot(cid){
@@ -234,26 +239,38 @@ async function scSaveAtt(){
 // ── Notes et bulletins ──
 SECTOR_PAGE_LOADERS.schoolgrades=async el=>{
   await scBase();if(!_sc.classes.length){scNoClass(el,"nav_school_grades");return;}
+  if(!_sc.set.grading_ready){el.innerHTML=sectorPageHead(esc(t("nav_school_grades")),esc(t("sc_grades_sub")))+scGradingWait();return;}
   const g=_sc.gr;if(!g.cls||!_sc.classes.find(c=>c.id===g.cls))g.cls=_sc.classes[0].id;
   const c=_sc.classes.find(x=>x.id===g.cls);if(!c.courses.find(k=>k.id===g.course))g.course=c.courses[0]?.id||"";
   if(g.period!=="year"&&+g.period>=scPeriods().length)g.period="0";
   const [gr,rk]=await Promise.all([g.course&&g.period!=="year"?api("GET",`/school/grades?course_id=${g.course}&period=${g.period}`):null,api("GET",`/school/ranking?class_id=${g.cls}&period=${g.period}`)]);
+  const ev=gr?gr.evals:scEvals();
   el.innerHTML=sectorPageHead(esc(t("nav_school_grades")),esc(t("sc_grades_sub")))+
     `<div class="card" style="margin-bottom:12px"><div class="sc-filters"><select class="inp" onchange="_sc.gr.cls=this.value;navigate('schoolgrades')" aria-label="${esc(t("sc_class"))}">${scClassOpts(g.cls)}</select>
       <select class="inp" onchange="_sc.gr.period=this.value;navigate('schoolgrades')" aria-label="${esc(t("sc_period"))}">${scPeriodOpts(g.period,true)}</select>
-      ${g.period!=="year"?`<select class="inp" onchange="_sc.gr.course=this.value;navigate('schoolgrades')" aria-label="${esc(t("sc_course"))}">${c.courses.map(k=>`<option value="${k.id}" ${k.id===g.course?"selected":""}>${esc(k.name)} (${k.weight})</option>`).join("")}</select>`:""}</div></div>
-    ${gr?`<div class="card" style="margin-bottom:12px"><div class="sc-head"><b>${esc(gr.course.name)} · ${esc(scPeriodName(g.period))}</b><span class="sc-hint" style="color:var(--muted)">${esc(abTr("sc_weight_line",{w:gr.course.weight,m:gr.course.max}))}${gr.average!=null?" · "+esc(abTr("sc_class_avg",{a:scNum(gr.average,1)})):""}</span></div>
-      <div class="tbl-wrap"><table class="sc-t"><thead><tr><th>${esc(t("sc_student"))}</th><th class="r">${esc(t("sc_interro"))} /20</th><th class="r">${esc(t("sc_exam"))} /20</th><th class="r">${esc(t("sc_total"))} /20</th><th class="r">${esc(t("sc_points"))} /${gr.course.max}</th></tr></thead><tbody>
-      ${gr.rows.map(r=>`<tr><td>${esc(r.name)}</td><td class="r"><input class="inp sc-n gi" type="number" min="0" max="20" step="0.25" data-s="${r.student_id}" data-k="interro" value="${r.interro??""}" aria-label="${esc(t("sc_interro"))} ${esc(r.name)}"></td><td class="r"><input class="inp sc-n gi" type="number" min="0" max="20" step="0.25" data-s="${r.student_id}" data-k="exam" value="${r.exam??""}" aria-label="${esc(t("sc_exam"))} ${esc(r.name)}"></td><td class="r mono">${r.total==null?"—":scNum(r.total,2)}</td><td class="r mono">${r.points==null?"—":scNum(r.points,2)}</td></tr>`).join("")||`<tr><td colspan="5">${zdEmpty(t("sc_no_students"),"users")}</td></tr>`}
+      ${g.period!=="year"?`<select class="inp" onchange="_sc.gr.course=this.value;navigate('schoolgrades')" aria-label="${esc(t("sc_course"))}">${c.courses.map(k=>`<option value="${k.id}" ${k.id===g.course?"selected":""}>${esc(k.name)} (/${scNum(k.max)})</option>`).join("")}</select>`:""}</div></div>
+    ${gr?`<div class="card" style="margin-bottom:12px"><div class="sc-head"><b>${esc(gr.course.name)} · ${esc(scPeriodName(g.period))}</b><span class="sc-hint" style="color:var(--muted)">${esc(abTr("sc_max_line",{m:scNum(gr.course.max)}))}${gr.average!=null?" · "+esc(abTr("sc_class_avg",{a:scNum(gr.average,1)+" / "+scNum(gr.course.max)})):""}</span></div>
+      <div class="sc-hint" style="color:var(--muted);margin-bottom:6px">${esc(ev.map(e=>`${e.name} /${scNum(e.max)} · ${scNum(e.weight)} %`).join("  —  "))}</div>
+      <div class="tbl-wrap"><table class="sc-t sc-gt"><thead><tr><th>${esc(t("sc_student"))}</th>${ev.map(e=>`<th class="r">${esc(e.name)} <small>/${scNum(e.max)}</small></th>`).join("")}<th class="r">${esc(t("sc_points"))} /${scNum(gr.course.max)}</th></tr></thead><tbody>
+      ${gr.rows.map(r=>`<tr><td>${esc(r.name)}</td>${ev.map(e=>`<td class="r"><input class="inp sc-n gi" type="number" min="0" max="${e.max}" step="0.25" data-s="${r.student_id}" data-e="${e.id}" data-max="${e.max}" value="${(r.marks||{})[e.id]??""}" aria-label="${esc(e.name)} ${esc(r.name)}"></td>`).join("")}<td class="r mono">${r.points==null?"—":scNum(r.points,2)}</td></tr>`).join("")||`<tr><td colspan="${ev.length+2}">${zdEmpty(t("sc_no_students"),"users")}</td></tr>`}
       </tbody></table></div>${gr.rows.length?`<div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-g btn-sm" onclick="scSaveGrades()"><i class="ti ti-device-floppy"></i> ${esc(t("sc_grades_save"))}</button></div>`:""}</div>`:(g.period!=="year"?`<div class="card" style="margin-bottom:12px">${zdEmpty(t("sc_no_course"),"book")}</div>`:"")}
     <div class="card"><div class="sc-head"><b>${esc(t("sc_ranking"))} · ${esc(c.name)} · ${esc(scPeriodName(g.period))}</b><span class="sc-hint" style="color:var(--muted)">${rk.graded?esc(abTr("sc_rank_stats",{p:rk.passed,n:rk.graded,a:scNum(rk.average,1)})):""}</span></div>
       ${rk.graded?`<div class="tbl-wrap"><table class="sc-t"><thead><tr><th class="r">${esc(t("sc_rank"))}</th><th>${esc(t("sc_student"))}</th><th class="r">${esc(t("sc_points"))}</th><th class="r">%</th><th>${esc(t("sc_mention"))}</th><th></th></tr></thead><tbody>
-      ${rk.rows.map(r=>`<tr><td class="r"><b>${r.rank||"—"}</b></td><td>${esc(r.name)}</td><td class="r mono">${r.max?scNum(r.points,1)+" / "+r.max:"—"}</td><td class="r mono">${scPct(r.pct)}</td><td>${scMentionBadge(r.mention)}</td><td class="r">${r.max?`<button class="btn btn-o btn-sm" onclick="scBulletin('${r.student_id}','${g.period}')"><i class="ti ti-file-text"></i> ${esc(t("sc_bulletin"))}</button>`:""}</td></tr>`).join("")}
+      ${rk.rows.map(r=>`<tr><td class="r"><b>${r.rank||"—"}</b></td><td>${esc(r.name)}</td><td class="r mono">${r.max?scNum(r.points,1)+" / "+scNum(r.max):"—"}</td><td class="r mono">${scPct(r.pct)}</td><td>${r.pct==null?"—":scMentionBadge(r.mention,r.passed)||"—"}</td><td class="r">${r.max?`<button class="btn btn-o btn-sm" onclick="scBulletin('${r.student_id}','${g.period}')"><i class="ti ti-file-text"></i> ${esc(t("sc_bulletin"))}</button>`:""}</td></tr>`).join("")}
       </tbody></table></div>`:zdEmpty(t("sc_no_grades"),"report")}</div>`;
 };
+function scGradingWait(){
+  const miss=_sc.set?.grading_missing||[];
+  return `<div class="card sc-gwait"><div class="sc-head"><i class="ti ti-hourglass" aria-hidden="true"></i><b>${esc(t("sc_g_wait_title"))}</b></div>
+    <div class="sc-hint" style="color:var(--muted)">${esc(t(scMgr()?"sc_g_wait_mgr":"sc_g_wait_member"))}</div>
+    <ul class="sc-gmiss">${miss.map(m=>`<li>${esc(t("sc_g_miss_"+m))}</li>`).join("")}</ul>
+    ${scMgr()?`<button class="btn btn-g btn-sm" onclick="navigate('schoolsettings')"><i class="ti ti-adjustments"></i> ${esc(t("sc_g_go_settings"))}</button>`:""}</div>`;
+}
 async function scSaveGrades(){
-  const m={};document.querySelectorAll(".gi").forEach(i=>{const s=i.dataset.s;m[s]=m[s]||{student_id:s,interro:null,exam:null};const v=i.value.trim();if(v!==""){const n=parseFloat(v.replace(",","."));m[s][i.dataset.k]=isNaN(n)?null:n;}});
-  const bad=Object.values(m).find(x=>[x.interro,x.exam].some(v=>v!=null&&(v<0||v>20)));if(bad){showToast(t("sc_grade_range"),"error");return;}
+  const m={};let bad=null;
+  document.querySelectorAll(".gi").forEach(i=>{const s=i.dataset.s;m[s]=m[s]||{student_id:s,marks:{}};const v=i.value.trim();
+    if(v!==""){const n=parseFloat(v.replace(",","."));if(isNaN(n)||n<0||n>+i.dataset.max){bad=bad||i;}else m[s].marks[i.dataset.e]=n;}});
+  if(bad){bad.focus();showToast(abTr("sc_grade_range_x",{m:scNum(+bad.dataset.max)}),"error");return;}
   try{await api("PUT","/school/grades",{course_id:_sc.gr.course,period:+_sc.gr.period,marks:Object.values(m)});showToast(t("sc_grades_saved"));navigate("schoolgrades");}catch(e){showToast(e.message,"error");}
 }
 
@@ -271,11 +288,12 @@ function scDocHead(d){
 function scSign(left,right){return `<div class="scd-sign"><div><div>${esc(left)}</div><div class="scd-line"></div></div><div><div>${esc(right)}</div><div class="scd-line"></div></div></div>`;}
 async function scBulletin(sid,period){
   try{await scBase();const r=await api("GET",`/school/report?student_id=${sid}&period=${period}`);
-    const rows=r.lines.length?r.lines.map(l=>`<tr><td>${esc(l.course)}</td><td class="r">${l.weight}</td><td class="r">${l.interro??"—"}</td><td class="r">${l.exam??"—"}</td><td class="r">${l.total==null?"—":scNum(l.total,2)}</td><td class="r">${l.points==null?"—":scNum(l.points,2)} / ${l.max}</td></tr>`).join(""):"";
+    const ev=r.evals||[];
+    const rows=r.lines.length?r.lines.map(l=>`<tr><td>${esc(l.course)}</td>${ev.map(e=>`<td class="r">${(l.marks||{})[e.id]!=null?scNum(l.marks[e.id],2):"—"}</td>`).join("")}<td class="r">${l.points==null?"—":scNum(l.points,2)} / ${scNum(l.max)}</td></tr>`).join(""):"";
     scShowDoc(scDocHead(r)+`<h2 class="scd-t">${esc(t("sc_bulletin"))} · ${esc(r.period==="year"?t("sc_year_all"):r.period_name)}</h2>
       <div class="scd-id"><div><b>${esc(r.student.name)}</b> · ${esc(r.student.matricule)}</div><div>${esc(t("sc_class"))} : ${esc(r.student.class_name||"—")}${r.titular?" · "+esc(t("sc_titular"))+" : "+esc(r.titular):""}</div></div>
-      ${rows?`<table class="scd-tab"><thead><tr><th>${esc(t("sc_course"))}</th><th class="r">${esc(t("sc_weight"))}</th><th class="r">${esc(t("sc_interro"))}</th><th class="r">${esc(t("sc_exam"))}</th><th class="r">${esc(t("sc_total"))} /20</th><th class="r">${esc(t("sc_points"))}</th></tr></thead><tbody>${rows}</tbody></table>`:""}
-      <div class="scd-sum"><div><span>${esc(t("sc_points"))}</span><b>${scNum(r.points,2)} / ${r.max}</b></div><div><span>${esc(t("sc_percent"))}</span><b>${scPct(r.pct)}</b></div><div><span>${esc(t("sc_mention"))}</span><b>${esc(scMention(r.mention))}</b></div><div><span>${esc(t("sc_rank"))}</span><b>${esc(scRank(r.rank,r.class_size))}</b></div><div><span>${esc(t("sc_absences"))}</span><b>${r.absences} · ${esc(t("sc_lates"))} ${r.lates}</b></div></div>
+      ${rows?`<table class="scd-tab"><thead><tr><th>${esc(t("sc_course"))}</th>${ev.map(e=>`<th class="r">${esc(e.name)} /${scNum(e.max)}</th>`).join("")}<th class="r">${esc(t("sc_points"))}</th></tr></thead><tbody>${rows}</tbody></table>`:""}
+      <div class="scd-sum"><div><span>${esc(t("sc_points"))}</span><b>${scNum(r.points,2)} / ${scNum(r.max)}</b></div><div><span>${esc(t("sc_percent"))}</span><b>${scPct(r.pct)}</b></div><div><span>${esc(t("sc_mention"))}</span><b>${esc(scMention(r.mention))}</b></div>${r.passed!=null?`<div><span>${esc(t("sc_decision"))}</span><b>${esc(t(r.passed?"sc_admitted":"sc_adjourned"))}</b></div>`:""}<div><span>${esc(t("sc_rank"))}</span><b>${esc(scRank(r.rank,r.class_size))}</b></div><div><span>${esc(t("sc_absences"))}</span><b>${r.absences} · ${esc(t("sc_lates"))} ${r.lates}</b></div></div>
       ${scSign(t("sc_titular"),r.director?`${t("sc_director")} — ${r.director}`:t("sc_director"))}`,`BULLETIN-${r.student.matricule}`);
   }catch(e){showToast(e.message,"error");}
 }
@@ -308,7 +326,7 @@ SECTOR_PAGE_LOADERS.schoolexams=async el=>{
       <div style="margin-top:10px">${ex.length?ex.map(e=>`<div class="sc-line"><span><b>${esc(abDate(e.day))}</b> ${esc(e.start)}–${esc(e.end)}</span><span>${esc(e.class_name||"")} · ${esc(e.course_name)} · ${esc(scPeriodName(e.period))}</span><span class="sc-hint" style="color:var(--muted)">${esc([e.room,e.supervisor].filter(Boolean).join(" · "))}</span>${mgr?`<button class="btn btn-o btn-sm" onclick="scDelExam('${e.id}')" aria-label="${esc(t("btn_delete"))}"><i class="ti ti-x"></i></button>`:""}</div>`).join(""):zdEmpty(t("sc_no_exam"),"calendar-event")}</div></div>
     <div class="card" style="margin-bottom:12px"><div class="sc-head"><b>${esc(t("sc_delib"))}</b><div class="sc-filters" style="margin-left:auto"><select class="inp" onchange="_sc.ex.cls=this.value;navigate('schoolexams')" aria-label="${esc(t("sc_class"))}">${scClassOpts(x.cls)}</select><select class="inp" onchange="_sc.ex.period=this.value;navigate('schoolexams')" aria-label="${esc(t("sc_period"))}">${scPeriodOpts(x.period,true)}</select></div></div>
       ${rk.graded?`<div class="kgrid" style="margin:10px 0"><div class="kpi b"><div class="kl">${esc(t("sc_graded"))}</div><div class="kv">${rk.graded}</div></div><div class="kpi g"><div class="kl">${esc(t("sc_passed"))}</div><div class="kv">${rk.passed}</div></div><div class="kpi r"><div class="kl">${esc(t("sc_failed"))}</div><div class="kv">${rk.graded-rk.passed}</div></div><div class="kpi a"><div class="kl">${esc(t("sc_avg"))}</div><div class="kv">${scPct(rk.average)}</div></div></div>
-        <div class="tbl-wrap"><table class="sc-t"><thead><tr><th class="r">${esc(t("sc_rank"))}</th><th>${esc(t("sc_student"))}</th><th class="r">%</th><th>${esc(t("sc_mention"))}</th><th>${esc(t("sc_decision"))}</th></tr></thead><tbody>${rk.rows.map(r=>`<tr><td class="r">${r.rank||"—"}</td><td>${esc(r.name)}</td><td class="r mono">${scPct(r.pct)}</td><td>${scMentionBadge(r.mention)}</td><td>${r.pct==null?"—":r.passed?`<span class="badge bg">${esc(t("sc_admitted"))}</span>`:`<span class="badge br">${esc(t("sc_adjourned"))}</span>`}</td></tr>`).join("")}</tbody></table></div>
+        <div class="tbl-wrap"><table class="sc-t"><thead><tr><th class="r">${esc(t("sc_rank"))}</th><th>${esc(t("sc_student"))}</th><th class="r">%</th><th>${esc(t("sc_mention"))}</th><th>${esc(t("sc_decision"))}</th></tr></thead><tbody>${rk.rows.map(r=>`<tr><td class="r">${r.rank||"—"}</td><td>${esc(r.name)}</td><td class="r mono">${scPct(r.pct)}</td><td>${scMentionBadge(r.mention)||"—"}</td><td>${r.pct==null?"—":r.passed?`<span class="badge bg">${esc(t("sc_admitted"))}</span>`:`<span class="badge br">${esc(t("sc_adjourned"))}</span>`}</td></tr>`).join("")}</tbody></table></div>
         ${mgr?`<div class="fgrp" style="margin-top:10px"><label class="fl">${esc(t("sc_delib_note"))}</label><textarea class="inp" id="dl-n" rows="2"></textarea></div><button class="btn btn-g btn-sm" onclick="scCloseDelib()"><i class="ti ti-lock"></i> ${esc(t("sc_delib_close"))}</button>`:""}`:zdEmpty(t("sc_no_grades"),"report")}</div>
     <div class="card"><b>${esc(t("sc_pv_list"))}</b>${dl.length?dl.map(d=>`<div class="sc-line"><span>${esc(abDate(d.created_at))}</span><span>${esc(d.class_name||"")} · ${esc(scPeriodName(d.period))}</span><span>${esc(abTr("sc_pv_line",{p:d.passed,n:d.graded}))}</span><button class="btn btn-o btn-sm" onclick="scShowPV('${d.id}')"><i class="ti ti-file-text"></i> ${esc(t("sc_pv"))}</button></div>`).join(""):zdEmpty(t("sc_no_pv"),"file-text")}</div>`;
 };
@@ -494,18 +512,80 @@ function scDocGo(k){const sid=zdVal("dc-s");if(!sid){flagMissingFields([document
 
 // ── Réglages ──
 SECTOR_PAGE_LOADERS.schoolsettings=async el=>{
-  await scBase(true);const s=_sc.set;const mgr=scMgr();const dis=mgr?"":"disabled";
+  await scBase(true);const s=_sc.set;const mgr=scMgr();const dis=mgr?"":"disabled";const gd=s.grading||{evals:[],mentions:[]};
+  _sc.gb={periods:[...(s.periods||[])],evals:gd.evals.map(e=>({...e})),mentions:gd.mentions.map(m=>({...m})),pass:s.pass_pct??"",cls:_sc.gb?.cls||""};
   el.innerHTML=sectorPageHead(esc(t("nav_school_settings")),esc(t("sc_settings_sub")))+
-    `<div class="card"><div class="grid2"><div class="fgrp"><label class="fl">${esc(t("sc_official_name"))}</label><input class="inp" id="ss-o" value="${esc(s.official_name||"")}" placeholder="${esc(s.school_name)}" ${dis}></div><div class="fgrp"><label class="fl">${esc(t("sc_director"))}</label><input class="inp" id="ss-d" value="${esc(s.director||"")}" ${dis}></div></div>
-      <div class="grid3"><div class="fgrp"><label class="fl">${esc(t("sc_city"))}</label><input class="inp" id="ss-c" value="${esc(s.city||"")}" ${dis}></div><div class="fgrp"><label class="fl">${esc(t("sc_school_year"))}</label><input class="inp" id="ss-y" value="${esc(s.year)}" ${dis}></div><div class="fgrp"><label class="fl">${esc(t("carts_currency"))}</label><select class="inp" id="ss-m" ${dis}>${["USD","CDF","XAF","XOF","MAD","EUR"].map(c=>`<option ${c===s.currency?"selected":""}>${c}</option>`).join("")}</select></div></div>
-      <div class="fgrp"><label class="fl">${esc(t("sc_periods"))}</label><input class="inp" id="ss-p" value="${esc(s.periods.join(" | "))}" ${dis}><div class="sc-hint" style="color:var(--muted)">${esc(t("sc_periods_x"))}</div></div>
-      <div class="grid2"><div class="fgrp"><label class="fl">${esc(t("sc_pass_pct"))}</label><input class="inp" type="number" min="1" max="100" id="ss-pp" value="${s.pass_pct}" ${dis}></div><div class="fgrp"><label class="fl">${esc(t("sc_sibling_pct"))}</label><input class="inp" type="number" min="0" max="100" id="ss-sb" value="${s.sibling_discount_pct}" ${dis}></div></div>
-      <div class="sc-hint" style="color:var(--muted);margin-bottom:10px">${esc(t("sc_mentions_x"))}</div>
-      ${mgr?`<button class="btn btn-g btn-sm" onclick="scSaveSettings()"><i class="ti ti-device-floppy"></i> ${esc(t("btn_save"))}</button>`:""}</div>`;
+    `<div class="card" style="margin-bottom:12px"><div class="grid2"><div class="fgrp"><label class="fl">${esc(t("sc_official_name"))}</label><input class="inp" id="ss-o" value="${esc(s.official_name||"")}" placeholder="${esc(s.school_name)}" ${dis}></div><div class="fgrp"><label class="fl">${esc(t("sc_director"))}</label><input class="inp" id="ss-d" value="${esc(s.director||"")}" ${dis}></div></div>
+      <div class="grid3"><div class="fgrp"><label class="fl">${esc(t("sc_city"))}</label><input class="inp" id="ss-c" value="${esc(s.city||"")}" ${dis}></div><div class="fgrp"><label class="fl">${esc(t("sc_school_year"))}</label><input class="inp" id="ss-y" value="${esc(s.year)}" placeholder="2026-2027" ${dis}></div><div class="fgrp"><label class="fl">${esc(t("carts_currency"))}</label><select class="inp" id="ss-m" ${dis}>${["USD","CDF","XAF","XOF","MAD","EUR"].map(c=>`<option ${c===s.currency?"selected":""}>${c}</option>`).join("")}</select></div></div>
+      <div class="fgrp"><label class="fl">${esc(t("sc_sibling_pct"))}</label><input class="inp" type="number" min="0" max="100" id="ss-sb" value="${s.sibling_discount_pct}" style="max-width:160px" ${dis}></div></div>
+    <div class="sc-gb-wrap"><div><h3 class="sc-gb-t">${esc(t("sc_g_title"))}</h3><div class="sc-hint" style="color:var(--muted)">${esc(t("sc_g_intro"))}</div></div>
+      <div class="sc-gb-cols"><div class="sc-gb-main" id="sc-gb"></div><div class="sc-gb-side"><div class="card sc-gb-status" id="sc-gb-status"></div>
+        <div class="card"><b>${esc(t("sc_g_example"))}</b><div class="sc-hint" id="sc-gb-ex" style="color:var(--muted);margin-top:6px"></div></div>
+        <div class="card"><b>${esc(t("sc_g_others"))}</b><ul class="sc-gb-ul"><li>${esc(t("sc_g_teacher"))}</li><li>${esc(t("sc_g_parent"))}</li><li>${esc(t("sc_g_change"))}</li></ul></div></div></div></div>
+    ${mgr?`<div class="sc-gb-save"><button class="btn btn-g" onclick="scSaveSettings()"><i class="ti ti-device-floppy"></i> ${esc(t("btn_save"))}</button></div>`:""}`;
+  scGbRender();
 };
+function scGbRender(){
+  const box=document.getElementById("sc-gb");if(!box)return;const G=_sc.gb;const mgr=scMgr();const dis=mgr?"":"disabled";
+  const cls=_sc.classes||[];if(!G.cls||!cls.find(c=>c.id===G.cls))G.cls=cls[0]?.id||"";const c=cls.find(x=>x.id===G.cls);
+  box.innerHTML=`<div class="card"><div class="sc-gb-h"><span class="sc-gb-n">1</span><b>${esc(t("sc_g_periods"))}</b></div>
+      ${mgr?`<div class="sc-gb-tpl"><span>${esc(t("sc_g_tpl"))}</span><button type="button" class="btn btn-o btn-sm" onclick="scGbTpl(3)">${esc(t("sc_g_tpl3"))}</button><button type="button" class="btn btn-o btn-sm" onclick="scGbTpl(2)">${esc(t("sc_g_tpl2"))}</button><button type="button" class="btn btn-o btn-sm" onclick="scGbTpl(6)">${esc(t("sc_g_tpl6"))}</button></div>`:""}
+      ${G.periods.length?G.periods.map((p,i)=>`<div class="sc-gb-row sc-gb-p"><input class="inp" value="${esc(p)}" placeholder="${esc(t("sc_g_period_ph"))}" oninput="_sc.gb.periods[${i}]=this.value;scGbCheck()" aria-label="${esc(t("sc_period"))} ${i+1}" ${dis}>${mgr?`<button type="button" class="sc-x" onclick="_sc.gb.periods.splice(${i},1);scGbRender()" aria-label="${esc(t("btn_delete"))}"><i class="ti ti-x"></i></button>`:""}</div>`).join(""):`<div class="sc-gb-empty">${esc(t("sc_g_no_period"))}</div>`}
+      ${mgr&&G.periods.length<6?`<button type="button" class="btn btn-sm sc-gb-add" onclick="_sc.gb.periods.push('');scGbRender()"><i class="ti ti-plus"></i> ${esc(t("sc_g_add_period"))}</button>`:""}</div>
+    <div class="card"><div class="sc-gb-h"><span class="sc-gb-n">2</span><b>${esc(t("sc_g_evals"))}</b></div><div class="sc-hint" style="color:var(--muted)">${esc(t("sc_g_evals_x"))}</div>
+      ${G.evals.length?`<div class="sc-gb-row sc-gb-e sc-gb-hd"><span>${esc(t("sc_g_name"))}</span><span>${esc(t("sc_g_max"))}</span><span>${esc(t("sc_g_weight"))}</span><span></span></div>`+G.evals.map((e,i)=>`<div class="sc-gb-row sc-gb-e"><input class="inp" value="${esc(e.name)}" oninput="_sc.gb.evals[${i}].name=this.value;scGbCheck()" aria-label="${esc(t("sc_g_name"))}" ${dis}><input class="inp" type="number" min="0" step="any" value="${e.max??""}" placeholder="${esc(t("sc_g_max_ph"))}" oninput="_sc.gb.evals[${i}].max=this.value;scGbCheck()" aria-label="${esc(t("sc_g_max"))} — ${esc(e.name)}" ${dis}><input class="inp" type="number" min="0" max="100" step="any" value="${e.weight??""}" placeholder="%" oninput="_sc.gb.evals[${i}].weight=this.value;scGbCheck()" aria-label="${esc(t("sc_g_weight"))} — ${esc(e.name)}" ${dis}>${mgr?`<button type="button" class="sc-x" onclick="_sc.gb.evals.splice(${i},1);scGbRender()" aria-label="${esc(t("btn_delete"))}"><i class="ti ti-x"></i></button>`:"<span></span>"}</div>`).join(""):`<div class="sc-gb-empty">${esc(t("sc_g_no_eval"))}</div>`}
+      <div class="sc-gb-tpl">${mgr?`<button type="button" class="btn btn-sm sc-gb-add" onclick="scGbAddEval('interro')"><i class="ti ti-plus"></i> ${esc(t("sc_g_add_interro"))}</button><button type="button" class="btn btn-sm sc-gb-add" onclick="scGbAddEval('devoir')"><i class="ti ti-plus"></i> ${esc(t("sc_g_add_devoir"))}</button><button type="button" class="btn btn-sm sc-gb-add" onclick="scGbAddEval('exam')"><i class="ti ti-plus"></i> ${esc(t("sc_g_add_exam"))}</button>`:""}<span id="sc-gb-w"></span></div></div>
+    <div class="card"><div class="sc-gb-h"><span class="sc-gb-n">3</span><b>${esc(t("sc_g_courses"))}</b>${cls.length>1?`<select class="inp" style="width:auto;margin-left:auto" onchange="_sc.gb.cls=this.value;scGbRender()" aria-label="${esc(t("sc_class"))}">${scClassOpts(G.cls)}</select>`:c?`<span class="sc-hint" style="margin-left:auto;color:var(--muted)">${esc(c.name)}</span>`:""}</div>
+      <div class="sc-hint" style="color:var(--muted)">${esc(t("sc_g_courses_x"))}</div>
+      ${!c?`<div class="sc-gb-empty">${esc(t("sc_g_no_class"))}${mgr?` <a href="#" onclick="event.preventDefault();navigate('schoolclasses')">${esc(t("sc_add_class"))}</a>`:""}</div>`:
+        (c.courses.length?`<div class="sc-gb-row sc-gb-k sc-gb-hd"><span>${esc(t("sc_course"))}</span><span>${esc(t("sc_max_period"))}</span></div>`+c.courses.map(k=>`<div class="sc-gb-row sc-gb-k"><span>${esc(k.name)}</span><input class="inp" type="number" min="1" step="any" value="${k.max}" onchange="if(+this.value>0)scPatchCourse('${k.id}',{max:+this.value},'schoolsettings')" aria-label="${esc(t("sc_max_period"))} — ${esc(k.name)}" ${dis}></div>`).join(""):`<div class="sc-gb-empty">${esc(t("sc_no_course"))}</div>`)+
+        (mgr?`<div class="sc-form sc-gb-addk"><input class="inp" id="nc-n" placeholder="${esc(t("sc_course_ph"))}" aria-label="${esc(t("sc_course"))}"><input class="inp" id="nc-w" type="number" min="1" step="any" placeholder="${esc(t("sc_max_ph"))}" aria-label="${esc(t("sc_max_period"))}"><button type="button" class="btn btn-o btn-sm" onclick="scAddCourse('${c.id}','schoolsettings')"><i class="ti ti-plus"></i> ${esc(t("sc_add_course"))}</button></div>`:"")}</div>
+    <div class="card"><div class="sc-gb-h"><span class="sc-gb-n">4</span><b>${esc(t("sc_g_pass"))}</b></div>
+      <div class="fgrp" style="max-width:220px"><label class="fl" for="ss-pp">${esc(t("sc_pass_pct"))}</label><input class="inp" type="number" min="1" max="100" step="any" id="ss-pp" value="${G.pass}" placeholder="${esc(t("sc_g_pass_ph"))}" oninput="_sc.gb.pass=this.value;scGbCheck()" ${dis}></div>
+      <div class="sc-hint" style="color:var(--muted)">${esc(t("sc_g_mentions_x"))}</div>
+      ${G.mentions.map((m,i)=>`<div class="sc-gb-row sc-gb-m"><input class="inp" type="number" min="0" max="100" step="any" value="${m.min??""}" placeholder="%" oninput="_sc.gb.mentions[${i}].min=this.value;scGbCheck()" aria-label="${esc(t("sc_g_from_pct"))}" ${dis}><input class="inp" value="${esc(m.label||"")}" placeholder="${esc(t("sc_g_mention_ph"))}" oninput="_sc.gb.mentions[${i}].label=this.value;scGbCheck()" aria-label="${esc(t("sc_mention"))}" ${dis}>${mgr?`<button type="button" class="sc-x" onclick="_sc.gb.mentions.splice(${i},1);scGbRender()" aria-label="${esc(t("btn_delete"))}"><i class="ti ti-x"></i></button>`:""}</div>`).join("")}
+      ${mgr&&G.mentions.length<10?`<button type="button" class="btn btn-sm sc-gb-add" onclick="_sc.gb.mentions.push({min:'',label:''});scGbRender()"><i class="ti ti-plus"></i> ${esc(t("sc_g_add_mention"))}</button>`:""}</div>`;
+  scGbCheck();
+}
+function scGbTpl(n){
+  const T={3:["sc_tpl_t1","sc_tpl_t2","sc_tpl_t3"],2:["sc_tpl_s1","sc_tpl_s2"],6:["sc_tpl_p1","sc_tpl_p2","sc_tpl_e1","sc_tpl_p3","sc_tpl_p4","sc_tpl_e2"]}[n];
+  _sc.gb.periods=T.map(k=>t(k));scGbRender();
+}
+function scGbAddEval(kind){
+  const G=_sc.gb;let name=t("sc_g_"+kind);
+  if(kind==="interro"){const n=G.evals.filter(e=>String(e.name).startsWith(name)).length+1;name=`${name} ${n}`;}
+  G.evals.push({name,max:"",weight:""});scGbRender();
+}
+function scGbNum(v){const n=parseFloat(String(v??"").replace(",","."));return isFinite(n)&&n>0?n:null;}
+function scGbMissing(){
+  const G=_sc.gb;const miss=[];
+  if(!G.periods.length||G.periods.some(p=>!String(p).trim()))miss.push("periods");
+  if(!G.evals.length)miss.push("evals");
+  else if(G.evals.some(e=>!String(e.name).trim()||!scGbNum(e.max)||!scGbNum(e.weight)))miss.push("eval_fields");
+  else if(Math.abs(G.evals.reduce((a,e)=>a+scGbNum(e.weight),0)-100)>0.01)miss.push("weights_100");
+  if(!scGbNum(G.pass))miss.push("pass_pct");
+  if(G.mentions.some(m=>!String(m.label||"").trim()||m.min===""||isNaN(parseFloat(m.min))))miss.push("mentions");
+  return miss;
+}
+function scGbCheck(){
+  const G=_sc.gb;const w=document.getElementById("sc-gb-w");
+  if(w){const sum=G.evals.reduce((a,e)=>a+(scGbNum(e.weight)||0),0);w.className=G.evals.length?(Math.abs(sum-100)<=0.01?"sc-chip ok":"sc-chip warn"):"";w.textContent=G.evals.length?abTr("sc_g_wsum",{n:scNum(sum)}):"";}
+  const st=document.getElementById("sc-gb-status");const miss=scGbMissing();
+  if(st){st.classList.toggle("ok",!miss.length);st.innerHTML=`<b>${esc(t(miss.length?"sc_g_pending":"sc_g_complete"))}</b><div class="sc-hint" style="color:var(--muted);margin:4px 0">${esc(t(miss.length?"sc_g_pending_x":"sc_g_complete_x"))}</div>${miss.length?`<ul class="sc-gmiss">${miss.map(m=>`<li>${esc(t("sc_g_miss_"+m))}</li>`).join("")}</ul>`:""}`;}
+  const ex=document.getElementById("sc-gb-ex");
+  if(ex){const c=(_sc.classes||[]).find(x=>x.id===G.cls);const k=c?.courses?.[0];const ok=G.evals.length&&G.evals.every(e=>scGbNum(e.max)&&scGbNum(e.weight));
+    ex.textContent=k&&ok?abTr("sc_g_example_x",{c:k.name,m:scNum(k.max),e:G.evals.map(e=>`${e.name} ${scNum(scGbNum(e.max)*0.75)}/${scNum(scGbNum(e.max))} (${scNum(scGbNum(e.weight))} %)`).join(", "),p:scNum(k.max*0.75)}):t("sc_g_example_empty");}
+}
 async function scSaveSettings(){
-  const periods=zdVal("ss-p").split("|").map(x=>x.trim()).filter(Boolean);
-  try{_sc.set=await api("PUT","/school/settings",{official_name:zdVal("ss-o"),director:zdVal("ss-d"),city:zdVal("ss-c"),year:zdVal("ss-y"),currency:zdVal("ss-m"),periods,pass_pct:zdNum("ss-pp")||50,sibling_discount_pct:zdNum("ss-sb")||0});showToast(t("toast_saved"));navigate("schoolsettings");}catch(e){showToast(e.message,"error");}
+  const G=_sc.gb;const miss=scGbMissing();
+  if(miss.includes("mentions")){showToast(t("sc_g_miss_mentions"),"error");return;}
+  const body={official_name:zdVal("ss-o"),director:zdVal("ss-d"),city:zdVal("ss-c"),year:zdVal("ss-y"),currency:zdVal("ss-m"),sibling_discount_pct:zdNum("ss-sb")||0};
+  const periods=G.periods.map(p=>String(p).trim()).filter(Boolean);if(periods.length)body.periods=periods;
+  if(scGbNum(G.pass))body.pass_pct=scGbNum(G.pass);
+  if(G.evals.length&&(miss.includes("eval_fields")||miss.includes("weights_100"))){showToast(t(miss.includes("weights_100")?"sc_g_miss_weights_100":"sc_g_miss_eval_fields"),"error");return;}
+  body.grading={evals:G.evals.map(e=>({id:e.id||null,name:String(e.name).trim(),max:scGbNum(e.max),weight:scGbNum(e.weight)})),mentions:G.mentions.map(m=>({min:parseFloat(m.min),label:String(m.label).trim()}))};
+  const was=!!_sc.set?.grading_ready;
+  try{_sc.set=await api("PUT","/school/settings",body);showToast(t(_sc.set.grading_ready&&!was?"sc_g_saved_ready":"toast_saved"));navigate("schoolsettings");}catch(e){showToast(e.message,"error");}
 }
 
 // ── Espace parents ──
@@ -528,7 +608,7 @@ if(typeof csItem==="function"){
 function csStudentModal(id){
   const it=(window._csStudents||{})[id];if(!it)return;const cur=it.currency||"USD";const m=v=>scNum(v)+" "+(cur==="CDF"?"FC":cur==="USD"?"$":cur);
   zdModal("modal-scp",`<div class="modal-title"><i class="ti ti-users" style="color:var(--green)"></i> ${esc(it.student)}</div><div style="font-size:12px;color:var(--muted);margin:-4px 0 10px">${esc(it.business)} · ${esc(it.class_name||"")} · ${esc(it.year||"")}</div>
-    ${(it.periods||[]).map(p=>`<div class="sc-sub">${esc(p.name)} · ${scPct(p.pct)} · ${esc(scMention(p.mention))} · ${esc(scRank(p.rank,p.class_size))}</div><div class="tbl-wrap"><table class="sc-t"><thead><tr><th>${esc(t("sc_course"))}</th><th class="r">${esc(t("sc_interro"))}</th><th class="r">${esc(t("sc_exam"))}</th><th class="r">${esc(t("sc_points"))}</th></tr></thead><tbody>${p.lines.map(l=>`<tr><td>${esc(l.course)}</td><td class="r">${l.interro??"—"}</td><td class="r">${l.exam??"—"}</td><td class="r">${l.points==null?"—":scNum(l.points,1)} / ${l.max}</td></tr>`).join("")}</tbody></table></div>`).join("")||`<div class="sc-hint" style="color:var(--muted)">${esc(t("sc_no_grades"))}</div>`}
+    ${(it.periods||[]).map(p=>`<div class="sc-sub">${esc(p.name)} · ${scPct(p.pct)} · ${esc(scMention(p.mention))} · ${esc(scRank(p.rank,p.class_size))}</div><div class="tbl-wrap"><table class="sc-t"><thead><tr><th>${esc(t("sc_course"))}</th>${(it.evals||[]).map(e=>`<th class="r">${esc(e.name)} /${scNum(e.max)}</th>`).join("")}<th class="r">${esc(t("sc_points"))}</th></tr></thead><tbody>${p.lines.map(l=>`<tr><td>${esc(l.course)}</td>${(it.evals||[]).map(e=>`<td class="r">${(l.marks||{})[e.id]!=null?scNum(l.marks[e.id],2):"—"}</td>`).join("")}<td class="r">${l.points==null?"—":scNum(l.points,1)} / ${scNum(l.max)}</td></tr>`).join("")}</tbody></table></div>`).join("")||`<div class="sc-hint" style="color:var(--muted)">${esc(t("sc_no_grades"))}</div>`}
     <div class="sc-sub">${esc(t("sc_tab_att"))}</div>${(it.absences?.recent||[]).map(a=>`<div class="sc-line"><span>${esc(abDate(a.day))}</span><span>${scAttBadge(a.status)}${a.justified?` <span class="badge bb">${esc(t("sc_justified"))}</span>`:""}</span></div>`).join("")||`<div class="sc-hint" style="color:var(--muted)">${esc(t("sc_no_absence"))}</div>`}
     <div class="sc-sub">${esc(t("sc_tab_fees"))}</div>${(it.fees||[]).map(f=>{const [cl,k]=scFeeState(f.status);return `<div class="sc-line"><span>${esc(f.label)}<small class="sc-sm">${esc(abDate(f.due_day))}</small></span><span class="mono">${m(f.amount-f.discount)}</span><span class="badge ${cl}">${esc(t(k))}</span></div>`;}).join("")||`<div class="sc-hint" style="color:var(--muted)">${esc(t("sc_no_fees"))}</div>`}
     ${(it.incidents||[]).length?`<div class="sc-sub">${esc(t("sc_tab_disc"))}</div>${it.incidents.map(i=>`<div class="sc-inc"><b>${esc(t("sc_inc_"+i.kind))}</b> · ${esc(abDate(i.day))}<div>${esc(i.description)}</div></div>`).join("")}`:""}

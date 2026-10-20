@@ -17,7 +17,7 @@ window.ZD_LEGAL={
   tribunal:"Fès",
   delai_activation:"2 jours ouvrés",
   delai_remboursement:"14 jours",
-  date_mise_a_jour:"19 octobre 2026"
+  date_mise_a_jour:"20 octobre 2026"
 };
 (function(){
   var L=window.ZD_LEGAL,labels={editeur:"nom ou raison sociale de l'éditeur",forme_juridique:"forme juridique",rccm:"numéro RCCM ou registre du commerce",numero_fiscal:"numéro fiscal",adresse:"adresse du siège",directeur_publication:"nom du directeur de la publication",email:"adresse e-mail de contact",pays_droit_applicable:"pays dont la loi s'applique",tribunal:"ville du tribunal compétent"};

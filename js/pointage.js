@@ -65,9 +65,10 @@ function ptRender(){
   const el=document.getElementById("page-pointage");const s=_pt.set;const mgr=ptMgr();_pt.skew=s.now_utc_ms-Date.now();
   const tabletUrl=`${window.location.origin}/?pointage=1`;
   let h=`<div class="sh"><div><div class="st"><i class="ti ti-device-tablet"></i> ${esc(t("pt_title"))}</div><div class="ss">${esc(t("pt_sub"))}</div></div>
-    <div class="pt-clock"><span>${esc(t("pt_clock_l"))}</span><b id="pt-clock">${esc(ptClockText())}</b><small>${esc(ptTzLabel(s.tz))} · UTC${s.tz_offset_min>=0?"+":"−"}${Math.abs(s.tz_offset_min/60)}</small></div></div>`;
+    ${s.configured===false?"":`<div class="pt-clock"><span>${esc(t("pt_clock_l"))}</span><b id="pt-clock">${esc(ptClockText())}</b><small>${esc(ptTzLabel(s.tz))} · UTC${s.tz_offset_min>=0?"+":"−"}${Math.abs(s.tz_offset_min/60)}</small></div>`}</div>`;
   const secs=s.sectors||[];
   if(secs.length>1)h+=`<div class="pt-secs" role="tablist" aria-label="${esc(t("pt_sectors_l"))}">${secs.map(x=>`<button type="button" role="tab" class="pt-sec${x.key===s.sector?" on":""}" aria-selected="${x.key===s.sector}" onclick="_pt.sector='${x.key}';_pt.day=null;ptLoad()"><i class="ti ti-${x.enabled?"circle-check":"circle-off"}"></i> ${esc(sectorLabel(x.key))}</button>`).join("")}</div><div class="pt-muted" style="margin:-4px 0 12px">${esc(t("pt_sector_x"))}</div>`;
+  if(s.configured===false){el.innerHTML=h+ptSetupHtml(s,mgr)+ptLegalHtml();return;}
   h+=`<div class="card pt-onoff"><label class="pt-switch"><input type="checkbox" id="pt-en" ${s.enabled?"checked":""} ${mgr?"":"disabled"} onchange="ptToggle(this.checked)"><span></span></label><div><b>${esc(t(s.enabled?"pt_on_t":"pt_off_t"))}</b><div class="pt-muted">${esc(t(s.enabled?"pt_on_x":"pt_off_x"))}</div></div></div>`;
   if(!s.enabled){el.innerHTML=h+ptLegalHtml();return;}
   const d=_pt.list,c=d.counts||{};
@@ -107,6 +108,30 @@ function ptRender(){
   h+=`<div class="card pt-card"><div class="pt-head"><b>${esc(t("pt_corr_t"))}</b></div>${(_pt.corr||[]).map(x=>`<div class="pt-line"><span><b>${esc(x.name)}</b> · ${esc(abDate(x.day))}<small class="pt-sm">${esc(x.old_in||"—")} → ${esc(x.new_in||"—")} · ${esc(x.old_out||"—")} → ${esc(x.new_out||"—")} · ${esc(x.reason)}</small></span><small class="pt-sm">${esc(x.by_name||"")} · ${esc(fmtDate(x.created_at))}</small></div>`).join("")||`<div class="pt-muted">${esc(t("pt_no_corr"))}</div>`}</div>`;
   el.innerHTML=h+ptLegalHtml();
   clearInterval(_pt.clk);_pt.clk=setInterval(()=>{const c=document.getElementById("pt-clock");if(!c){clearInterval(_pt.clk);return;}c.textContent=ptClockText();},15000);
+}
+function ptSetupHtml(s,mgr){
+  if(!mgr)return `<div class="card pt-card pt-setup"><b>${esc(t("pt_setup_t"))}</b><div class="pt-muted">${esc(t("pt_setup_wait"))}</div></div>`;
+  const ex=v=>`<small class="pt-ex">${esc(t("su_example").replace("{v}",v))}</small>`;
+  return `<div class="card pt-card pt-setup"><div class="pt-head"><b>${esc(t("pt_setup_t"))}</b></div><div class="pt-muted" style="margin-bottom:10px">${esc(t("pt_setup_x"))}</div>
+    <div class="pt-form">
+      <label>${esc(t("pt_tz"))}<select class="inp" id="pr-tz"><option value="">${esc(t("su_choose"))}</option>${s.tz_list.map(z=>`<option value="${z}">${esc(ptTzLabel(z))}</option>`).join("")}</select></label>
+      <label>${esc(t("pt_ws"))}<input class="inp" type="time" id="pr-ws">${ex("08:00")}</label>
+      <label>${esc(t("pt_we"))}<input class="inp" type="time" id="pr-we">${ex("17:00")}</label>
+      <label>${esc(t("pt_grace"))}<input class="inp" type="number" min="0" max="120" id="pr-gr" placeholder="${esc(t("su_example").replace("{v}","10"))}"></label>
+      <label>${esc(t("pt_absent_after"))}<input class="inp" type="time" id="pr-ab">${ex("10:00")}</label>
+      <label>${esc(t("pt_from"))}<input class="inp" type="time" id="pr-cf">${ex("06:00")}</label>
+      <label>${esc(t("pt_to"))}<input class="inp" type="time" id="pr-ct">${ex("20:00")}</label>
+      <label>${esc(t("pt_photo_days"))}<select class="inp" id="pr-pd"><option value="">${esc(t("su_choose"))}</option>${[7,30,90].map(n=>`<option value="${n}">${esc(abTr("pt_days",{n}))}</option>`).join("")}</select></label>
+    </div><div class="err-box" id="pr-h"></div>
+    <button class="btn btn-g btn-sm" onclick="ptSetupSave()"><i class="ti ti-player-play"></i> ${esc(t("pt_setup_go"))}</button></div>`;
+}
+async function ptSetupSave(){
+  const ids={tz:"pr-tz",work_start:"pr-ws",work_end:"pr-we",late_grace_min:"pr-gr",absent_after:"pr-ab",clock_from:"pr-cf",clock_to:"pr-ct",photo_days:"pr-pd"};
+  const miss=Object.values(ids).filter(i=>zdVal(i)==="").map(i=>document.getElementById(i));
+  if(miss.length){flagMissingFields(miss);showErr("pr-h",t("pt_setup_missing"));return;}
+  const b={tz:zdVal("pr-tz"),work_start:zdVal("pr-ws"),work_end:zdVal("pr-we"),late_grace_min:parseInt(zdVal("pr-gr"),10),absent_after:zdVal("pr-ab"),clock_from:zdVal("pr-cf"),clock_to:zdVal("pr-ct"),photo_days:parseInt(zdVal("pr-pd"),10),enabled:true,sector:_pt.sector};
+  try{_pt.set=await api("PUT","/pointage/settings",b);State.tenant.pointage_enabled=true;try{localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));}catch(_){}ptApplyNav();showToast(t("pt_on_ok"));_pt.day=null;await ptLoad();}
+  catch(e){showErr("pr-h",e.message);}
 }
 function pt_late_from(r){const m=parseInt(r.work_start.slice(0,2),10)*60+parseInt(r.work_start.slice(3),10)+(+r.late_grace_min||0)+1;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");}
 function ptLegalHtml(){return `<div class="pt-legal"><i class="ti ti-shield-check"></i><div><b>${esc(t("pt_legal_t"))}</b><div>${esc(t("pt_legal_x"))}</div></div></div>`;}

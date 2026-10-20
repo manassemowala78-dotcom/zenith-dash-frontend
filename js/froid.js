@@ -17,10 +17,9 @@ SECTOR_PAGE_LOADERS.coldrooms=async el=>{
       <div style="font-size:12px;color:var(--muted);margin-top:4px">${x.occupancy.lots} ${esc(t("cd_lots"))} · ${zdQty(x.occupancy.kg)} kg</div>
       <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"><button class="btn btn-g btn-sm" onclick="cdReadingModal('${x.id}')"><i class="ti ti-temperature-plus"></i> ${esc(t("cd_reading"))}</button><button class="btn btn-o btn-sm" onclick="cdHistory('${x.id}')"><i class="ti ti-chart-line"></i> ${esc(t("cd_history"))}</button>
         ${mgr?`<button class="btn btn-o btn-sm" onclick="cdRoomModal('${x.id}')"><i class="ti ti-pencil"></i></button><button class="btn btn-o btn-sm" onclick="cdSensor('${x.id}')" title="${esc(t("cd_sensor"))}"><i class="ti ti-wifi"></i></button>`:""}</div></div>`).join("")}</div>`:
-      `<div class="card" style="text-align:center;padding:26px">${zdEmpty(t("cd_no_rooms"),"snowflake")}${mgr?`<button class="btn btn-g btn-sm" onclick="cdDemo()"><i class="ti ti-sparkles"></i> ${esc(t("welcome_load_demo"))}</button>`:""}</div>`);
+      `<div class="card" style="text-align:center;padding:26px">${zdEmpty(t("cd_no_rooms"),"snowflake")}${mgr?`<button class="btn btn-g btn-sm" onclick="cdRoomModal()"><i class="ti ti-plus"></i> ${esc(t("cd_new_room"))}</button>`:""}</div>`);
   sectorTimer("coldrooms",()=>{if(!document.querySelector(".modal-overlay[style*='flex']"))SECTOR_PAGE_LOADERS.coldrooms(el);},60000);
 };
-async function cdDemo(){try{await api("POST","/cold/setup-demo");showToast(t("welcome_demo_done"));navigate("coldrooms");}catch(e){showToast(e.message,"error");}}
 function cdRoomModal(id){
   const r=id?_cd.rooms.find(x=>x.id===id):null;
   zdModal("modal-cd-room",`<div class="modal-title"><i class="ti ti-snowflake" style="color:var(--cyan)"></i> ${esc(t(r?"cd_edit_room":"cd_new_room"))}</div>

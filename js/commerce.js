@@ -7,7 +7,7 @@ async function rtClients(force){if(!_rt.clients||force)_rt.clients=await api("GE
 // ── Caisse comptoir ──
 SECTOR_PAGE_LOADERS.retailpos=async el=>{
   const [cat,cls]=await Promise.all([rtCatalog(true),rtClients(true)]);
-  if(!cat.length){el.innerHTML=sectorPageHead(esc(t("nav_retail_pos")),"")+`<div class="card" style="text-align:center;padding:26px">${zdEmpty(t("rt_no_products"),"packages")}${rsIsManager()?`<button class="btn btn-g btn-sm" onclick="rtDemo()"><i class="ti ti-sparkles"></i> ${esc(t("welcome_load_demo"))}</button>`:""}</div>`;return;}
+  if(!cat.length){el.innerHTML=sectorPageHead(esc(t("nav_retail_pos")),"")+`<div class="card" style="text-align:center;padding:26px">${zdEmpty(t("rt_no_products"),"packages")}${rsIsManager()?`<button class="btn btn-g btn-sm" onclick="navigate('retailcatalog')"><i class="ti ti-plus"></i> ${esc(t("rt_add_first_product"))}</button>`:""}</div>`;return;}
   el.innerHTML=sectorPageHead(esc(t("nav_retail_pos")),esc(t(rtPharma()?"rt_pos_sub_pharma":"rt_pos_sub")))+
     `<div class="pos-grid"><div><div style="display:flex;gap:6px;margin-bottom:10px"><input class="inp" id="rt-search" placeholder="${esc(t("rt_search_scan"))}" value="${esc(_rt.q)}" oninput="_rt.q=this.value;rtRenderProducts()" onkeydown="if(event.key==='Enter'){event.preventDefault();rtScan(this.value)}"></div>
       <div id="rt-products" class="pos-products"></div></div>
@@ -22,7 +22,6 @@ SECTOR_PAGE_LOADERS.retailpos=async el=>{
       <button class="btn btn-g" id="rt-pay" style="width:100%;font-size:16px;padding:12px" onclick="submitRtSale()"><i class="ti ti-cash"></i> ${esc(t("btn_pos_pay"))}</button></div></div>`;
   rtRenderProducts();rtRenderCart();setTimeout(()=>{if(window.innerWidth>768)document.getElementById("rt-search")?.focus();},100);
 };
-async function rtDemo(){try{await api("POST","/retail/setup-demo");_rt.cat=null;showToast(t("welcome_demo_done"));navigate(rtPharma()?"retailpos":"retailpos");}catch(e){showToast(e.message,"error");}}
 function rtRenderProducts(){
   const box=document.getElementById("rt-products");if(!box)return;const q=_rt.q.trim().toLowerCase();
   const list=_rt.cat.filter(p=>!q||(p.name+" "+(p.barcode||"")+" "+(p.dci||"")+" "+(p.category||"")).toLowerCase().includes(q)).slice(0,80);

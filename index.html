@@ -27,9 +27,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Zenith Dash">
-<link rel="preload" href="/css/icons.woff2?v=9.4.0" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/icons.css?v=9.4.0">
-<link rel="stylesheet" href="/css/app.css?v=9.4.0">
+<link rel="preload" href="/css/icons.woff2?v=9.5.0" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/icons.css?v=9.5.0">
+<link rel="stylesheet" href="/css/app.css?v=9.5.0">
 </head>
 <body class="zd-no-ai">
 <!-- PORTAIL CLIENT (accès public, sans compte) -->
@@ -974,7 +974,7 @@
       </div>
       <div class="card" style="margin-bottom:16px;border-color:rgba(0,224,128,.2)">
         <div style="font-weight:700;font-size:14px;margin-bottom:6px"><i class="ti ti-gift" style="color:var(--green)"></i> <span data-i18n="card_referral">Parraine et gagne des jours d'essai</span></div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:12px"><span data-i18n="card_referral_x">Chaque entreprise inscrite avec ton code te rapproche d'une réduction à vie (jusqu'à −45 %) et, pendant ton essai, de jours gratuits en plus.</span> <a href="#" onclick="event.preventDefault();navigate('billing')" style="color:var(--green)" data-i18n="card_referral_link">Voir mes paliers</a></div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px"><span data-i18n="card_referral_x">Chaque entreprise inscrite avec ton code te rapproche d'une réduction (jusqu'à −45 %) et, pendant ton essai, de jours gratuits en plus.</span> <a href="#" onclick="event.preventDefault();navigate('billing')" style="color:var(--green)" data-i18n="card_referral_link">Voir mes paliers</a></div>
         <div id="referral-box" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <div style="font-family:var(--mono);font-size:18px;font-weight:800;letter-spacing:3px;background:var(--s);padding:8px 16px;border-radius:8px;border:1px solid var(--b)" id="referral-code-display">—</div>
           <button class="btn btn-o btn-sm" onclick="copyReferralLink()"><i class="ti ti-copy"></i> <span data-i18n="btn_copy_link">Copier le lien</span></button>
@@ -1391,6 +1391,7 @@
       <div class="sh"><div><div class="st" data-i18n="admin_title">🔐 Panel Admin</div><div class="ss" data-i18n="admin_sub">Confirmer les paiements reçus · Gérer les utilisateurs · Accès privé</div></div></div>
       <div style="font-weight:800;font-size:15px;margin:4px 0 10px"><i class="ti ti-chart-line" style="color:var(--green)"></i> <span data-i18n="cd_title">Tableau de bord créateur</span></div>
       <div id="creator-dashboard" style="margin-bottom:18px"></div>
+      <div id="promo-admin" style="margin-bottom:18px"></div>
       <div class="card" style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><div style="font-weight:700"><i class="ti ti-affiliate" style="color:var(--purple)"></i> <span data-i18n="partners_title">Revendeurs et partenaires</span></div>
           <button class="btn btn-g btn-sm" onclick="createPartner()"><i class="ti ti-plus"></i> <span data-i18n="btn_new_partner">Nouveau partenaire</span></button></div>
@@ -2399,47 +2400,50 @@
   </div>
 </div>
 
-<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.4.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.4.0" defer><\/script>':""))})();</script>
-<script src="/js/vendor/qrcode.min.js?v=9.4.0" defer></script>
-<script src="/js/base-1.js?v=9.4.0" defer></script>
-<script src="/js/securite-roles.js?v=9.4.0" defer></script>
-<script src="/js/hors-ligne.js?v=9.4.0" defer></script>
-<script src="/js/facturation.js?v=9.4.0" defer></script>
-<script src="/js/stock-caisse.js?v=9.4.0" defer></script>
-<script src="/js/rh-paie.js?v=9.4.0" defer></script>
-<script src="/js/compta-ohada.js?v=9.4.0" defer></script>
-<script src="/js/marketing.js?v=9.4.0" defer></script>
-<script src="/js/plateforme.js?v=9.4.0" defer></script>
-<script src="/js/accueil-aide.js?v=9.4.0" defer></script>
-<script src="/js/import.js?v=9.4.0" defer></script>
-<script src="/js/achats.js?v=9.4.0" defer></script>
-<script src="/js/relances-auto.js?v=9.4.0" defer></script>
-<script src="/js/boutique.js?v=9.4.0" defer></script>
-<script src="/js/projets.js?v=9.4.0" defer></script>
-<script src="/js/immobilisations-rapports.js?v=9.4.0" defer></script>
-<script src="/js/rendez-vous.js?v=9.4.0" defer></script>
-<script src="/js/cabinet.js?v=9.4.0" defer></script>
-<script src="/js/listes.js?v=9.4.0" defer></script>
-<script src="/js/juridique.js?v=9.4.0" defer></script>
-<script src="/js/contacts-confidentialite.js?v=9.4.0" defer></script>
-<script src="/js/secteurs.js?v=9.4.0" defer></script>
-<script src="/js/restaurant.js?v=9.4.0" defer></script>
-<script src="/js/bar.js?v=9.4.0" defer></script>
-<script src="/js/froid.js?v=9.4.0" defer></script>
-<script src="/js/hotel.js?v=9.4.0" defer></script>
-<script src="/js/salon.js?v=9.4.0" defer></script>
-<script src="/js/commerce.js?v=9.4.0" defer></script>
-<script src="/js/commandes.js?v=9.4.0" defer></script>
-<script src="/js/abonnements.js?v=9.4.0" defer></script>
-<script src="/js/coeur-1.js?v=9.4.0" defer></script>
-<script src="/js/coeur-2.js?v=9.4.0" defer></script>
-<script src="/js/coeur-3.js?v=9.4.0" defer></script>
-<script src="/js/v93.js?v=9.4.0" defer></script>
-<script src="/js/bar-fiche.js?v=9.4.0" defer></script>
-<script src="/js/ecole.js?v=9.4.0" defer></script>
-<script src="/js/ambassade.js?v=9.4.0" defer></script>
-<script src="/js/pointage.js?v=9.4.0" defer></script>
-<script src="/js/espaces.js?v=9.4.0" defer></script>
+<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.5.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.5.0" defer><\/script>':""))})();</script>
+<script src="/js/vendor/qrcode.min.js?v=9.5.0" defer></script>
+<script src="/js/base-1.js?v=9.5.0" defer></script>
+<script src="/js/securite-roles.js?v=9.5.0" defer></script>
+<script src="/js/hors-ligne.js?v=9.5.0" defer></script>
+<script src="/js/facturation.js?v=9.5.0" defer></script>
+<script src="/js/stock-caisse.js?v=9.5.0" defer></script>
+<script src="/js/rh-paie.js?v=9.5.0" defer></script>
+<script src="/js/compta-ohada.js?v=9.5.0" defer></script>
+<script src="/js/marketing.js?v=9.5.0" defer></script>
+<script src="/js/plateforme.js?v=9.5.0" defer></script>
+<script src="/js/accueil-aide.js?v=9.5.0" defer></script>
+<script src="/js/import.js?v=9.5.0" defer></script>
+<script src="/js/achats.js?v=9.5.0" defer></script>
+<script src="/js/relances-auto.js?v=9.5.0" defer></script>
+<script src="/js/boutique.js?v=9.5.0" defer></script>
+<script src="/js/projets.js?v=9.5.0" defer></script>
+<script src="/js/immobilisations-rapports.js?v=9.5.0" defer></script>
+<script src="/js/rendez-vous.js?v=9.5.0" defer></script>
+<script src="/js/cabinet.js?v=9.5.0" defer></script>
+<script src="/js/listes.js?v=9.5.0" defer></script>
+<script src="/js/juridique.js?v=9.5.0" defer></script>
+<script src="/js/contacts-confidentialite.js?v=9.5.0" defer></script>
+<script src="/js/secteurs.js?v=9.5.0" defer></script>
+<script src="/js/restaurant.js?v=9.5.0" defer></script>
+<script src="/js/bar.js?v=9.5.0" defer></script>
+<script src="/js/froid.js?v=9.5.0" defer></script>
+<script src="/js/hotel.js?v=9.5.0" defer></script>
+<script src="/js/salon.js?v=9.5.0" defer></script>
+<script src="/js/commerce.js?v=9.5.0" defer></script>
+<script src="/js/commandes.js?v=9.5.0" defer></script>
+<script src="/js/abonnements.js?v=9.5.0" defer></script>
+<script src="/js/coeur-1.js?v=9.5.0" defer></script>
+<script src="/js/coeur-2.js?v=9.5.0" defer></script>
+<script src="/js/coeur-3.js?v=9.5.0" defer></script>
+<script src="/js/v93.js?v=9.5.0" defer></script>
+<script src="/js/bar-fiche.js?v=9.5.0" defer></script>
+<script src="/js/ecole.js?v=9.5.0" defer></script>
+<script src="/js/ambassade.js?v=9.5.0" defer></script>
+<script src="/js/pointage.js?v=9.5.0" defer></script>
+<script src="/js/espaces.js?v=9.5.0" defer></script>
+<script src="/js/reductions.js?v=9.5.0" defer></script>
+<script src="/js/premiers-reglages.js?v=9.5.0" defer></script>
+<script src="/js/annuaire.js?v=9.5.0" defer></script>
 
 </body>
 </html>
