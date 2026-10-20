@@ -1211,3 +1211,30 @@ html.rtl .nf-trash,[dir=rtl] .nf-trash{right:auto;left:10px}
 .rc-mk{background:rgba(0,224,128,.18);color:inherit;border-radius:3px;padding:0 1px}
 .rc-wait,.rc-none{text-align:center;color:var(--muted);padding:12px;font-size:13px;line-height:1.5}
 .rc-err{color:var(--red);padding:10px}
+/* 9.6.2 · Admin : formules des inscrits */
+.adm-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.adm-tile{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.adm-tile b{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.adm-tile span{font-size:12px;color:var(--muted)}
+.adm-tile.a b{color:var(--amber)}.adm-tile.r b{color:var(--red)}.adm-tile.g b{color:var(--green)}.adm-tile.b b{color:var(--blue)}
+.adm-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.adm-chip{min-height:34px;padding:0 13px;border-radius:17px;border:1px solid var(--b);background:transparent;color:var(--text);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.adm-chip em{font-style:normal;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.adm-chip.on{border-color:var(--green);background:rgba(0,224,128,.12);color:var(--green)}
+.adm-chip.on em{color:var(--green)}
+.adm-chip:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.adm-sel{min-height:34px;border-radius:17px;border:1px solid var(--b);background:var(--s);color:var(--text);font:inherit;font-size:12.5px;padding:0 12px}
+.adm-nm b{display:block;font-weight:700}.adm-nm small{display:block;color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:2px}
+.adm-num{font-family:var(--mono);font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.adm-pill{display:inline-flex;align-items:center;border-radius:10px;padding:2px 9px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.adm-pill.p-trial{background:rgba(245,166,35,.14);color:var(--amber)}
+.adm-pill.p-exp{background:rgba(255,95,109,.12);color:var(--red)}
+.adm-pill.p-sub{background:rgba(0,224,128,.12);color:var(--green);white-space:normal}
+.adm-pill.p-cyc{background:rgba(79,122,255,.12);color:var(--blue)}
+.adm-pill.p-gift{background:rgba(168,85,247,.14);color:#b07cff;white-space:normal}
+.adm-pill.p-cli{background:var(--c2);color:var(--muted)}
+.adm-note{font-size:11px;color:var(--muted)}
+.adm-mut{color:var(--muted)}
+.adm-sec{white-space:nowrap}
+.adm-act{display:flex;gap:5px;flex-wrap:nowrap;white-space:nowrap}
+#admin-users-tbody td{vertical-align:middle}

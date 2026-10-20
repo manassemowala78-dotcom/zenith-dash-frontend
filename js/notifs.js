@@ -493,3 +493,115 @@ if(typeof searchContactToShare==="function"){
     }catch(e){box.innerHTML=`<div class="rc-err">${esc(e.message)}</div>`;}
   };
 }
+
+// ── Admin : avec quelle formule chacun s'est inscrit ──
+let _admUsers=[],_admFilter="all",_admSector="",_admRev=null;
+function admSecName(k){return (t("sector_short_"+k)!=="sector_short_"+k&&t("sector_short_"+k))||k;}
+function admTier(v){return (t("ab_tier_"+v)!=="ab_tier_"+v&&t("ab_tier_"+v))||v;}
+function admKind(u){const c=u.sub_cycle||"monthly";if(c==="monthly"||c==="m1")return"monthly";if(c==="annual")return"annual";const m=/^m(\d+)$/.exec(c);if(m)return +m[1]>=12?"annual":"multi";return"monthly";}
+function admCycleLabel(u){const c=u.sub_cycle||"monthly";if(c==="monthly"||c==="m1")return"Mensuel";if(c==="annual")return"Annuel";const m=/^m(\d+)$/.exec(c);return m?`${m[1]} mois`:c;}
+function admMatch(u){
+  if(u.is_creator)return _admFilter==="all"&&!_admSector;
+  if(_admSector&&u.sector!==_admSector&&!(u.sector_extra||[]).includes(_admSector))return false;
+  switch(_admFilter){
+    case"trial":return u.status_key==="trial";
+    case"expired":return u.status_key==="expired";
+    case"monthly":return u.status_key==="sub"&&admKind(u)==="monthly";
+    case"multi":return u.status_key==="sub"&&admKind(u)==="multi";
+    case"annual":return u.status_key==="sub"&&admKind(u)==="annual";
+    case"gift":return u.status_key==="gift";
+    default:return true;
+  }
+}
+function admCounts(){
+  const us=_admUsers.filter(u=>!u.is_creator);
+  const c={all:us.length,trial:0,expired:0,monthly:0,multi:0,annual:0,gift:0};
+  us.forEach(u=>{if(u.status_key==="trial")c.trial++;else if(u.status_key==="expired")c.expired++;else if(u.status_key==="gift")c.gift++;else if(u.status_key==="sub")c[admKind(u)]++;});
+  return c;
+}
+renderAdminStats=function(users){
+  const box=document.getElementById("admin-stats-cards");if(!box)return;
+  if(users)_admUsers=users;
+  const c=admCounts();
+  const money=_admRev?`${_admRev.total_usd.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})} $`:"…";
+  box.className="adm-sum";box.removeAttribute("style");
+  box.innerHTML=`<div class="adm-tile"><b>${c.all}</b><span>Inscrits (créateur exclu)</span></div>
+    <div class="adm-tile a"><b>${c.trial}</b><span>En essai</span></div>
+    <div class="adm-tile r"><b>${c.expired}</b><span>Essai expiré, sans abonnement</span></div>
+    <div class="adm-tile g"><b>${c.monthly+c.multi+c.annual}</b><span>Abonnés : ${c.monthly} mensuel${c.monthly>1?"s":""}, ${c.annual} annuel${c.annual>1?"s":""}${c.multi?`, ${c.multi} sur quelques mois`:""}</span></div>
+    <div class="adm-tile b"><b>${money}</b><span>Encaissé ce mois-ci${_admRev?` · ${_admRev.payments} paiement${_admRev.payments>1?"s":""}`:""}</span></div>
+    ${c.gift?`<div class="adm-tile"><b>${c.gift}</b><span>Accès offerts</span></div>`:""}`;
+};
+function admFilters(){
+  const tb=document.getElementById("admin-users-tbody");if(!tb)return;
+  const wrap=tb.closest(".table-wrap");if(!wrap)return;
+  let f=document.getElementById("adm-filters");
+  if(!f){f=document.createElement("div");f.id="adm-filters";f.className="adm-filters";wrap.parentNode.insertBefore(f,wrap);}
+  const c=admCounts();
+  const secs=[...new Set(_admUsers.flatMap(u=>[u.sector,...(u.sector_extra||[])]).filter(Boolean))].sort((a,b)=>admSecName(a).localeCompare(admSecName(b)));
+  const chip=(k,l,n)=>`<button type="button" class="adm-chip${_admFilter===k?" on":""}" aria-pressed="${_admFilter===k}" onclick="_admFilter='${k}';admRender()">${l} <em>${n}</em></button>`;
+  f.innerHTML=chip("all","Tous",c.all)+chip("trial","Essai en cours",c.trial)+chip("expired","Essai expiré",c.expired)+chip("monthly","Abonnés mensuels",c.monthly)+(c.multi?chip("multi","Abonnés sur quelques mois",c.multi):"")+chip("annual","Abonnés annuels (12 mois et plus)",c.annual)+(c.gift?chip("gift","Accès offerts",c.gift):"")
+    +`<select class="adm-sel" id="adm-sector" aria-label="Secteur" onchange="_admSector=this.value;admRender()"><option value="">Tous les secteurs</option>${secs.map(s=>`<option value="${esc(s)}"${s===_admSector?" selected":""}>${esc(admSecName(s))}</option>`).join("")}</select>`;
+}
+function admFormula(u){
+  const pill=(cls,txt)=>`<span class="adm-pill ${cls}">${esc(txt)}</span>`;
+  switch(u.status_key){
+    case"creator":return pill("p-sub","Créateur");
+    case"client":return pill("p-cli","Compte client (gratuit)");
+    case"sub":{
+      const src=Object.keys(u.paid_sectors||{}).length?u.paid_sectors:(u.entitled||{});
+      const txt=Object.entries(src).sort((x,y)=>(x[0]===u.sector?-1:0)-(y[0]===u.sector?-1:0)).map(([k,v])=>admSecName(k)+" "+admTier(v)).join(" + ")||u.plan_label||u.subscribed_plan||"Abonné";
+      return pill("p-sub",txt)+(u.deal_pct?` <span class="adm-note">remise ${u.deal_pct} %</span>`:"")+(Object.keys(u.gifted_sectors||{}).length?` <span class="adm-note">+ offert : ${esc(Object.entries(u.gifted_sectors).map(([k,v])=>admSecName(k)+" "+admTier(v)).join(", "))}</span>`:"");
+    }
+    case"gift":return pill("p-gift","Offert : "+Object.entries(u.gifted_sectors||{}).map(([k,v])=>admSecName(k)+" "+admTier(v)).join(" + "));
+    case"trial":{
+      const ms=u.trial_expires_at?parseServerDate(u.trial_expires_at)-new Date():null;
+      const d=ms!=null?Math.max(0,Math.ceil(ms/86400000)):u.trial_days_remaining;
+      return pill("p-trial",`Essai · ${d} j restant${d>1?"s":""}`);
+    }
+    case"expired":return pill("p-exp","Essai expiré");
+    case"sandbox":return pill("p-cli","Gratuit");
+    default:return planBadge(u.plan);
+  }
+}
+function admRender(){
+  const tb=document.getElementById("admin-users-tbody");if(!tb)return;
+  const table=tb.closest("table");
+  const th=table&&table.querySelector("thead");
+  if(th)th.innerHTML=`<tr><th>Nom</th><th>Secteur à l'inscription</th><th>Formule</th><th>Cycle</th><th>Montant</th><th>Payé le</th><th>Fin / renouvellement</th><th>Inscrit le</th><th>Dernière visite</th><th>Pays</th><th>Statut</th><th>Actions</th></tr>`;
+  admFilters();
+  const list=_admUsers.filter(admMatch);
+  if(!list.length){tb.innerHTML=`<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:24px">Aucun compte dans ce filtre.</td></tr>`;return;}
+  const dash='<span class="adm-mut">—</span>';
+  tb.innerHTML=list.map(u=>{
+    const sec=u.sector?`<span class="adm-sec">${esc(admSecName(u.sector))}${(u.sector_extra||[]).length?` <span class="adm-mut">+ ${esc(u.sector_extra.map(admSecName).join(", "))}</span>`:""}</span>`:(u.account_type==="client"||u.is_creator?dash:'<span class="adm-mut">Pas encore choisi</span>');
+    const isSub=u.status_key==="sub";
+    const cyc=isSub?`<span class="adm-pill p-cyc">${admCycleLabel(u)}</span>`:dash;
+    const amt=isSub&&u.sub_price!=null?`${u.sub_price.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})} $`:dash;
+    const paid=isSub&&u.sub_paid_at?fmtDate(u.sub_paid_at):dash;
+    const end=isSub&&u.sub_expires_at?fmtDate(u.sub_expires_at):((u.status_key==="trial"||u.status_key==="expired")&&u.trial_expires_at?`${fmtDate(u.trial_expires_at)} <span class="adm-mut">(fin d'essai)</span>`:dash);
+    return `<tr>
+      <td class="adm-nm"><b>${esc(u.name)}</b>${u.is_creator?' <span class="badge bgold">CRÉATEUR</span>':''}${u.has_deal?' <span class="badge bp" title="Remise personnalisée">REMISE</span>':''}${u.has_gifts?' <span class="badge bp" title="Accès offert">OFFERT</span>':''}${u.filleuls?` <span class="badge bg" title="Filleuls">${u.filleuls} filleul${u.filleuls>1?"s":""}</span>`:''}<small>${esc(u.email)}</small></td>
+      <td>${sec}</td><td>${admFormula(u)}</td><td>${cyc}</td>
+      <td class="adm-num">${amt}</td><td class="adm-num">${paid}</td><td class="adm-num">${end}</td>
+      <td class="adm-num">${fmtDate(u.created_at)}</td><td class="adm-num">${fmtDate(u.last_seen_at)}</td>
+      <td>${esc(u.country)||"—"}</td>
+      <td>${u.is_active?'<span class="badge bg">Actif</span>':'<span class="badge br">Banni</span>'}</td>
+      <td><div class="adm-act">
+        ${u.is_creator?"":`<button class="btn btn-sm btn-g" onclick="abAdminOffer('${u.id}')"><i class="ti ti-discount-2"></i> Conditions</button>`}
+        ${u.is_creator?"":`<button class="btn btn-sm btn-b" onclick="resetTrial('${u.id}','${escJs(u.name)}')"><i class="ti ti-clock-play"></i> Renouveler essai</button>`}
+        ${u.is_creator?"":u.is_active?`<button class="btn btn-sm btn-r" onclick="banUser('${u.id}','${escJs(u.name)}')"><i class="ti ti-ban"></i> Bannir</button>`:`<button class="btn btn-sm btn-g" onclick="unbanUser('${u.id}','${escJs(u.name)}')"><i class="ti ti-check"></i> Débannir</button>`}
+        ${u.is_creator?"":`<button class="btn btn-sm btn-o" aria-label="Supprimer" onclick="deleteUser('${u.id}','${escJs(u.name)}')"><i class="ti ti-trash"></i></button>`}
+      </div></td></tr>`;
+  }).join("");
+}
+loadAdminUsers=async function(){
+  const tb=document.getElementById("admin-users-tbody");if(!tb)return;
+  try{
+    const [users,rev]=await Promise.all([api("GET","/admin/users"),api("GET","/admin/revenue-month").catch(()=>null)]);
+    _admUsers=users||[];_admRev=rev;
+    renderAdminStats(_admUsers);
+    if(!_admUsers.length){tb.innerHTML=`<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:24px">Aucun utilisateur.</td></tr>`;return;}
+    admRender();
+  }catch(e){tb.innerHTML=`<tr><td colspan="12" style="color:var(--red);padding:20px">${esc(e.message)}</td></tr>`;}
+};
