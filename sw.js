@@ -1,5 +1,5 @@
-const CACHE_VERSION = "zd-v9.6.2";
-const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/icon-maskable-512.png", "/apple-touch-icon.png", "/favicon.png", "/css/app.css?v=9.6.2", "/css/icons.css?v=9.6.2", "/css/icons.woff2?v=9.6.2", "/js/vendor/qrcode.min.js?v=9.6.2", "/js/base-1.js?v=9.6.2", "/js/securite-roles.js?v=9.6.2", "/js/hors-ligne.js?v=9.6.2", "/js/facturation.js?v=9.6.2", "/js/stock-caisse.js?v=9.6.2", "/js/rh-paie.js?v=9.6.2", "/js/compta-ohada.js?v=9.6.2", "/js/marketing.js?v=9.6.2", "/js/plateforme.js?v=9.6.2", "/js/accueil-aide.js?v=9.6.2", "/js/import.js?v=9.6.2", "/js/achats.js?v=9.6.2", "/js/relances-auto.js?v=9.6.2", "/js/boutique.js?v=9.6.2", "/js/projets.js?v=9.6.2", "/js/immobilisations-rapports.js?v=9.6.2", "/js/rendez-vous.js?v=9.6.2", "/js/cabinet.js?v=9.6.2", "/js/listes.js?v=9.6.2", "/js/juridique.js?v=9.6.2", "/js/contacts-confidentialite.js?v=9.6.2", "/js/secteurs.js?v=9.6.2", "/js/restaurant.js?v=9.6.2", "/js/bar.js?v=9.6.2", "/js/froid.js?v=9.6.2", "/js/hotel.js?v=9.6.2", "/js/salon.js?v=9.6.2", "/js/commerce.js?v=9.6.2", "/js/commandes.js?v=9.6.2", "/js/abonnements.js?v=9.6.2", "/js/coeur-1.js?v=9.6.2", "/js/coeur-2.js?v=9.6.2", "/js/coeur-3.js?v=9.6.2", "/js/v93.js?v=9.6.2", "/js/bar-fiche.js?v=9.6.2", "/js/ecole.js?v=9.6.2", "/js/ambassade.js?v=9.6.2", "/js/pointage.js?v=9.6.2", "/js/espaces.js?v=9.6.2", "/js/reductions.js?v=9.6.2", "/js/premiers-reglages.js?v=9.6.2", "/js/annuaire.js?v=9.6.2", "/js/notifs.js?v=9.6.2", "/reponse.html", "/js/reponse.js?v=9.6.2", "/js/i18n/fr.js?v=9.6.2"];
+const CACHE_VERSION = "zd-v9.7.0";
+const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/icon-maskable-512.png", "/apple-touch-icon.png", "/favicon.png", "/css/app.css?v=9.7.0", "/css/icons.css?v=9.7.0", "/css/icons.woff2?v=9.7.0", "/js/vendor/qrcode.min.js?v=9.7.0", "/js/base-1.js?v=9.7.0", "/js/securite-roles.js?v=9.7.0", "/js/hors-ligne.js?v=9.7.0", "/js/facturation.js?v=9.7.0", "/js/stock-caisse.js?v=9.7.0", "/js/rh-paie.js?v=9.7.0", "/js/compta-ohada.js?v=9.7.0", "/js/marketing.js?v=9.7.0", "/js/plateforme.js?v=9.7.0", "/js/accueil-aide.js?v=9.7.0", "/js/import.js?v=9.7.0", "/js/achats.js?v=9.7.0", "/js/relances-auto.js?v=9.7.0", "/js/boutique.js?v=9.7.0", "/js/projets.js?v=9.7.0", "/js/immobilisations-rapports.js?v=9.7.0", "/js/rendez-vous.js?v=9.7.0", "/js/cabinet.js?v=9.7.0", "/js/listes.js?v=9.7.0", "/js/juridique.js?v=9.7.0", "/js/contacts-confidentialite.js?v=9.7.0", "/js/secteurs.js?v=9.7.0", "/js/restaurant.js?v=9.7.0", "/js/bar.js?v=9.7.0", "/js/froid.js?v=9.7.0", "/js/hotel.js?v=9.7.0", "/js/salon.js?v=9.7.0", "/js/commerce.js?v=9.7.0", "/js/commandes.js?v=9.7.0", "/js/abonnements.js?v=9.7.0", "/js/coeur-1.js?v=9.7.0", "/js/coeur-2.js?v=9.7.0", "/js/coeur-3.js?v=9.7.0", "/js/v93.js?v=9.7.0", "/js/bar-fiche.js?v=9.7.0", "/js/ecole.js?v=9.7.0", "/js/ambassade.js?v=9.7.0", "/js/pointage.js?v=9.7.0", "/js/espaces.js?v=9.7.0", "/js/reductions.js?v=9.7.0", "/js/premiers-reglages.js?v=9.7.0", "/js/annuaire.js?v=9.7.0", "/js/notifs.js?v=9.7.0", "/js/appels.js?v=9.7.0", "/js/comptes.js?v=9.7.0", "/js/paiement.js?v=9.7.0", "/reponse.html", "/js/reponse.js?v=9.7.0", "/js/i18n/fr.js?v=9.7.0"];
 const CDN_HOSTS = ["cdn.jsdelivr.net", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"];
 
 self.addEventListener("install", (event) => {
@@ -79,7 +79,30 @@ self.addEventListener("fetch", (event) => {
   }
 });
 
+function zdBadge(n) {
+  try {
+    const nav = self.navigator;
+    if (!nav || !("setAppBadge" in nav)) return;
+    if (n > 0) nav.setAppBadge(n).catch(() => {}); else nav.clearAppBadge().catch(() => {});
+  } catch (_) {}
+}
+async function zdClear(m) {
+  const list = await self.registration.getNotifications();
+  const keepN = Array.isArray(m.keep_nids) ? new Set(m.keep_nids) : null;
+  const keepC = Array.isArray(m.keep_convs) ? new Set(m.keep_convs) : null;
+  for (const n of list) {
+    const d = n.data || {};
+    if (Array.isArray(m.tags) && m.tags.includes(n.tag)) { n.close(); continue; }
+    if (d.type === "call" && d.call_id) continue;
+    if (m.conv_id && d.conv_id === m.conv_id && !d.nid) { n.close(); continue; }
+    if (m.nid && d.nid === m.nid) { n.close(); continue; }
+    if (keepN && d.nid && !keepN.has(d.nid)) { n.close(); continue; }
+    if (keepC && !d.nid && d.conv_id && !keepC.has(d.conv_id)) { n.close(); continue; }
+  }
+  if (typeof m.badge === "number") zdBadge(m.badge);
+}
 self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "zd-clear") { event.waitUntil(zdClear(event.data).catch(() => null)); return; }
   if (event.data && event.data.type === "skip-waiting") self.skipWaiting();
   if (event.data && event.data.type === "cache-urls" && Array.isArray(event.data.urls)) {
     const urls = event.data.urls.filter((u) => typeof u === "string" && u.startsWith("/js/"));
@@ -90,12 +113,12 @@ self.addEventListener("message", (event) => {
 const ZD_API = (self.location.hostname === "localhost" || self.location.hostname === "127.0.0.1") ? "http://localhost:8000/v1"
   : (self.location.hostname.includes("staging") ? "https://zenith-dash-staging.up.railway.app/v1" : "https://zenith-dash-production.up.railway.app/v1");
 const ZD_PUSH_TXT = {
-  fr: { reply: "Répondre", react: "Réagir", ph: "Ta réponse…", sent: "Réponse envoyée", reacted: "Réaction envoyée", fail: "Envoi impossible : ouvre Zenith Dash" },
-  en: { reply: "Reply", react: "React", ph: "Your reply…", sent: "Reply sent", reacted: "Reaction sent", fail: "Could not send: open Zenith Dash" },
-  es: { reply: "Responder", react: "Reaccionar", ph: "Tu respuesta…", sent: "Respuesta enviada", reacted: "Reacción enviada", fail: "No se pudo enviar: abre Zenith Dash" },
-  ar: { reply: "رد", react: "تفاعل", ph: "ردك…", sent: "تم إرسال الرد", reacted: "تم إرسال التفاعل", fail: "تعذر الإرسال: افتح Zenith Dash" },
-  sw: { reply: "Jibu", react: "Itikia", ph: "Jibu lako…", sent: "Jibu limetumwa", reacted: "Itikio limetumwa", fail: "Imeshindikana: fungua Zenith Dash" },
-  ln: { reply: "Yanola", react: "Pesa likanisi", ph: "Eyano na yo…", sent: "Eyano etindami", reacted: "Likanisi etindami", fail: "Ekoki te: fungola Zenith Dash" },
+  fr: { answer: "Répondre", decline: "Refuser", callback: "Rappeler", reply: "Répondre", react: "Réagir", ph: "Ta réponse…", sent: "Réponse envoyée", reacted: "Réaction envoyée", fail: "Envoi impossible : ouvre Zenith Dash" },
+  en: { answer: "Answer", decline: "Decline", callback: "Call back", reply: "Reply", react: "React", ph: "Your reply…", sent: "Reply sent", reacted: "Reaction sent", fail: "Could not send: open Zenith Dash" },
+  es: { answer: "Contestar", decline: "Rechazar", callback: "Devolver la llamada", reply: "Responder", react: "Reaccionar", ph: "Tu respuesta…", sent: "Respuesta enviada", reacted: "Reacción enviada", fail: "No se pudo enviar: abre Zenith Dash" },
+  ar: { answer: "رد على المكالمة", decline: "رفض", callback: "معاودة الاتصال", reply: "رد", react: "تفاعل", ph: "ردك…", sent: "تم إرسال الرد", reacted: "تم إرسال التفاعل", fail: "تعذر الإرسال: افتح Zenith Dash" },
+  sw: { answer: "Pokea", decline: "Kataa", callback: "Piga tena", reply: "Jibu", react: "Itikia", ph: "Jibu lako…", sent: "Jibu limetumwa", reacted: "Itikio limetumwa", fail: "Imeshindikana: fungua Zenith Dash" },
+  ln: { answer: "Kozongisa", decline: "Koboya", callback: "Kobenga lisusu", reply: "Yanola", react: "Pesa likanisi", ph: "Eyano na yo…", sent: "Eyano etindami", reacted: "Likanisi etindami", fail: "Ekoki te: fungola Zenith Dash" },
 };
 function zdPushTxt() {
   const l = String((self.navigator && self.navigator.language) || "fr").slice(0, 2);
@@ -114,18 +137,27 @@ self.addEventListener("push", (event) => {
     body: data.body,
     icon: "/icon-192.png",
     badge: "/icon-192.png",
-    data: { url: data.url || "/", reply: data.reply || null, msg_id: data.msg_id || null, conv_id: data.conv_id || null, react: data.react || "👍" },
+    data: { url: data.url || "/", reply: data.reply || null, msg_id: data.msg_id || null, conv_id: data.conv_id || null, react: data.react || "👍",
+      nid: data.nid || null, type: data.type || null, call_id: data.call_id || null, call_kind: data.call_kind || null, callback: data.callback || null },
     silent: !!data.silent,
   };
-  if (data.vibrate !== false && !data.silent) options.vibrate = [120, 60, 120];
+  const ringing = data.type === "call" && data.ring;
+  if (data.vibrate !== false && !data.silent) options.vibrate = ringing ? [800, 400, 800, 400, 800, 400, 800, 400, 800] : [120, 60, 120];
   if (data.tag) { options.tag = data.tag; options.renotify = !data.silent; }
-  if (data.reply && data.msg_id) {
+  if (ringing) {
+    options.requireInteraction = true;
+    options.actions = [{ action: "call-answer", title: tx.answer }, { action: "call-decline", title: tx.decline }];
+  } else if (data.callback && data.reply) {
+    options.actions = [{ action: "call-back", title: tx.callback }, { action: "reply", type: "text", title: tx.reply, placeholder: tx.ph }];
+  } else if (data.reply && data.msg_id) {
     options.actions = [
       { action: "reply", type: "text", title: tx.reply, placeholder: tx.ph },
       { action: "react", title: `${tx.react} ${data.react || "👍"}` },
     ];
   }
   event.waitUntil((async () => {
+    if (data.close_tag) { try { (await self.registration.getNotifications({ tag: data.close_tag })).forEach((n) => n.close()); } catch (_) {} }
+    if (typeof data.badge === "number") zdBadge(data.badge);
     await self.registration.showNotification(data.title || "Zenith Dash", options);
     const list = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     list.forEach((c) => { try { c.postMessage({ type: "zd-push", cat: data.cat || null }); } catch (_) {} });
@@ -162,6 +194,18 @@ self.addEventListener("notificationclick", (event) => {
   n.close();
   const tx = zdPushTxt();
   event.waitUntil((async () => {
+    if (d.type === "call" && d.call_id) {
+      const base = `/?p=messaging&c=${encodeURIComponent(d.conv_id || "")}&call=${encodeURIComponent(d.call_id)}`;
+      if (event.action === "call-decline") {
+        try { if (d.reply) await zdQuick(`${encodeURIComponent(d.reply)}/call/${encodeURIComponent(d.call_id)}/decline`, {}); } catch (_) {}
+        const list = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+        list.forEach((c) => { try { c.postMessage({ type: "zd-call-declined", call_id: d.call_id }); } catch (_) {} });
+        return;
+      }
+      if (event.action === "call-answer") return zdOpen(`${base}&answer=1&kind=${d.call_kind === "video" ? "video" : "audio"}`);
+      return zdOpen(base);
+    }
+    if (event.action === "call-back" && d.conv_id) return zdOpen(`/?p=messaging&c=${encodeURIComponent(d.conv_id)}&callback=${d.callback === "video" ? "video" : "audio"}`);
     if (event.action === "react" && d.reply && d.msg_id) {
       try { await zdQuick(`${encodeURIComponent(d.reply)}/react`, { message_id: d.msg_id, emoji: d.react || "👍" }); await zdToast(tx.reacted, d.react || "👍", n.tag); }
       catch (_) { await zdOpen(d.url); }

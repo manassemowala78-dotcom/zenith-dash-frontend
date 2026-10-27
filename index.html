@@ -27,9 +27,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Zenith Dash">
-<link rel="preload" href="/css/icons.woff2?v=9.6.2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/icons.css?v=9.6.2">
-<link rel="stylesheet" href="/css/app.css?v=9.6.2">
+<link rel="preload" href="/css/icons.woff2?v=9.7.0" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/icons.css?v=9.7.0">
+<link rel="stylesheet" href="/css/app.css?v=9.7.0">
 </head>
 <body class="zd-no-ai">
 <!-- PORTAIL CLIENT (accès public, sans compte) -->
@@ -332,6 +332,8 @@
                 </div>
               </div>
               <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
+                <i class="ti ti-phone cl-hb" id="cl-btn-audio" role="button" tabindex="0" style="display:none" aria-label="Appel audio" title="Appel audio" onclick="clStart('audio')" onkeydown="if(event.key==='Enter')clStart('audio')"></i>
+                <i class="ti ti-video cl-hb" id="cl-btn-video" role="button" tabindex="0" style="display:none" aria-label="Appel vidéo" title="Appel vidéo" onclick="clStart('video')" onkeydown="if(event.key==='Enter')clStart('video')"></i>
                 <i class="ti ti-info-circle" id="chat-info-btn" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="openCurrentChatInfo()"></i>
                 <i class="ti ti-bell" id="mute-btn" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="toggleMuteConversation()"></i>
                 <i class="ti ti-archive" id="archive-btn" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="toggleArchiveConversation()"></i>
@@ -408,7 +410,7 @@
               <i class="ti ti-microphone" style="color:var(--red);font-size:20px;animation:pulse 1.2s infinite"></i>
               <span data-i18n="recording_in_progress">Enregistrement...</span>
               <span id="recording-timer" style="font-family:var(--mono);color:var(--muted)">0:00</span>
-              <div style="flex:1"></div>
+              <div class="vb-bars" id="vb-rec" aria-hidden="true"></div>
               <button class="btn btn-o btn-sm" onclick="cancelVoiceRecording()" data-i18n="view_once_cancel">Annuler</button>
               <button class="btn btn-g btn-sm" onclick="stopVoiceRecording()"><i class="ti ti-send"></i> <span data-i18n="btn_send_short">Envoyer</span></button>
             </div>
@@ -1395,6 +1397,8 @@
       <div style="font-weight:800;font-size:15px;margin:4px 0 10px"><i class="ti ti-chart-line" style="color:var(--green)"></i> <span data-i18n="cd_title">Tableau de bord créateur</span></div>
       <div id="creator-dashboard" style="margin-bottom:18px"></div>
       <div id="promo-admin" style="margin-bottom:18px"></div>
+      <div id="fa-admin" style="margin-bottom:18px"></div>
+      <div id="pay-admin" style="margin-bottom:18px"></div>
       <div class="card" style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><div style="font-weight:700"><i class="ti ti-affiliate" style="color:var(--purple)"></i> <span data-i18n="partners_title">Revendeurs et partenaires</span></div>
           <button class="btn btn-g btn-sm" onclick="createPartner()"><i class="ti ti-plus"></i> <span data-i18n="btn_new_partner">Nouveau partenaire</span></button></div>
@@ -2403,51 +2407,54 @@
   </div>
 </div>
 
-<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.6.2" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.6.2" defer><\/script>':""))})();</script>
-<script src="/js/vendor/qrcode.min.js?v=9.6.2" defer></script>
-<script src="/js/base-1.js?v=9.6.2" defer></script>
-<script src="/js/securite-roles.js?v=9.6.2" defer></script>
-<script src="/js/hors-ligne.js?v=9.6.2" defer></script>
-<script src="/js/facturation.js?v=9.6.2" defer></script>
-<script src="/js/stock-caisse.js?v=9.6.2" defer></script>
-<script src="/js/rh-paie.js?v=9.6.2" defer></script>
-<script src="/js/compta-ohada.js?v=9.6.2" defer></script>
-<script src="/js/marketing.js?v=9.6.2" defer></script>
-<script src="/js/plateforme.js?v=9.6.2" defer></script>
-<script src="/js/accueil-aide.js?v=9.6.2" defer></script>
-<script src="/js/import.js?v=9.6.2" defer></script>
-<script src="/js/achats.js?v=9.6.2" defer></script>
-<script src="/js/relances-auto.js?v=9.6.2" defer></script>
-<script src="/js/boutique.js?v=9.6.2" defer></script>
-<script src="/js/projets.js?v=9.6.2" defer></script>
-<script src="/js/immobilisations-rapports.js?v=9.6.2" defer></script>
-<script src="/js/rendez-vous.js?v=9.6.2" defer></script>
-<script src="/js/cabinet.js?v=9.6.2" defer></script>
-<script src="/js/listes.js?v=9.6.2" defer></script>
-<script src="/js/juridique.js?v=9.6.2" defer></script>
-<script src="/js/contacts-confidentialite.js?v=9.6.2" defer></script>
-<script src="/js/secteurs.js?v=9.6.2" defer></script>
-<script src="/js/restaurant.js?v=9.6.2" defer></script>
-<script src="/js/bar.js?v=9.6.2" defer></script>
-<script src="/js/froid.js?v=9.6.2" defer></script>
-<script src="/js/hotel.js?v=9.6.2" defer></script>
-<script src="/js/salon.js?v=9.6.2" defer></script>
-<script src="/js/commerce.js?v=9.6.2" defer></script>
-<script src="/js/commandes.js?v=9.6.2" defer></script>
-<script src="/js/abonnements.js?v=9.6.2" defer></script>
-<script src="/js/coeur-1.js?v=9.6.2" defer></script>
-<script src="/js/coeur-2.js?v=9.6.2" defer></script>
-<script src="/js/coeur-3.js?v=9.6.2" defer></script>
-<script src="/js/v93.js?v=9.6.2" defer></script>
-<script src="/js/bar-fiche.js?v=9.6.2" defer></script>
-<script src="/js/ecole.js?v=9.6.2" defer></script>
-<script src="/js/ambassade.js?v=9.6.2" defer></script>
-<script src="/js/pointage.js?v=9.6.2" defer></script>
-<script src="/js/espaces.js?v=9.6.2" defer></script>
-<script src="/js/reductions.js?v=9.6.2" defer></script>
-<script src="/js/premiers-reglages.js?v=9.6.2" defer></script>
-<script src="/js/annuaire.js?v=9.6.2" defer></script>
-<script src="/js/notifs.js?v=9.6.2" defer></script>
+<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.7.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.7.0" defer><\/script>':""))})();</script>
+<script src="/js/vendor/qrcode.min.js?v=9.7.0" defer></script>
+<script src="/js/base-1.js?v=9.7.0" defer></script>
+<script src="/js/securite-roles.js?v=9.7.0" defer></script>
+<script src="/js/hors-ligne.js?v=9.7.0" defer></script>
+<script src="/js/facturation.js?v=9.7.0" defer></script>
+<script src="/js/stock-caisse.js?v=9.7.0" defer></script>
+<script src="/js/rh-paie.js?v=9.7.0" defer></script>
+<script src="/js/compta-ohada.js?v=9.7.0" defer></script>
+<script src="/js/marketing.js?v=9.7.0" defer></script>
+<script src="/js/plateforme.js?v=9.7.0" defer></script>
+<script src="/js/accueil-aide.js?v=9.7.0" defer></script>
+<script src="/js/import.js?v=9.7.0" defer></script>
+<script src="/js/achats.js?v=9.7.0" defer></script>
+<script src="/js/relances-auto.js?v=9.7.0" defer></script>
+<script src="/js/boutique.js?v=9.7.0" defer></script>
+<script src="/js/projets.js?v=9.7.0" defer></script>
+<script src="/js/immobilisations-rapports.js?v=9.7.0" defer></script>
+<script src="/js/rendez-vous.js?v=9.7.0" defer></script>
+<script src="/js/cabinet.js?v=9.7.0" defer></script>
+<script src="/js/listes.js?v=9.7.0" defer></script>
+<script src="/js/juridique.js?v=9.7.0" defer></script>
+<script src="/js/contacts-confidentialite.js?v=9.7.0" defer></script>
+<script src="/js/secteurs.js?v=9.7.0" defer></script>
+<script src="/js/restaurant.js?v=9.7.0" defer></script>
+<script src="/js/bar.js?v=9.7.0" defer></script>
+<script src="/js/froid.js?v=9.7.0" defer></script>
+<script src="/js/hotel.js?v=9.7.0" defer></script>
+<script src="/js/salon.js?v=9.7.0" defer></script>
+<script src="/js/commerce.js?v=9.7.0" defer></script>
+<script src="/js/commandes.js?v=9.7.0" defer></script>
+<script src="/js/abonnements.js?v=9.7.0" defer></script>
+<script src="/js/coeur-1.js?v=9.7.0" defer></script>
+<script src="/js/coeur-2.js?v=9.7.0" defer></script>
+<script src="/js/coeur-3.js?v=9.7.0" defer></script>
+<script src="/js/v93.js?v=9.7.0" defer></script>
+<script src="/js/bar-fiche.js?v=9.7.0" defer></script>
+<script src="/js/ecole.js?v=9.7.0" defer></script>
+<script src="/js/ambassade.js?v=9.7.0" defer></script>
+<script src="/js/pointage.js?v=9.7.0" defer></script>
+<script src="/js/espaces.js?v=9.7.0" defer></script>
+<script src="/js/reductions.js?v=9.7.0" defer></script>
+<script src="/js/premiers-reglages.js?v=9.7.0" defer></script>
+<script src="/js/annuaire.js?v=9.7.0" defer></script>
+<script src="/js/notifs.js?v=9.7.0" defer></script>
+<script src="/js/appels.js?v=9.7.0" defer></script>
+<script src="/js/comptes.js?v=9.7.0" defer></script>
+<script src="/js/paiement.js?v=9.7.0" defer></script>
 
 </body>
 </html>

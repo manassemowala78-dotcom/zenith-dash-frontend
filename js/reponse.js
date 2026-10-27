@@ -62,6 +62,19 @@ async function react(e){
   app.querySelectorAll(".re").forEach(b=>b.disabled=true);
   try{await post("/react",{message_id:target,emoji:e});done(`${T.sentR} ${e}`);}catch(err){st(err.message,true);app.querySelectorAll(".re").forEach(b=>b.disabled=false);}finally{busy=false;}
 }
+let meter=null;
+function voiceMeter(stream,box,n){
+  let ctx,an,src,data,raf=0,lv=0;
+  try{ctx=new (window.AudioContext||window.webkitAudioContext)();src=ctx.createMediaStreamSource(stream);an=ctx.createAnalyser();an.fftSize=256;an.smoothingTimeConstant=.55;src.connect(an);data=new Uint8Array(an.frequencyBinCount);if(ctx.state==="suspended")ctx.resume().catch(()=>{});}
+  catch(_){return {stop(){}};}
+  box.innerHTML=Array.from({length:n},()=>"<i></i>").join("");const bars=[...box.children],mid=(n-1)/2;
+  const bin=ctx.sampleRate/an.fftSize,lo=Math.max(1,Math.floor(90/bin)),hi=Math.min(data.length-1,Math.ceil(3800/bin));
+  const tick=()=>{an.getByteFrequencyData(data);let sum=0;for(let i=lo;i<=hi;i++)sum+=data[i];lv=lv*.55+Math.min(1,sum/((hi-lo+1)*255)*2.6)*.45;
+    bars.forEach((b,i)=>{const d=mid?Math.abs(i-mid)/mid:0;const v=data[Math.min(hi,Math.floor(lo+d*(hi-lo)*.85))]/255;b.style.transform=`scaleY(${Math.max(.14,Math.min(1,v*1.2*(1-d*.35)+lv*.25)).toFixed(3)})`;});
+    box.parentElement&&box.parentElement.style.setProperty("--lv",lv.toFixed(3));raf=requestAnimationFrame(tick);};
+  tick();
+  return {stop(){cancelAnimationFrame(raf);try{src.disconnect();}catch(_){}try{ctx.close();}catch(_){}}};
+}
 function fmt(s){return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;}
 async function startRec(){
   if(!navigator.mediaDevices||!window.MediaRecorder){st(T.micno,true);return;}
@@ -71,13 +84,14 @@ async function startRec(){
   rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
   rec.start();recStart=Date.now();
   const row=document.getElementById("row");
-  row.innerHTML=`<div class="recbar"><span class="dot" aria-hidden="true"></span><span id="rt">0:00</span><span class="sub">${esc(T.rec)}</span><button type="button" class="cancel" id="cx">${esc(T.cancel)}</button></div><button type="button" class="round rec" id="sv" aria-label="${esc(T.stop)}">${IC.send}</button>`;
+  row.innerHTML=`<div class="recbar"><span class="dot" aria-hidden="true"></span><span id="rt">0:00</span><span class="bars" id="vb" aria-hidden="true"></span><span class="sub sr">${esc(T.rec)}</span><button type="button" class="cancel" id="cx">${esc(T.cancel)}</button></div><button type="button" class="round rec" id="sv" aria-label="${esc(T.stop)}">${IC.send}</button>`;
+  try{meter=voiceMeter(stream,document.getElementById("vb"),22);}catch(_){}
   recTimer=setInterval(()=>{const e=document.getElementById("rt");if(e)e.textContent=fmt((Date.now()-recStart)/1000);if(Date.now()-recStart>300000)stopRec(true);},250);
   document.getElementById("cx").addEventListener("click",()=>stopRec(false));
   document.getElementById("sv").addEventListener("click",()=>stopRec(true));
 }
 function stopRec(send){
-  if(!rec)return;clearInterval(recTimer);const r=rec;rec=null;
+  if(!rec)return;clearInterval(recTimer);if(meter){meter.stop();meter=null;}const r=rec;rec=null;
   r.onstop=async()=>{
     r.stream.getTracks().forEach(t=>t.stop());
     if(!send||!chunks.length){rowText();return;}

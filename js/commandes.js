@@ -54,7 +54,7 @@ function ocItemsHtml(items){
 // ── Compteur et alertes ──
 let _ocLast={todo:null,declared:null},_ocPoll=null;
 async function ocUpdateBadges(){
-  if(!State.token||!State.tenant||!ocHasModules())return;
+  if(!State.token||!State.tenant||State.tenant.account_type==="client"||!ocHasModules())return;
   try{
     const r=await api("GET","/online/count");
     ["online-badge","online-badge-more"].forEach(id=>{const b=document.getElementById(id);if(b){b.textContent=r.todo;b.style.display=r.todo?"inline-flex":"none";}});
