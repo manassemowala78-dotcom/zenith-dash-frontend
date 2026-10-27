@@ -228,16 +228,18 @@ async function clEnter(r,kind,mode,lkp){
   clStatus(t("cl_connecting"));
   const LK=CL.LK=await (lkp||clLoadLK());
   if(!CL.call||CL.call.id!==r.call.id)return;
-  const room=new LK.Room({adaptiveStream:true,dynacast:true,
-    publishDefaults:{simulcast:true,videoSimulcastLayers:[LK.VideoPresets.h180,LK.VideoPresets.h360],screenShareEncoding:LK.ScreenSharePresets?LK.ScreenSharePresets.h1080fps15.encoding:undefined},
-    videoCaptureDefaults:{resolution:LK.VideoPresets.h540.resolution,facingMode:"user"},
-    audioCaptureDefaults:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  const dev=clDevPrefs();
+  const vcap={resolution:LK.VideoPresets.h540.resolution};if(clCoarse())vcap.facingMode="user";if(dev.cam)vcap.deviceId=dev.cam;
+  const acap={echoCancellation:true,noiseSuppression:true,autoGainControl:true,voiceIsolation:true,channelCount:1};if(dev.mic)acap.deviceId=dev.mic;
+  const room=new LK.Room({adaptiveStream:true,dynacast:true,webAudioMix:false,
+    publishDefaults:{simulcast:true,dtx:true,red:true,videoSimulcastLayers:[LK.VideoPresets.h180,LK.VideoPresets.h360],screenShareEncoding:LK.ScreenSharePresets?LK.ScreenSharePresets.h1080fps15.encoding:undefined},
+    videoCaptureDefaults:vcap,audioCaptureDefaults:acap,audioOutput:dev.out?{deviceId:dev.out}:undefined});
   CL.room=room;clBind(room,LK);
   await room.connect(r.lk.url,r.lk.token,{autoSubscribe:true});
   if(CL.room!==room){try{room.disconnect();}catch(_){}return;}
   clStatus("");
-  try{await room.localParticipant.setMicrophoneEnabled(true);}catch(_){CL.mic=false;showToast(t("cl_mic_denied"),"error");}
-  if(CL.cam){try{await room.localParticipant.setCameraEnabled(true,{facingMode:"user"});}catch(_){CL.cam=false;showToast(t("cl_cam_denied"),"error");}}
+  try{await clMicOn(room.localParticipant);}catch(e){CL.mic=false;clDevError("mic",e);}
+  if(CL.cam){try{await clCamOn(room.localParticipant);}catch(e){CL.cam=false;clDevError("cam",e);}}
   if(room.remoteParticipants.size)clOnRemoteJoin(true);
   clBar();clRefresh();
   if(!room.canPlaybackAudio)clAudioUnlock(true);
@@ -247,9 +249,10 @@ function clBind(room,LK){
   room.on(E.ParticipantConnected,()=>{clOnRemoteJoin();r();})
     .on(E.ParticipantDisconnected,()=>{r();clCheckAlone();})
     .on(E.TrackSubscribed,(track,pub,p)=>{
-      if(track.kind==="audio"){const el=track.attach();el.dataset.pid=p.identity;el.muted=!CL.sound;document.getElementById("cl-audio")?.appendChild(el);}
+      if(track.kind==="audio")clAttachAudio(track,pub,p);
       r();})
-    .on(E.TrackUnsubscribed,track=>{if(track.kind==="audio")track.detach().forEach(e=>e.remove());r();})
+    .on(E.TrackUnsubscribed,(track,pub,p)=>{if(track.kind==="audio"){track.detach().forEach(e=>e.remove());clDedupeAudio();}r();})
+    .on(E.Reconnected,()=>clDedupeAudio())
     .on(E.TrackMuted,r).on(E.TrackUnmuted,r).on(E.LocalTrackPublished,r).on(E.LocalTrackUnpublished,()=>{r();clSyncLocal();})
     .on(E.ActiveSpeakersChanged,sp=>{const ids=sp.map(x=>x.identity);ids.filter(i=>i!==room.localParticipant.identity).forEach(i=>{CL.speakers=[i,...CL.speakers.filter(x=>x!==i)].slice(0,8);});CL.speaking=new Set(ids);clSpeakers();})
     .on(E.ParticipantAttributesChanged,r)
@@ -357,17 +360,18 @@ function clBar(){
     b("clToggleCam()",CL.cam?"ti-video":"ti-video-off",t(CL.cam?"cl_cam_off":"cl_cam_on"),CL.cam?"":"off"),
     CL.cam&&clCoarse()?b("clFlip()","ti-camera-rotate",t("cl_flip")):"",
     b("clToggleSound()",CL.sound?"ti-volume":"ti-volume-off",t(CL.sound?"cl_sound_off":"cl_sound_on"),CL.sound?"":"off"),
+    !clCoarse()?b("clDevices()","ti-adjustments",t("cl_devices")):"",
     canShare?b("clToggleShare()",CL.share?"ti-screen-share-off":"ti-screen-share",t(CL.share?"cl_share_stop":"cl_share"),CL.share?"on":""):"",
     grp?b("clToggleHand()","ti-hand-stop",t(CL.hand?"cl_hand_down":"cl_hand_up"),CL.hand?"on":""):"",
     grp?b("clToggleSide()","ti-users",t("cl_participants"),CL.side?"on":""):"",
     b("clHangup()","ti-phone-off",t(grp?"cl_leave":"cl_hangup"),"red")
   ].join("");
 }
-async function clToggleMic(){const lp=CL.room?.localParticipant;CL.mic=!CL.mic;clBar();if(lp){try{await lp.setMicrophoneEnabled(CL.mic);}catch(_){CL.mic=lp.isMicrophoneEnabled;showToast(t("cl_mic_denied"),"error");clBar();}}clRefreshSoon();}
+async function clToggleMic(){const lp=CL.room?.localParticipant;CL.mic=!CL.mic;clBar();if(lp){try{if(CL.mic)await clMicOn(lp);else await lp.setMicrophoneEnabled(false);}catch(e){CL.mic=lp.isMicrophoneEnabled;clBar();clDevError("mic",e);}}clRefreshSoon();}
 async function clToggleCam(){
   const lp=CL.room?.localParticipant;CL.cam=!CL.cam;clBar();
-  if(lp){try{await lp.setCameraEnabled(CL.cam,{facingMode:CL.facing});}catch(_){CL.cam=lp.isCameraEnabled;showToast(t("cl_cam_denied"),"error");clBar();}}
-  clRefreshSoon();
+  if(lp){try{if(CL.cam)await clCamOn(lp);else await lp.setCameraEnabled(false);}catch(e){CL.cam=lp.isCameraEnabled;clBar();clDevError("cam",e);}}
+  clSyncLocal();clRefreshSoon();
 }
 async function clFlip(){
   const lp=CL.room?.localParticipant;if(!lp||!CL.LK)return;
@@ -377,6 +381,99 @@ async function clFlip(){
   clRefreshSoon();
 }
 function clToggleSound(){CL.sound=!CL.sound;document.querySelectorAll("#cl-audio audio").forEach(a=>a.muted=!CL.sound);clBar();}
+
+// ── 9.8.0 · Son sans écho, caméra qui démarre sur PC, choix des appareils ──
+function clDevPrefs(){try{return JSON.parse(localStorage.getItem("zd_cl_dev")||"{}")||{};}catch(_){return {};}}
+function clDevSave(k,v){const d=clDevPrefs();if(v)d[k]=v;else delete d[k];try{localStorage.setItem("zd_cl_dev",JSON.stringify(d));}catch(_){}}
+function clAttachAudio(track,pub,p){
+  const box=document.getElementById("cl-audio");
+  const src=(pub&&pub.source)||track.source||"microphone";
+  if(box)box.querySelectorAll("audio").forEach(a=>{if(a.dataset.sid===track.sid||(a.dataset.pid===p.identity&&a.dataset.src===String(src))){try{track.detach(a);}catch(_){}a.srcObject=null;a.remove();}});
+  try{track.detach().forEach(e=>e.remove());}catch(_){}
+  const el=track.attach();el.dataset.pid=p.identity;el.dataset.sid=track.sid||"";el.dataset.src=String(src);el.muted=!CL.sound;el.autoplay=true;el.setAttribute("playsinline","");
+  const out=clDevPrefs().out;if(out&&typeof el.setSinkId==="function")el.setSinkId(out).catch(()=>{});
+  box?.appendChild(el);
+}
+function clDedupeAudio(){
+  const box=document.getElementById("cl-audio");if(!box)return;
+  const seen=new Set();
+  [...box.querySelectorAll("audio")].reverse().forEach(a=>{const k=a.dataset.pid+"|"+a.dataset.src;if(seen.has(k)||!a.srcObject||!a.srcObject.getAudioTracks().some(x=>x.readyState==="live")){a.srcObject=null;a.remove();}else seen.add(k);});
+}
+function clFail(e){
+  let f=null;try{f=CL.LK&&CL.LK.MediaDeviceFailure&&CL.LK.MediaDeviceFailure.getFailure(e);}catch(_){}
+  const n=String((e&&e.name)||"")+" "+String((e&&e.message)||"");
+  if(f==="PermissionDenied"||/NotAllowed|Permission|denied|SecurityError/i.test(n))return "perm";
+  if(f==="NotFound"||/NotFound|DevicesNotFound|Requested device not found/i.test(n))return "none";
+  if(f==="DeviceInUse"||/NotReadable|TrackStart|Could not start|AbortError/i.test(n))return "busy";
+  if(/Overconstrained/i.test(n))return "constraint";
+  return "other";
+}
+async function clPermState(kind){try{const r=await navigator.permissions.query({name:kind==="cam"?"camera":"microphone"});return r.state;}catch(_){return null;}}
+async function clCamOn(lp){
+  if(!lp)return;
+  if(await clPermState("cam")==="denied"){const e=new Error("Permission denied");e.name="NotAllowedError";throw e;}
+  const LK=CL.LK,dev=clDevPrefs(),base={};
+  if(clCoarse())base.facingMode=CL.facing;
+  const tries=[];
+  if(dev.cam)tries.push({...base,deviceId:dev.cam,resolution:LK.VideoPresets.h540.resolution});
+  tries.push({...base,resolution:LK.VideoPresets.h540.resolution},{...base,resolution:LK.VideoPresets.h360.resolution},{});
+  let err=null;
+  for(const o of tries){
+    try{await lp.setCameraEnabled(true,o);if(lp.isCameraEnabled)return true;}
+    catch(e){err=e;const f=clFail(e);if(f==="perm")break;if(f==="none"&&!o.deviceId)break;if(o.deviceId&&(f==="none"||f==="constraint"))clDevSave("cam",null);}
+  }
+  try{await lp.setCameraEnabled(false);}catch(_){}
+  throw err||new Error("camera");
+}
+async function clMicOn(lp){
+  if(!lp)return;
+  const dev=clDevPrefs();
+  try{await lp.setMicrophoneEnabled(true);return true;}
+  catch(e){
+    const f=clFail(e);
+    if(dev.mic&&(f==="none"||f==="constraint"||f==="busy")){clDevSave("mic",null);try{await CL.room.switchActiveDevice("audioinput","default");}catch(_){}await lp.setMicrophoneEnabled(true);return true;}
+    throw e;
+  }
+}
+function clDevError(kind,e){
+  const f=clFail(e),cam=kind==="cam";
+  const steps=f==="perm"?(clCoarse()?t(cam?"cl_cam_perm_tel":"cl_mic_perm_tel"):t(cam?"cl_cam_perm_pc":"cl_mic_perm_pc")):t(`cl_${cam?"cam":"mic"}_${f==="constraint"?"other":f}`);
+  const name=(e&&e.name)||"";
+  const ov=zdModal("cl-err",`<div class="modal-title"><i class="ti ${cam?"ti-video-off":"ti-microphone-off"}" style="color:var(--red)"></i> ${esc(t(cam?"cl_cam_fail_t":"cl_mic_fail_t"))}</div>
+    <p class="cl-err-x">${esc(steps)}</p>
+    ${name?`<p class="cl-err-code">${esc(t("cl_err_code"))} : ${esc(name)}</p>`:""}
+    <div class="modal-footer"><button type="button" class="btn btn-o btn-sm" onclick="zdCloseModal('cl-err')">${esc(t("btn_close"))}</button>
+      ${!clCoarse()?`<button type="button" class="btn btn-o btn-sm" onclick="zdCloseModal('cl-err');clDevices()"><i class="ti ti-adjustments"></i> ${esc(t("cl_devices_short"))}</button>`:""}
+      <button type="button" class="btn btn-g btn-sm" onclick="zdCloseModal('cl-err');${cam?"clToggleCam()":"clToggleMic()"}"><i class="ti ti-refresh"></i> ${esc(t("cl_retry"))}</button></div>`,440);
+  ov.classList.add("cl-modal");
+}
+async function clDevices(){
+  let list=[];
+  try{list=await navigator.mediaDevices.enumerateDevices();}catch(_){}
+  const dev=clDevPrefs(),room=CL.room;
+  const cur=k=>{try{return room&&room.getActiveDevice?room.getActiveDevice(k):null;}catch(_){return null;}};
+  const sinkOk=typeof HTMLMediaElement!=="undefined"&&"setSinkId" in HTMLMediaElement.prototype;
+  const sel=(kind,key,label)=>{
+    const ds=list.filter(d=>d.kind===kind&&d.deviceId);
+    if(!ds.length)return `<div class="fgrp"><label class="fl">${esc(label)}</label><div class="cl-dev-none">${esc(t("cl_dev_none"))}</div></div>`;
+    const active=dev[key]||cur(kind)||"default";
+    return `<div class="fgrp"><label class="fl" for="cl-dev-${key}">${esc(label)}</label><select class="inp" id="cl-dev-${key}" onchange="clPickDevice('${kind}','${key}',this.value)">${ds.map((d,i)=>`<option value="${esc(d.deviceId)}"${d.deviceId===active?" selected":""}>${esc(d.label||`${label} ${i+1}`)}</option>`).join("")}</select></div>`;
+  };
+  const ov=zdModal("cl-dev",`<div class="modal-title"><i class="ti ti-adjustments"></i> ${esc(t("cl_devices"))}</div>
+    ${sel("videoinput","cam",t("cl_dev_cam"))}${sel("audioinput","mic",t("cl_dev_mic"))}${sinkOk?sel("audiooutput","out",t("cl_dev_out")):""}
+    <p class="cl-echo-tip"><i class="ti ti-info-circle"></i> ${esc(t("cl_echo_tip"))}</p>
+    <div class="modal-footer"><button type="button" class="btn btn-g btn-sm" onclick="zdCloseModal('cl-dev')">${esc(t("btn_close"))}</button></div>`,440);
+  ov.classList.add("cl-modal");
+}
+async function clPickDevice(kind,key,id){
+  clDevSave(key,id);
+  const room=CL.room;
+  if(key==="out"){document.querySelectorAll("#cl-audio audio").forEach(a=>{if(typeof a.setSinkId==="function")a.setSinkId(id).catch(()=>{});});}
+  if(!room)return;
+  try{await room.switchActiveDevice(kind,id);}
+  catch(e){if(key==="cam"&&CL.cam){try{await clCamOn(room.localParticipant);}catch(e2){clDevError("cam",e2);}}else showToast(t("cl_dev_fail"),"error");}
+  clRefreshSoon();
+}
 async function clToggleShare(){
   const lp=CL.room?.localParticipant;if(!lp)return;
   try{await lp.setScreenShareEnabled(!CL.share,{audio:false});CL.share=lp.isScreenShareEnabled;}catch(e){if(e&&e.name!=="NotAllowedError")showToast(t("cl_share_fail"),"error");CL.share=lp.isScreenShareEnabled;}
@@ -599,8 +696,8 @@ if(typeof appendMessageBubble==="function"){
     if(m.created_at&&typeof dayKey==="function"){
       const key=dayKey(m.created_at);
       if(key!==_lastRenderedDayKey){
-        const dv=document.createElement("div");dv.style.cssText="text-align:center;margin:10px 0;font-size:11px;color:var(--muted);align-self:center";
-        dv.textContent=fmtDayDivider(m.created_at);box.appendChild(dv);_lastRenderedDayKey=key;
+        const dv=document.createElement("div");dv.className="mday";
+        dv.innerHTML=`<span>${esc(fmtDayDivider(m.created_at))}</span>`;box.appendChild(dv);_lastRenderedDayKey=key;
       }
     }
     const el=document.createElement("div");el.id=`msg-bubble-${m.id}`;el._m=m;el.className=clBubbleClass(m);el.innerHTML=clBubbleHtml(m);

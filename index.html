@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,interactive-widget=resizes-content">
 <title>Zenith Dash — Logiciel de gestion pour PME, restaurants, hôtels et commerces</title>
 <meta name="description" content="Factures, caisse, stock, paie RDC, comptabilité OHADA et commandes en ligne pour PME, restaurants, hôtels, salons et commerces. Essai gratuit 14 jours.">
 <meta name="robots" content="index, follow">
@@ -27,9 +27,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Zenith Dash">
-<link rel="preload" href="/css/icons.woff2?v=9.7.0" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/icons.css?v=9.7.0">
-<link rel="stylesheet" href="/css/app.css?v=9.7.0">
+<link rel="preload" href="/css/icons.woff2?v=9.8.0" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/icons.css?v=9.8.0">
+<link rel="stylesheet" href="/css/app.css?v=9.8.0">
 </head>
 <body class="zd-no-ai">
 <!-- PORTAIL CLIENT (accès public, sans compte) -->
@@ -302,48 +302,55 @@
 
     <!-- MESSAGERIE -->
     <div id="page-messaging" class="page">
-      <div class="msg-layout" id="msg-layout" style="display:flex;gap:0;border-top:1px solid var(--b)">
-        <div class="msg-conv-panel" style="width:300px;border-right:1px solid var(--b);flex-direction:column;background:var(--s)">
-          <div style="padding:14px;border-bottom:1px solid var(--b);display:flex;gap:8px">
-            <button class="btn btn-g btn-sm" style="flex:1" onclick="openNewConvModal()"><i class="ti ti-plus"></i> <span data-i18n="msg_new">Nouveau</span></button>
+      <div class="msg-layout" id="msg-layout">
+        <div class="msg-conv-panel">
+          <div class="mv-head">
+            <h2 class="mv-h" id="mv-h">Messages</h2>
+            <button type="button" class="mv-ib mv-search-tg" id="mv-search-tg" onclick="mvToggleSearch()" aria-label="Rechercher" title="Rechercher"><i class="ti ti-search" aria-hidden="true"></i></button>
+            <button type="button" class="mv-ib mv-new" id="mv-new" onclick="openNewConvModal()" aria-label="Nouvelle discussion" title="Nouvelle discussion"><i class="ti ti-plus" aria-hidden="true"></i></button>
           </div>
-          <div style="padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px;background:var(--bg)">
-            <i class="ti ti-search" style="color:var(--muted)"></i>
-            <input class="inp" id="global-search-input" placeholder="Rechercher une personne ou un mot..." data-i18n-ph="global_search_ph" style="flex:1;border:none;background:transparent" oninput="globalSearchDebounced()">
-          </div>
+          <label class="mv-search" id="mv-search">
+            <i class="ti ti-search" aria-hidden="true"></i>
+            <input class="inp" id="global-search-input" placeholder="Rechercher une personne ou un mot..." data-i18n-ph="global_search_ph" oninput="globalSearchDebounced()">
+          </label>
           <div id="conv-filters" class="conv-filters" role="tablist"></div>
           <div id="global-search-results" style="display:none;flex:1;overflow-y:auto"></div>
           <div id="conv-list" style="flex:1;overflow-y:auto"><div style="text-align:center;color:var(--muted);padding:20px;font-size:13px" data-i18n="loading">Chargement...</div></div>
         </div>
-        <div class="msg-chat-panel" style="flex:1;flex-direction:column;background:var(--bg);min-height:0">
-          <div id="chat-empty-state" style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted);flex-direction:column;gap:10px">
-            <i class="ti ti-message-2" style="font-size:48px"></i>
+        <div class="msg-chat-panel">
+          <div id="chat-empty-state" class="mv-empty">
+            <div class="mv-empty-ic" aria-hidden="true"><i class="ti ti-message-2"></i></div>
             <div data-i18n="select_conversation">Sélectionne une conversation pour commencer</div>
           </div>
           <div id="chat-active" style="display:none;flex:1;flex-direction:column;min-height:0">
-            <div style="padding:10px 12px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;background:var(--s);min-width:0">
-              <button class="msg-back-btn" onclick="backToConvList()" style="display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:4px;flex-shrink:0"><i class="ti ti-arrow-left" style="font-size:20px"></i></button>
-              <div id="chat-header-avatar" style="flex-shrink:0" onclick="openCurrentChatInfo()"></div>
-              <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center">
-                <div id="chat-header-name" style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" onclick="openCurrentChatInfo()"></div>
-                <div style="display:flex;gap:6px;min-width:0;white-space:nowrap;overflow:hidden">
-                  <div id="chat-header-status" style="display:none;font-size:11px;flex-shrink:0"></div>
-                  <div id="chat-typing-indicator" style="font-size:11px;color:var(--muted);font-style:italic;overflow:hidden;text-overflow:ellipsis"></div>
+            <div class="mv-chead">
+              <button type="button" class="msg-back-btn mv-ib0" onclick="backToConvList()" aria-label="Retour" style="display:none"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+              <div id="chat-header-avatar" onclick="openCurrentChatInfo()"></div>
+              <div class="mv-cname">
+                <div id="chat-header-name" onclick="openCurrentChatInfo()"></div>
+                <div class="mv-csub">
+                  <span id="mv-chead-tag" class="mv-sub-tag"></span>
+                  <div id="chat-header-status" style="display:none"></div>
+                  <div id="chat-typing-indicator"></div>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
-                <i class="ti ti-phone cl-hb" id="cl-btn-audio" role="button" tabindex="0" style="display:none" aria-label="Appel audio" title="Appel audio" onclick="clStart('audio')" onkeydown="if(event.key==='Enter')clStart('audio')"></i>
-                <i class="ti ti-video cl-hb" id="cl-btn-video" role="button" tabindex="0" style="display:none" aria-label="Appel vidéo" title="Appel vidéo" onclick="clStart('video')" onkeydown="if(event.key==='Enter')clStart('video')"></i>
-                <i class="ti ti-info-circle" id="chat-info-btn" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="openCurrentChatInfo()"></i>
-                <i class="ti ti-bell" id="mute-btn" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="toggleMuteConversation()"></i>
-                <i class="ti ti-archive" id="archive-btn" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="toggleArchiveConversation()"></i>
-                <i class="ti ti-dots-vertical" style="cursor:pointer;color:var(--muted);font-size:18px" onclick="toggleChatMoreMenu()"></i>
+              <div class="mv-cacts">
+                <span class="mv-callgrp" id="mv-callgrp">
+                  <button type="button" class="cl-hb" id="cl-btn-audio" style="display:none" aria-label="Appel audio" title="Appel audio" onclick="clStart('audio')"><i class="ti ti-phone" aria-hidden="true"></i></button>
+                  <button type="button" class="cl-hb" id="cl-btn-video" style="display:none" aria-label="Appel vidéo" title="Appel vidéo" onclick="clStart('video')"><i class="ti ti-video" aria-hidden="true"></i></button>
+                </span>
+                <button type="button" class="mv-ib0 mv-panel-tg" id="mv-panel-tg" onclick="mvTogglePanel()" aria-label="Fiche du contact" title="Fiche du contact"><i class="ti ti-id" aria-hidden="true"></i></button>
+                <i class="ti ti-info-circle" id="chat-info-btn" style="display:none" onclick="openCurrentChatInfo()"></i>
+                <button type="button" class="mv-ib0" onclick="toggleChatMoreMenu()" aria-label="Plus d'options" title="Plus d'options" id="mv-more-btn"><i class="ti ti-dots-vertical" aria-hidden="true"></i></button>
               </div>
             </div>
-            <div id="chat-more-menu" style="display:none;padding:8px 16px;border-bottom:1px solid var(--b);background:var(--s);flex-direction:column;gap:6px">
+            <div id="mv-biz" class="mv-biz" hidden></div>
+            <div id="chat-more-menu" class="mv-menu" style="display:none">
               <button class="btn btn-sm btn-o" style="text-align:left" onclick="openCurrentChatInfo()"><i class="ti ti-info-circle"></i> <span data-i18n="ci_menu">Infos du contact</span></button>
-              <button class="btn btn-sm btn-o" style="text-align:left" onclick="openMediaGallery()" data-i18n="media_gallery_action">Fichiers partagés</button>
-              <button class="btn btn-sm btn-o" style="text-align:left" onclick="triggerAvatarFromChat()" data-i18n="btn_change_photo">Changer la photo</button>
+              <button class="btn btn-sm btn-o" style="text-align:left" onclick="toggleMuteConversation()"><i class="ti ti-bell" id="mute-btn"></i> <span id="mv-mute-l" data-i18n="mute_action">Mettre en sourdine</span></button>
+              <button class="btn btn-sm btn-o" style="text-align:left" onclick="document.getElementById('chat-more-menu').style.display='none';toggleArchiveConversation()"><i class="ti ti-archive" id="archive-btn"></i> <span data-i18n="archive_action">Archiver</span></button>
+              <button class="btn btn-sm btn-o" style="text-align:left" onclick="openMediaGallery()"><i class="ti ti-photo"></i> <span data-i18n="media_gallery_action">Fichiers partagés</span></button>
+              <button class="btn btn-sm btn-o" style="text-align:left" onclick="triggerAvatarFromChat()"><i class="ti ti-camera"></i> <span data-i18n="btn_change_photo">Changer la photo</span></button>
               <button class="btn btn-sm btn-o" style="text-align:left" onclick="toggleWallpaperMenuInChat()"><i class="ti ti-palette"></i> <span data-i18n="chat_customize">Personnaliser cette discussion</span></button>
               <div id="chat-theme-panel" style="display:none;flex-direction:column;gap:8px;padding:8px 0 4px">
                 <div style="font-size:11px;color:var(--muted)" data-i18n="chat_customize_hint">Ces réglages ne s'appliquent qu'à cette discussion.</div>
@@ -362,7 +369,7 @@
               <button class="btn btn-sm btn-o" style="text-align:left" onclick="nfClearConv()"><i class="ti ti-eraser"></i> <span data-i18n="nf_clear">Vider la discussion</span></button>
               <button class="btn btn-sm btn-o" id="nf-menu-del" style="text-align:left;color:var(--red)" onclick="document.getElementById('chat-more-menu').style.display='none';nfDeleteConvs([_currentConvId])"><i class="ti ti-trash"></i> <span id="nf-menu-del-l" data-i18n="nf_del_conv">Supprimer la discussion</span></button>
               <button class="btn btn-sm btn-o" id="chat-block-btn" style="text-align:left" onclick="toggleBlockCurrentContact()"><i class="ti ti-ban"></i> <span id="chat-block-label" data-i18n="block_user_action">Bloquer</span></button>
-              <button class="btn btn-sm btn-r" style="text-align:left" onclick="reportCurrentContact()" data-i18n="report_user_action">Signaler</button>
+              <button class="btn btn-sm btn-r" style="text-align:left" onclick="reportCurrentContact()"><i class="ti ti-alert-triangle"></i> <span data-i18n="report_user_action">Signaler</span></button>
             </div>
             <div id="pinned-bar" style="display:none;padding:8px 16px;border-bottom:1px solid var(--b);background:rgba(245,166,35,.06);cursor:pointer;align-items:center;gap:8px" onclick="scrollToMessage(_pinnedMsgIds[0])">
               <i class="ti ti-pin" style="color:var(--amber)"></i>
@@ -385,22 +392,24 @@
               <button class="btn btn-sm btn-o" style="text-align:left" onclick="setEphemeralDuration(604800)" data-i18n="eph_7d">7 jours</button>
               <button class="btn btn-sm btn-r" style="text-align:left" onclick="setEphemeralDuration(null)" data-i18n="view_once_cancel">Annuler</button>
             </div>
-            <div id="chat-input-row" style="padding:12px;border-top:1px solid var(--b);display:flex;gap:8px;align-items:center;flex-shrink:0;position:relative">
-              <i class="ti ti-plus" id="extra-features-btn" onclick="toggleExtraFeaturesMenu()" style="font-size:20px;color:var(--muted);cursor:pointer"></i>
-              <div id="extra-features-menu" style="display:none;position:absolute;bottom:100%;left:12px;background:var(--s);border:1px solid var(--b);border-radius:10px;padding:6px;margin-bottom:6px;flex-direction:column;min-width:200px;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,.3)">
-                <label style="display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;border-radius:6px"><i class="ti ti-paperclip" style="font-size:18px;color:var(--blue)"></i> <span data-i18n="attach_file">Joindre un fichier</span><input type="file" id="chat-file-input" style="display:none" onchange="sendFileMessage(this.files[0]);toggleExtraFeaturesMenu()"></label>
-                <div onclick="toggleViewOnce();toggleExtraFeaturesMenu()" style="display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;border-radius:6px"><i class="ti ti-eye" id="view-once-btn" style="font-size:18px;color:var(--muted)"></i> <span data-i18n="view_once_toggle">Vue unique</span></div>
-                <div onclick="toggleEphemeralMenu()" style="display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;border-radius:6px"><i class="ti ti-clock" id="ephemeral-btn" style="font-size:18px;color:var(--muted)"></i> <span data-i18n="ephemeral_toggle">Message éphémère</span></div>
-                <div onclick="openPollModal();toggleExtraFeaturesMenu()" style="display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;border-radius:6px"><i class="ti ti-chart-bar" style="font-size:18px;color:var(--purple)"></i> <span data-i18n="poll_action">Sondage</span></div>
-                <div onclick="shareLocation();toggleExtraFeaturesMenu()" style="display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;border-radius:6px"><i class="ti ti-map-pin" style="font-size:18px;color:var(--red)"></i> <span data-i18n="location_action">Position</span></div>
-                <div onclick="openContactPickerModal();toggleExtraFeaturesMenu()" style="display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;border-radius:6px"><i class="ti ti-user-circle" style="font-size:18px;color:var(--green)"></i> <span data-i18n="contact_action">Contact</span></div>
+            <div id="chat-input-row" class="mv-composer">
+              <button type="button" class="mv-cb" id="extra-features-btn" onclick="toggleExtraFeaturesMenu()" aria-label="Joindre" title="Joindre"><i class="ti ti-plus" aria-hidden="true"></i></button>
+              <div id="extra-features-menu" class="mv-pop" style="display:none">
+                <label class="mv-pi"><i class="ti ti-photo" style="color:#7fb4ff" aria-hidden="true"></i> <span data-i18n="mv_photo">Photo ou vidéo</span><input type="file" id="chat-photo-input" accept="image/*,video/*" multiple style="display:none" onchange="mvSendFiles(this.files);this.value='';document.getElementById('extra-features-menu').style.display='none'"></label>
+                <label class="mv-pi"><i class="ti ti-camera" style="color:#ffb3c7" aria-hidden="true"></i> <span data-i18n="mv_camera">Prendre une photo</span><input type="file" id="chat-camera-input" accept="image/*" capture="environment" style="display:none" onchange="mvSendFiles(this.files);this.value='';document.getElementById('extra-features-menu').style.display='none'"></label>
+                <label class="mv-pi"><i class="ti ti-paperclip" style="color:var(--m-acs)" aria-hidden="true"></i> <span data-i18n="attach_file">Joindre un fichier</span><input type="file" id="chat-file-input" style="display:none" onchange="sendFileMessage(this.files[0]);document.getElementById('extra-features-menu').style.display='none'"></label>
+                <div class="mv-pi" onclick="toggleViewOnce();toggleExtraFeaturesMenu()"><i class="ti ti-eye" id="view-once-btn" aria-hidden="true"></i> <span data-i18n="view_once_toggle">Vue unique</span></div>
+                <div class="mv-pi" onclick="toggleEphemeralMenu()"><i class="ti ti-clock" id="ephemeral-btn" aria-hidden="true"></i> <span data-i18n="ephemeral_toggle">Message éphémère</span></div>
+                <div class="mv-pi" onclick="openPollModal();toggleExtraFeaturesMenu()"><i class="ti ti-chart-bar" style="color:#d6b3ff" aria-hidden="true"></i> <span data-i18n="poll_action">Sondage</span></div>
+                <div class="mv-pi" onclick="shareLocation();toggleExtraFeaturesMenu()"><i class="ti ti-map-pin" style="color:#ff9fb8" aria-hidden="true"></i> <span data-i18n="location_action">Position</span></div>
+                <div class="mv-pi" onclick="openContactPickerModal();toggleExtraFeaturesMenu()"><i class="ti ti-user-circle" style="color:#7fe0b4" aria-hidden="true"></i> <span data-i18n="contact_action">Contact</span></div>
               </div>
-              <i class="ti ti-microphone" id="mic-btn" onclick="startVoiceRecording()" style="font-size:20px;color:var(--muted);cursor:pointer"></i>
-              <div style="position:relative;flex:1;min-width:0">
-                <div id="mention-dropdown" style="display:none;position:absolute;bottom:100%;left:0;right:0;background:var(--s);border:1px solid var(--b);border-radius:8px;max-height:160px;overflow-y:auto;margin-bottom:4px;z-index:10"></div>
-                <input class="inp" id="chat-input" placeholder="Écris un message..." data-i18n-ph="msg_placeholder" style="width:100%" onkeydown="if(event.key==='Enter'&&document.getElementById('mention-dropdown').style.display==='none')sendChatMessage()" oninput="notifyTyping();checkMentionTrigger()">
+              <div class="mv-field">
+                <div id="mention-dropdown" style="display:none"></div>
+                <input class="inp" id="chat-input" placeholder="Écris un message..." data-i18n-ph="msg_placeholder" autocomplete="off" onkeydown="if(event.key==='Enter'&&document.getElementById('mention-dropdown').style.display==='none')sendChatMessage()" oninput="notifyTyping();checkMentionTrigger();mvComposerState()">
               </div>
-              <button class="btn btn-g btn-sm" onclick="sendChatMessage()"><i class="ti ti-send"></i></button>
+              <button type="button" class="mv-cb mv-go" id="mic-btn" onclick="startVoiceRecording()" aria-label="Enregistrer un vocal" title="Enregistrer un vocal"><i class="ti ti-microphone" aria-hidden="true"></i></button>
+              <button type="button" class="mv-cb mv-go" id="mv-send" onclick="sendChatMessage();mvComposerState()" aria-label="Envoyer" title="Envoyer" hidden><i class="ti ti-send" aria-hidden="true"></i></button>
             </div>
             <div id="chat-blocked-banner" style="display:none;padding:14px 12px;border-top:1px solid var(--b);flex-shrink:0;text-align:center;background:var(--s)">
               <div id="chat-blocked-text" style="font-size:13px;color:var(--muted);margin-bottom:10px"></div>
@@ -2407,54 +2416,55 @@
   </div>
 </div>
 
-<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.7.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.7.0" defer><\/script>':""))})();</script>
-<script src="/js/vendor/qrcode.min.js?v=9.7.0" defer></script>
-<script src="/js/base-1.js?v=9.7.0" defer></script>
-<script src="/js/securite-roles.js?v=9.7.0" defer></script>
-<script src="/js/hors-ligne.js?v=9.7.0" defer></script>
-<script src="/js/facturation.js?v=9.7.0" defer></script>
-<script src="/js/stock-caisse.js?v=9.7.0" defer></script>
-<script src="/js/rh-paie.js?v=9.7.0" defer></script>
-<script src="/js/compta-ohada.js?v=9.7.0" defer></script>
-<script src="/js/marketing.js?v=9.7.0" defer></script>
-<script src="/js/plateforme.js?v=9.7.0" defer></script>
-<script src="/js/accueil-aide.js?v=9.7.0" defer></script>
-<script src="/js/import.js?v=9.7.0" defer></script>
-<script src="/js/achats.js?v=9.7.0" defer></script>
-<script src="/js/relances-auto.js?v=9.7.0" defer></script>
-<script src="/js/boutique.js?v=9.7.0" defer></script>
-<script src="/js/projets.js?v=9.7.0" defer></script>
-<script src="/js/immobilisations-rapports.js?v=9.7.0" defer></script>
-<script src="/js/rendez-vous.js?v=9.7.0" defer></script>
-<script src="/js/cabinet.js?v=9.7.0" defer></script>
-<script src="/js/listes.js?v=9.7.0" defer></script>
-<script src="/js/juridique.js?v=9.7.0" defer></script>
-<script src="/js/contacts-confidentialite.js?v=9.7.0" defer></script>
-<script src="/js/secteurs.js?v=9.7.0" defer></script>
-<script src="/js/restaurant.js?v=9.7.0" defer></script>
-<script src="/js/bar.js?v=9.7.0" defer></script>
-<script src="/js/froid.js?v=9.7.0" defer></script>
-<script src="/js/hotel.js?v=9.7.0" defer></script>
-<script src="/js/salon.js?v=9.7.0" defer></script>
-<script src="/js/commerce.js?v=9.7.0" defer></script>
-<script src="/js/commandes.js?v=9.7.0" defer></script>
-<script src="/js/abonnements.js?v=9.7.0" defer></script>
-<script src="/js/coeur-1.js?v=9.7.0" defer></script>
-<script src="/js/coeur-2.js?v=9.7.0" defer></script>
-<script src="/js/coeur-3.js?v=9.7.0" defer></script>
-<script src="/js/v93.js?v=9.7.0" defer></script>
-<script src="/js/bar-fiche.js?v=9.7.0" defer></script>
-<script src="/js/ecole.js?v=9.7.0" defer></script>
-<script src="/js/ambassade.js?v=9.7.0" defer></script>
-<script src="/js/pointage.js?v=9.7.0" defer></script>
-<script src="/js/espaces.js?v=9.7.0" defer></script>
-<script src="/js/reductions.js?v=9.7.0" defer></script>
-<script src="/js/premiers-reglages.js?v=9.7.0" defer></script>
-<script src="/js/annuaire.js?v=9.7.0" defer></script>
-<script src="/js/notifs.js?v=9.7.0" defer></script>
-<script src="/js/appels.js?v=9.7.0" defer></script>
-<script src="/js/comptes.js?v=9.7.0" defer></script>
-<script src="/js/paiement.js?v=9.7.0" defer></script>
+<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=9.8.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=9.8.0" defer><\/script>':""))})();</script>
+<script src="/js/vendor/qrcode.min.js?v=9.8.0" defer></script>
+<script src="/js/base-1.js?v=9.8.0" defer></script>
+<script src="/js/securite-roles.js?v=9.8.0" defer></script>
+<script src="/js/hors-ligne.js?v=9.8.0" defer></script>
+<script src="/js/facturation.js?v=9.8.0" defer></script>
+<script src="/js/stock-caisse.js?v=9.8.0" defer></script>
+<script src="/js/rh-paie.js?v=9.8.0" defer></script>
+<script src="/js/compta-ohada.js?v=9.8.0" defer></script>
+<script src="/js/marketing.js?v=9.8.0" defer></script>
+<script src="/js/plateforme.js?v=9.8.0" defer></script>
+<script src="/js/accueil-aide.js?v=9.8.0" defer></script>
+<script src="/js/import.js?v=9.8.0" defer></script>
+<script src="/js/achats.js?v=9.8.0" defer></script>
+<script src="/js/relances-auto.js?v=9.8.0" defer></script>
+<script src="/js/boutique.js?v=9.8.0" defer></script>
+<script src="/js/projets.js?v=9.8.0" defer></script>
+<script src="/js/immobilisations-rapports.js?v=9.8.0" defer></script>
+<script src="/js/rendez-vous.js?v=9.8.0" defer></script>
+<script src="/js/cabinet.js?v=9.8.0" defer></script>
+<script src="/js/listes.js?v=9.8.0" defer></script>
+<script src="/js/juridique.js?v=9.8.0" defer></script>
+<script src="/js/contacts-confidentialite.js?v=9.8.0" defer></script>
+<script src="/js/secteurs.js?v=9.8.0" defer></script>
+<script src="/js/restaurant.js?v=9.8.0" defer></script>
+<script src="/js/bar.js?v=9.8.0" defer></script>
+<script src="/js/froid.js?v=9.8.0" defer></script>
+<script src="/js/hotel.js?v=9.8.0" defer></script>
+<script src="/js/salon.js?v=9.8.0" defer></script>
+<script src="/js/commerce.js?v=9.8.0" defer></script>
+<script src="/js/commandes.js?v=9.8.0" defer></script>
+<script src="/js/abonnements.js?v=9.8.0" defer></script>
+<script src="/js/coeur-1.js?v=9.8.0" defer></script>
+<script src="/js/coeur-2.js?v=9.8.0" defer></script>
+<script src="/js/coeur-3.js?v=9.8.0" defer></script>
+<script src="/js/v93.js?v=9.8.0" defer></script>
+<script src="/js/bar-fiche.js?v=9.8.0" defer></script>
+<script src="/js/ecole.js?v=9.8.0" defer></script>
+<script src="/js/ambassade.js?v=9.8.0" defer></script>
+<script src="/js/pointage.js?v=9.8.0" defer></script>
+<script src="/js/espaces.js?v=9.8.0" defer></script>
+<script src="/js/reductions.js?v=9.8.0" defer></script>
+<script src="/js/premiers-reglages.js?v=9.8.0" defer></script>
+<script src="/js/annuaire.js?v=9.8.0" defer></script>
+<script src="/js/notifs.js?v=9.8.0" defer></script>
+<script src="/js/appels.js?v=9.8.0" defer></script>
+<script src="/js/comptes.js?v=9.8.0" defer></script>
+<script src="/js/messagerie.js?v=9.8.0" defer></script>
+<script src="/js/paiement.js?v=9.8.0" defer></script>
 
 </body>
 </html>

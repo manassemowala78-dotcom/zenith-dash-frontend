@@ -21,23 +21,40 @@ function applyMobileMessagingLayout(){
   const backBtn=document.querySelector(".msg-back-btn");
   if(!layout)return;
   const isMobile=window.innerWidth<=768;
+  const onPage=!!document.querySelector("#page-messaging.active");
+  const full=isMobile&&onPage&&layout.classList.contains("mobile-chat-open");
+  document.body.classList.toggle("mv-full",full);
   if(!isMobile){
     layout.classList.remove("js-fixed");
-    layout.style.top="";layout.style.bottom="";
+    layout.style.top="";layout.style.bottom="";layout.style.height="";
     if(backBtn) backBtn.style.display="none";
     return;
   }
-  const topbar=document.querySelector(".topbar");
-  const trialBar=document.getElementById("trial-bar");
-  let topEdge=topbar?topbar.getBoundingClientRect().bottom:0;
-  if(trialBar&&trialBar.offsetParent!==null) topEdge=Math.max(topEdge,trialBar.getBoundingClientRect().bottom);
-  const bottomNav=document.querySelector(".bottom-nav");
-  const bottomOffset=(bottomNav&&getComputedStyle(bottomNav).display!=="none")?(window.innerHeight-bottomNav.getBoundingClientRect().top):0;
   layout.classList.add("js-fixed");
-  layout.style.top=`${Math.round(topEdge)}px`;
-  layout.style.bottom=`${Math.round(bottomOffset)}px`;
+  if(full){
+    const vv=window.visualViewport;
+    const top=vv?Math.max(0,vv.offsetTop):0,h=vv?vv.height:window.innerHeight;
+    layout.style.top=`${Math.round(top)}px`;layout.style.bottom="auto";layout.style.height=`${Math.round(h)}px`;
+    if(window.scrollY)window.scrollTo(0,0);
+  }else{
+    const topbar=document.querySelector(".topbar");
+    const trialBar=document.getElementById("trial-bar");
+    let topEdge=topbar&&topbar.offsetParent!==null?topbar.getBoundingClientRect().bottom:0;
+    if(trialBar&&trialBar.offsetParent!==null) topEdge=Math.max(topEdge,trialBar.getBoundingClientRect().bottom);
+    const bottomNav=document.querySelector(".bottom-nav");
+    const bottomOffset=(bottomNav&&getComputedStyle(bottomNav).display!=="none")?(window.innerHeight-bottomNav.getBoundingClientRect().top):0;
+    layout.style.top=`${Math.max(0,Math.round(topEdge))}px`;
+    layout.style.bottom=`${Math.max(0,Math.round(bottomOffset))}px`;
+    layout.style.height="";
+  }
   if(backBtn) backBtn.style.display=layout.classList.contains("mobile-chat-open")?"inline-flex":"none";
 }
+if(window.visualViewport){
+  const _vvFix=()=>{if(document.body.classList.contains("mv-full"))applyMobileMessagingLayout();};
+  window.visualViewport.addEventListener("resize",_vvFix);
+  window.visualViewport.addEventListener("scroll",_vvFix);
+}
+window.addEventListener("scroll",()=>{if(document.body.classList.contains("mv-full")&&window.scrollY&&!(window.visualViewport&&window.visualViewport.offsetTop))window.scrollTo(0,0);},{passive:true});
 window.addEventListener("resize",applyMobileMessagingLayout);
 window.addEventListener("orientationchange",()=>setTimeout(applyMobileMessagingLayout,200));
 if(window.ResizeObserver){
