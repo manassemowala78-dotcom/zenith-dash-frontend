@@ -519,7 +519,7 @@ async function loadAdminUsers(){
           :`<button class="btn btn-sm btn-g" onclick="unbanUser('${u.id}','${escJs(u.name)}')"><i class="ti ti-check"></i> Débannir</button>`}
         ${u.is_creator?"":`<button class="btn btn-sm btn-o" onclick="deleteUser('${u.id}','${escJs(u.name)}')"><i class="ti ti-trash"></i></button>`}
       </td></tr>`).join("");
-  }catch(e){tbody.innerHTML=`<tr><td colspan="10" style="color:var(--red);padding:20px">${e.message}</td></tr>`;}
+  }catch(e){tbody.innerHTML=`<tr><td colspan="10" style="color:var(--red);padding:20px">${esc(e.message)}</td></tr>`;}
 }
 async function resetTrial(id,name){
   if(!confirm(`Renouveler un essai gratuit de 14 jours pour ${name} ?`))return;
@@ -653,7 +653,7 @@ async function loadObjectives(){
         </div>
       </div>`;
     }).join("");
-  }catch(e){container.innerHTML=`<div class="card" style="color:var(--red)">${e.message}</div>`;}
+  }catch(e){container.innerHTML=`<div class="card" style="color:var(--red)">${esc(e.message)}</div>`;}
 }
 async function updateObjective(id){
   const val=parseFloat(document.getElementById(`obj-update-${id}`)?.value||0);
@@ -700,7 +700,7 @@ async function loadProjects(){
         <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px">${p.progress}${t("pct_completed")}</div>
       </div>`;
     }).join("");
-  }catch(e){container.innerHTML=`<div class="card" style="color:var(--red)">${e.message}</div>`;}
+  }catch(e){container.innerHTML=`<div class="card" style="color:var(--red)">${esc(e.message)}</div>`;}
 }
 function openProjectModal(){populateClientSelect("proj-client-p");document.getElementById("modal-project").style.display="flex";}
 function closeProjectModal(){document.getElementById("modal-project").style.display="none";}
@@ -902,12 +902,12 @@ async function loadAI(){
         ${d.advice.map(a=>`<div style="padding:12px;margin-bottom:10px;border-radius:10px;background:${priorityColors[a.priority]}11;border:1px solid ${priorityColors[a.priority]}33">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <span class="badge" style="background:${priorityColors[a.priority]}22;color:${priorityColors[a.priority]};border:1px solid ${priorityColors[a.priority]}44;font-size:9px">${a.priority.toUpperCase()}</span>
-            <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${a.category}</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${esc(a.category)}</span>
           </div>
-          <div style="font-size:13px;color:var(--text)">${a.text}</div>
+          <div style="font-size:13px;color:var(--text)">${esc(a.text)}</div>
         </div>`).join("")}
       </div>`;
-  }catch(e){container.innerHTML=`<div class="card" style="color:var(--red)">${e.message}</div>`;}
+  }catch(e){container.innerHTML=`<div class="card" style="color:var(--red)">${esc(e.message)}</div>`;}
 }
 
 async function activateCreator(){

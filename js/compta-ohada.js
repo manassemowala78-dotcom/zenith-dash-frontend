@@ -48,7 +48,7 @@ async function renderGeneralLedger(box){
   const used=accs.filter(a=>a.debit||a.credit);
   const current=document.getElementById("ledger-account")?.value||(used[0]?.code)||"411";
   const r=await api("GET",`/ledger/general?account=${encodeURIComponent(current)}&year=${_ledger.year}`);
-  box.innerHTML=`<select class="inp" id="ledger-account" style="width:auto;max-width:100%;margin-bottom:10px" onchange="showLedgerTab('general')">${accs.map(a=>`<option value="${a.code}" ${a.code===current?"selected":""}>${a.code} — ${esc(a.name)}${a.debit||a.credit?"":" ·"}</option>`).join("")}</select>
+  box.innerHTML=`<select class="inp" id="ledger-account" style="width:auto;max-width:100%;margin-bottom:10px" onchange="showLedgerTab('general')">${accs.map(a=>`<option value="${esc(a.code)}" ${a.code===current?"selected":""}>${esc(a.code)} — ${esc(a.name)}${a.debit||a.credit?"":" ·"}</option>`).join("")}</select>
     <div class="card"><div class="table-wrap"><table><thead><tr><th>${t("th_date")}</th><th>${t("th_number")}</th><th>${t("ledger_label")}</th><th style="text-align:right">${t("ledger_debit")}</th><th style="text-align:right">${t("ledger_credit")}</th><th style="text-align:right">${t("ledger_balance")}</th></tr></thead><tbody>
     <tr style="color:var(--muted)"><td colspan="5">${t("ledger_opening")}</td><td style="text-align:right;font-family:var(--mono)">${m2(r.opening)}</td></tr>
     ${r.lines.map(l=>`<tr><td>${fmtDate(l.date)}</td><td style="font-family:var(--mono);font-size:11px">${l.number}</td><td>${esc(l.label)}</td><td style="text-align:right;font-family:var(--mono)">${l.debit?m2(l.debit):""}</td><td style="text-align:right;font-family:var(--mono)">${l.credit?m2(l.credit):""}</td><td style="text-align:right;font-family:var(--mono);font-weight:700">${m2(l.balance)}</td></tr>`).join("")}
@@ -115,7 +115,7 @@ async function renderAccounts(box){
   const classes={1:t("ledger_c1"),2:t("ledger_c2"),3:t("ledger_c3"),4:t("ledger_c4"),5:t("ledger_c5"),6:t("ledger_c6"),7:t("ledger_c7"),8:t("ledger_c8")};
   box.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn-g btn-sm" onclick="createLedgerAccount()"><i class="ti ti-plus"></i> ${t("ledger_new_account")}</button></div>`+
     Object.entries(classes).map(([k,v])=>{const list=accs.filter(a=>a.class==k);if(!list.length)return "";
-      return `<div class="card" style="margin-bottom:10px"><div style="font-weight:700;margin-bottom:6px">${t("ledger_class")} ${k} — ${v}</div><div class="table-wrap"><table style="font-size:13px"><tbody>${list.map(a=>`<tr><td style="font-family:var(--mono);width:70px">${a.code}</td><td>${esc(a.name)} ${a.custom?`<span class="badge badge-gray">${t("ledger_custom")}</span>`:""}</td><td style="text-align:right;font-family:var(--mono)">${a.debit||a.credit?m2(a.balance):""}</td></tr>`).join("")}</tbody></table></div></div>`;}).join("");
+      return `<div class="card" style="margin-bottom:10px"><div style="font-weight:700;margin-bottom:6px">${t("ledger_class")} ${k} — ${v}</div><div class="table-wrap"><table style="font-size:13px"><tbody>${list.map(a=>`<tr><td style="font-family:var(--mono);width:70px">${esc(a.code)}</td><td>${esc(a.name)} ${a.custom?`<span class="badge badge-gray">${t("ledger_custom")}</span>`:""}</td><td style="text-align:right;font-family:var(--mono)">${a.debit||a.credit?m2(a.balance):""}</td></tr>`).join("")}</tbody></table></div></div>`;}).join("");
 }
 async function createLedgerAccount(){
   const code=prompt(t("ledger_prompt_code"));if(!code)return;
@@ -147,7 +147,7 @@ async function openLedgerEntryModal(){
 function closeLedgerEntryModal(){document.getElementById("modal-ledger-entry").style.display="none";}
 function addLedgerLine(){
   document.getElementById("le-lines").insertAdjacentHTML("beforeend",`<div class="le-row" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto;gap:6px;margin-bottom:6px">
-    <select class="inp le-acc">${_ledger.accounts.map(a=>`<option value="${a.code}">${a.code} — ${esc(a.name)}</option>`).join("")}</select>
+    <select class="inp le-acc">${_ledger.accounts.map(a=>`<option value="${esc(a.code)}">${esc(a.code)} — ${esc(a.name)}</option>`).join("")}</select>
     <input class="inp le-d" type="number" min="0" step="0.01" placeholder="${t("ledger_debit")}" oninput="updateLedgerTotals()">
     <input class="inp le-c" type="number" min="0" step="0.01" placeholder="${t("ledger_credit")}" oninput="updateLedgerTotals()">
     <button type="button" class="btn btn-o btn-sm" onclick="this.closest('.le-row').remove();updateLedgerTotals()"><i class="ti ti-x"></i></button></div>`);

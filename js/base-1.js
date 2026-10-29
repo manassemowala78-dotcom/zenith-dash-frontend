@@ -1,4 +1,4 @@
-const APP_BUILD="9.8.1 · 27/10/2026";
+const APP_BUILD="10.0.0 · 28/10/2026";
 const ZD_ENV=(()=>{const host=window.location.hostname;if(host==="localhost"||host==="127.0.0.1")return "local";if(host.includes("staging"))return "staging";return "production";})();
 const API_URLS={local:"http://localhost:8000/v1",staging:"https://zenith-dash-staging.up.railway.app/v1",production:"https://zenith-dash-production.up.railway.app/v1"};
 const API_BASE=API_URLS[ZD_ENV];

@@ -596,7 +596,7 @@ async function submitEmployee(){
 
 function populateEmpSelect(id){
   const sel=document.getElementById(id);if(!sel)return;
-  sel.innerHTML=_employees.map(e=>`<option value="${e.id}">${e.name}${e.position?" — "+e.position:""}</option>`).join("");
+  sel.innerHTML=_employees.map(e=>`<option value="${e.id}">${esc(e.name)}${e.position?" — "+esc(e.position):""}</option>`).join("");
 }
 
 async function loadLeaves(){
@@ -877,24 +877,24 @@ function showWireModal(r){
   const ins=r.instructions; const nw=ins.national_wire; const iw=ins.international_wire;
   setHTML("wire-modal-content",`
     <div style="background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.2);border-radius:10px;padding:14px;margin-bottom:16px">
-      <div style="font-weight:700;margin-bottom:4px">${ins.plan} — ${ins.billing_cycle}</div>
+      <div style="font-weight:700;margin-bottom:4px">${esc(ins.plan)} — ${esc(ins.billing_cycle)}</div>
       <div style="font-size:20px;font-weight:800;color:var(--green);margin:6px 0">$${ins.amount_usd.toFixed(2)}</div>
     </div>
     <div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-weight:700;font-size:13px;color:var(--amber)">
-      ⚠️ ${t("wire_label_required")} : <span style="font-family:var(--mono);letter-spacing:2px">${ins.reference}</span>
+      ⚠️ ${t("wire_label_required")} : <span style="font-family:var(--mono);letter-spacing:2px">${esc(ins.reference)}</span>
     </div>
-    <div style="font-weight:700;font-size:14px;margin-bottom:10px;color:var(--green)">🇨🇩 ${nw.label}</div>
+    <div style="font-weight:700;font-size:14px;margin-bottom:10px;color:var(--green)">🇨🇩 ${esc(nw.label)}</div>
     <div class="wire-box" style="margin-bottom:16px">
-      <b>${t("beneficiary_label")} :</b> ${nw.beneficiary}<br><b>${t("account_number_label")} :</b> ${nw.account_number}<br>
-      <b>${t("full_ref_label")} :</b> ${nw.full_account_reference}<br><b>${t("bank_label")} :</b> ${nw.bank_name}<br>
-      <b>${t("swift_label")} :</b> ${nw.swift_bic}<br><b>${t("currency_label")} :</b> ${nw.currency}
+      <b>${t("beneficiary_label")} :</b> ${esc(nw.beneficiary)}<br><b>${t("account_number_label")} :</b> ${esc(nw.account_number)}<br>
+      <b>${t("full_ref_label")} :</b> ${esc(nw.full_account_reference)}<br><b>${t("bank_label")} :</b> ${esc(nw.bank_name)}<br>
+      <b>${t("swift_label")} :</b> ${esc(nw.swift_bic)}<br><b>${t("currency_label")} :</b> ${esc(nw.currency)}
     </div>
-    <div style="font-weight:700;font-size:14px;margin-bottom:10px;color:var(--cyan)">🌍 ${iw.label}</div>
+    <div style="font-weight:700;font-size:14px;margin-bottom:10px;color:var(--cyan)">🌍 ${esc(iw.label)}</div>
     <div class="wire-box">
-      <b>${t("beneficiary_label")} :</b> ${iw.beneficiary}<br><b>${t("address_label")} :</b> ${iw.beneficiary_address}<br>
-      <b>${t("account_number_label")} :</b> ${iw.account_number}<br><b>${t("swift_label")}/BIC :</b> ${iw.swift_bic}<br>
-      <b>${t("bank_label")} :</b> ${iw.bank_name}<br><b>${t("correspondent_label")} :</b> ${iw.correspondent_bank} (${iw.correspondent_bic})<br>
-      <b>${t("currency_label")} :</b> ${iw.currency}
+      <b>${t("beneficiary_label")} :</b> ${esc(iw.beneficiary)}<br><b>${t("address_label")} :</b> ${esc(iw.beneficiary_address)}<br>
+      <b>${t("account_number_label")} :</b> ${esc(iw.account_number)}<br><b>${t("swift_label")}/BIC :</b> ${esc(iw.swift_bic)}<br>
+      <b>${t("bank_label")} :</b> ${esc(iw.bank_name)}<br><b>${t("correspondent_label")} :</b> ${esc(iw.correspondent_bank)} (${esc(iw.correspondent_bic)})<br>
+      <b>${t("currency_label")} :</b> ${esc(iw.currency)}
     </div>
     <div style="margin-top:16px">
       ${r.expires_at?`<div style="font-size:12px;color:var(--muted);margin-bottom:8px"><i class="ti ti-clock"></i> ${esc(t("ab_pending_exp").replace("{d}",fmtDate(r.expires_at)))}</div>`:""}
@@ -1174,9 +1174,9 @@ async function loadSupplyOrders(){
     tbody.innerHTML=orders.map(o=>`<tr>
       <td style="font-family:var(--mono);color:var(--purple)">${esc(o.number)}</td>
       <td>${esc(o.supplier_name)||"—"}</td>
-      <td style="font-size:12px">${o.items.map(it=>`${it.product_name} ×${it.qty}`).join(", ")}</td>
+      <td style="font-size:12px">${esc(o.items.map(it=>`${it.product_name} ×${it.qty}`).join(", "))}</td>
       <td style="font-family:var(--mono);font-weight:700">${fmtUSD(o.total_cost)}</td>
-      <td>${statusLabels[o.status]||o.status}</td>
+      <td>${esc(statusLabels[o.status]||o.status)}</td>
       <td style="font-family:var(--mono);font-size:11px">${o.expected_date?fmtDate(o.expected_date):"—"}</td>
       <td style="display:flex;gap:5px">
         ${o.status==='draft'?`<button class="btn btn-sm btn-o" onclick="updateSupplyStatus('${o.id}','ordered')">${t("btn_order_action")}</button>`:''}

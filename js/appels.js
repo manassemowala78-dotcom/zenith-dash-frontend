@@ -224,7 +224,7 @@ async function clEnter(r,kind,mode,lkp){
   CL.tiles.forEach(el=>el.remove());CL.tiles.clear();
   clRenderCall();
   if(CL.out&&!clQuiet())clSound("out");
-  clearInterval(CL.ping);CL.ping=setInterval(clPing,15000);
+  clearInterval(CL.ping);CL.lastPing=0;CL.ping=setInterval(clPing,4000);setTimeout(clPing,1500);
   clStatus(t("cl_connecting"));
   const LK=CL.LK=await (lkp||clLoadLK());
   if(!CL.call||CL.call.id!==r.call.id)return;
@@ -239,6 +239,7 @@ async function clEnter(r,kind,mode,lkp){
   if(CL.room!==room){try{room.disconnect();}catch(_){}return;}
   clStatus("");
   try{await clMicOn(room.localParticipant);}catch(e){CL.mic=false;clDevError("mic",e);}
+  if(CL.out&&!room.remoteParticipants.size){CL.hold=true;try{const pub=room.localParticipant.getTrackPublication(LK.Track.Source.Microphone);if(pub&&pub.track)await pub.track.mute();}catch(_){}}
   if(CL.cam){try{await clCamOn(room.localParticipant);}catch(e){CL.cam=false;clDevError("cam",e);}}
   if(room.remoteParticipants.size)clOnRemoteJoin(true);
   clBar();clRefresh();
@@ -260,7 +261,7 @@ function clBind(room,LK){
     .on(E.ConnectionQualityChanged,(q,p)=>{if(p&&p.isLocal){CL.quality=q;clNet();}})
     .on(E.Reconnecting,()=>clStatus(t("cl_reconnecting"))).on(E.Reconnected,()=>clStatus(""))
     .on(E.AudioPlaybackStatusChanged,()=>clAudioUnlock(!room.canPlaybackAudio))
-    .on(E.Disconnected,()=>{if(CL.room===room)clFinish("lost");});
+    .on(E.Disconnected,reason=>{if(CL.room!==room)return;clFinish(LK.DisconnectReason&&reason===LK.DisconnectReason.DUPLICATE_IDENTITY?"moved":"lost");});
 }
 function clSyncLocal(){
   const lp=CL.room&&CL.room.localParticipant;if(!lp)return;
@@ -268,6 +269,7 @@ function clSyncLocal(){
 }
 function clOnRemoteJoin(silent){
   if(CL.out){CL.out=false;clSoundStop();}
+  if(CL.hold){CL.hold=false;try{const pub=CL.room&&CL.LK&&CL.room.localParticipant.getTrackPublication(CL.LK.Track.Source.Microphone);if(pub&&pub.track&&CL.mic)pub.track.unmute();}catch(_){}}
   if(!CL.t0)CL.t0=Date.now();
   if(!silent)clBeep("join");
   clTick();
@@ -278,7 +280,15 @@ function clCheckAlone(){
 }
 async function clPing(){
   const c=CL.call;if(!c)return;
-  try{const r=await api("POST",`/calls/${c.id}/ping`);if(r&&r.status&&!["ringing","ongoing"].includes(r.status)&&CL.call&&CL.call.id===c.id)clFinish(r.status);}catch(_){}
+  const ringing=CL.out||c.status==="ringing";
+  if(!ringing&&Date.now()-(CL.lastPing||0)<14000)return;
+  CL.lastPing=Date.now();
+  try{
+    const r=await api("POST",`/calls/${c.id}/ping?fast=1`);
+    if(!CL.call||CL.call.id!==c.id)return;
+    if(r&&r.status&&!["ringing","ongoing"].includes(r.status))clFinish(r.status==="missed"&&CL.out?"noanswer":r.status);
+    else if(r&&r.answered&&CL.out&&CL.room&&CL.room.remoteParticipants.size)clOnRemoteJoin();
+  }catch(_){}
 }
 async function clHangup(silent){
   const c=CL.call;if(!c)return;
@@ -286,11 +296,13 @@ async function clHangup(silent){
   try{await api("POST",`/calls/${c.id}/leave`);}catch(_){}
 }
 function clEndText(reason){
-  const map={declined:"cl_end_declined",noanswer:"cl_end_noanswer",missed:"cl_end_noanswer",cancelled:"cl_end_cancelled",lost:"cl_end_lost",error:null};
+  const map={declined:"cl_end_declined",noanswer:"cl_end_noanswer",missed:"cl_end_noanswer",cancelled:"cl_end_cancelled",lost:"cl_end_lost",moved:"cl_end_moved",error:null};
   return reason in map?(map[reason]?t(map[reason]):null):t("cl_end");
 }
 function clFinish(reason,silent){
   const c=CL.call;
+  const lostRinging=reason==="lost"&&c&&CL.out&&!CL.t0;
+  CL.hold=false;clearTimeout(CL.offT);
   clSoundStop();clearInterval(CL.ping);clearInterval(CL.timer);cancelAnimationFrame(CL.raf);CL.ping=CL.timer=null;
   const room=CL.room;CL.room=null;
   if(room){try{room.disconnect();}catch(_){}}
@@ -305,6 +317,7 @@ function clFinish(reason,silent){
   ov.classList.remove("min");ov.classList.add("ended");
   const st=document.getElementById("cl-sub");if(st)st.textContent=[txt,dur?clFmt(dur):""].filter(Boolean).join(" · ");
   const bar=document.getElementById("cl-bar");if(bar)bar.innerHTML="";
+  if(lostRinging){clLostScreen(ov,c);clHeaderSync();return;}
   setTimeout(()=>{if(!CL.call)ov.remove();},1400);
   clHeaderSync();
 }
@@ -515,7 +528,7 @@ function clPeople(){
   const room=CL.room;if(!room)return [];
   const arr=[room.localParticipant,...room.remoteParticipants.values()];
   return arr.map(p=>({p,id:p.identity,local:!!p.isLocal,name:p.isLocal?t("cl_you"):(p.name||CL.call?.names?.[p.identity]||"?"),avatar:clMeta(p).avatar||null,
-    hand:(p.attributes||{}).hand==="1",micOff:!p.isMicrophoneEnabled}));
+    hand:(p.attributes||{}).hand==="1",micOff:p.isLocal&&CL.hold?!CL.mic:!p.isMicrophoneEnabled}));
 }
 function clPub(p,src){if(!CL.LK)return null;const pub=p.getTrackPublication(CL.LK.Track.Source[src]);return pub&&pub.track&&!pub.isMuted?pub:null;}
 function clTileEl(key,x,screen){
@@ -802,5 +815,87 @@ async function clHandleLink(o){
 if("serviceWorker" in navigator)navigator.serviceWorker.addEventListener("message",e=>{
   const d=e.data||{};
   if(d.type==="open-url"&&d.url){try{const u=new URL(d.url);const o={call:u.searchParams.get("call"),answer:u.searchParams.get("answer")==="1",kind:u.searchParams.get("kind"),callback:u.searchParams.get("callback"),conv:u.searchParams.get("c")};if(o.call||o.callback)clHandleLink(o);}catch(_){}}
-  if(d.type==="zd-call-declined"&&CL.ring&&CL.ring.id===d.call_id)clHideRing(d.call_id,true);
+  if((d.type==="zd-call-declined"||d.type==="zd-call-closed")&&CL.ring&&CL.ring.id===d.call_id){if(d.type==="zd-call-closed")clRingPoll();else clHideRing(d.call_id,true);}
 });
+
+// ── 10.0.0 · Sonnerie synchronisée : l'appelé voit tout de suite que l'appel est terminé ──
+function clLostScreen(ov,c){
+  ov.classList.add("cl-lost");
+  const st=document.getElementById("cl-sub");
+  if(st)st.innerHTML=`<span class="cl-lost-t"><i class="ti ti-wifi-off" aria-hidden="true"></i> ${esc(t("cl_lost_t"))}</span><span class="cl-lost-x">${esc(lkT("cl_lost_x",{n:clTitle(c)}))}</span>`;
+  const bar=document.getElementById("cl-bar");
+  if(bar)bar.innerHTML=`<div class="cl-lost-acts"><div><button type="button" class="cl-b green" id="cl-lost-again" aria-label="${esc(t("cl_redial"))}"><i class="ti ti-phone"></i></button><span>${esc(t("cl_redial"))}</span></div>
+    <div><button type="button" class="cl-b" id="cl-lost-close" aria-label="${esc(t("btn_close"))}"><i class="ti ti-x"></i></button><span>${esc(t("btn_close"))}</span></div></div>`;
+  const close=()=>{if(!CL.call)ov.remove();};
+  document.getElementById("cl-lost-close")?.addEventListener("click",close);
+  document.getElementById("cl-lost-again")?.addEventListener("click",()=>{ov.remove();clStart(c.kind==="video"?"video":"audio",c.conversation_id);});
+}
+function clRingEnded(c,reason){
+  const el=document.getElementById("cl-ring");
+  if(!CL.ring||CL.ring.id!==c.id||!el||el.classList.contains("busy")){clHideRing(c.id,true);return;}
+  const was=CL.ring;CL.ring=null;_clDismissed.add(was.id);
+  clearTimeout(CL.ringT);clearInterval(CL.ringPoll);clSoundStop();clCloseNotif(was.id);
+  const who=was.from||{},grp=was.is_group,title=clTitle(was),video=was.kind==="video";
+  const hung=["cancelled","caller_gone","hangup","caller"].includes(reason);
+  el.className="cl-ring ended";
+  el.innerHTML=`<div class="cl-ring-in">
+    <div class="cl-pulse off">${clAv(title,grp?null:who.avatar,104)}</div>
+    <div class="cl-who">${esc(title)}</div>
+    <div class="cl-sub cl-hung"><i class="ti ti-phone-x" aria-hidden="true"></i> ${esc(t(hung?"cl_hung_up":"cl_missed_short"))}</div>
+    <div class="cl-end-card"><div class="cl-end-row"><span class="cl-end-ic"><i class="ti ti-phone" aria-hidden="true"></i></span><div><b>${esc(t(video?"cl_missed_video":"cl_missed_audio"))}</b><small>${esc(new Date().toLocaleTimeString(State.lang||"fr",{hour:"2-digit",minute:"2-digit"}))}</small></div></div>
+      <div class="cl-end-acts"><button type="button" class="btn btn-g" id="cl-end-call">${esc(t("cl_redial"))}</button><button type="button" class="btn btn-o" id="cl-end-write">${esc(t("cl_write"))}</button></div></div>
+    <button type="button" class="cl-end-x" id="cl-end-close" aria-label="${esc(t("btn_close"))}"><i class="ti ti-x" aria-hidden="true"></i></button></div>`;
+  el.style.display="flex";
+  const close=()=>{clearTimeout(CL.endT);if(!CL.ring){el.style.display="none";el.innerHTML="";el.className="cl-ring";}};
+  clearTimeout(CL.endT);CL.endT=setTimeout(close,8000);
+  document.getElementById("cl-end-close").onclick=close;
+  document.getElementById("cl-end-call").onclick=()=>{close();clStart(video?"video":"audio",was.conversation_id);};
+  document.getElementById("cl-end-write").onclick=()=>{close();try{navigate("messaging");setTimeout(()=>openConversationById(was.conversation_id),400);}catch(_){}};
+}
+async function clRingPoll(){
+  const r=CL.ring;if(!r)return;
+  if(!navigator.onLine){if(!CL.offAt)CL.offAt=Date.now();else if(Date.now()-CL.offAt>8000)clHideRing(r.id,true);return;}
+  CL.offAt=0;
+  try{
+    const c=await api("GET",`/calls/${r.id}`);
+    if(!CL.ring||CL.ring.id!==r.id)return;
+    if(!["ringing","ongoing"].includes(c.status))clRingEnded(c,c.status==="declined"?"declined":"missed");
+    else if((c.active||[]).includes(clMe())&&!(CL.call&&CL.call.id===c.id)){clHideRing(c.id,true);showToast(t("cl_other_device"));}
+  }catch(e){if(e&&e.status===404)clHideRing(r.id,true);}
+}
+const _clShowRing100=clShowRing;
+clShowRing=function(call){
+  const before=CL.ring&&CL.ring.id;
+  _clShowRing100.apply(this,arguments);
+  if(CL.ring&&CL.ring.id!==before){clearInterval(CL.ringPoll);CL.offAt=0;CL.ringPoll=setInterval(clRingPoll,4000);}
+};
+const _clHideRing100=clHideRing;
+clHideRing=function(id,quiet){
+  const had=CL.ring&&(!id||CL.ring.id===id);
+  _clHideRing100.apply(this,arguments);
+  if(had){clearInterval(CL.ringPoll);const el=document.getElementById("cl-ring");if(el)el.className="cl-ring";}
+};
+const _clOnWS100=clOnWS;
+clOnWS=function(d){
+  if(d&&d.type==="call_ended"&&d.call&&CL.ring&&CL.ring.id===d.call.id){
+    const r=d.reason||d.call.status;
+    if(r==="declined"&&!(CL.call&&CL.call.id===d.call.id)){clHideRing(d.call.id,true);}
+    else clRingEnded(d.call,r);
+    _clDismissed.add(d.call.id);
+    if(CL.call&&CL.call.id===d.call.id)clFinish(d.reason||d.call.status);
+    if(_clLive&&_clLive.id===d.call.id){_clLive=null;clLiveBar();}
+    return;
+  }
+  return _clOnWS100.apply(this,arguments);
+};
+window.addEventListener("offline",()=>{
+  if(CL.call&&CL.out&&!CL.t0){clearTimeout(CL.offT);CL.offT=setTimeout(()=>{if(CL.call&&!navigator.onLine&&CL.out&&!CL.t0)clFinish("lost");},10000);}
+});
+window.addEventListener("online",()=>{clearTimeout(CL.offT);if(CL.ring)clRingPoll();});
+const _clDecline100=clDecline;
+clDecline=async function(message){
+  const c=CL.ring;if(!c)return;
+  if(navigator.onLine)return _clDecline100.apply(this,arguments);
+  clHideRing(c.id);
+  window.addEventListener("online",()=>{api("POST",`/calls/${c.id}/decline`,message&&String(message).trim()?{message:String(message).trim()}:{}).catch(()=>{});},{once:true});
+};
