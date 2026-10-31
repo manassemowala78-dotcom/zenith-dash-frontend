@@ -27,9 +27,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Zenith Dash">
-<link rel="preload" href="/css/icons.woff2?v=10.0.0" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/icons.css?v=10.0.0">
-<link rel="stylesheet" href="/css/app.css?v=10.0.0">
+<link rel="preload" href="/css/icons.woff2?v=10.1.0" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/icons.css?v=10.1.0">
+<link rel="stylesheet" href="/css/app.css?v=10.1.0">
 </head>
 <body class="zd-no-ai">
 <!-- PORTAIL CLIENT (accès public, sans compte) -->
@@ -117,7 +117,7 @@
       <form onsubmit="handleAcceptInvite(event)">
         <div class="fgrp"><label class="fl">Email</label><input class="inp" type="email" id="invite-accept-email" disabled></div>
         <div class="fgrp"><label class="fl">Votre nom</label><input class="inp" type="text" id="invite-accept-name" placeholder="Votre nom complet" required></div>
-        <div class="fgrp"><label class="fl">Choisissez un mot de passe</label><input class="inp" type="password" id="invite-accept-password" placeholder="Min. 8 caractères" required></div>
+        <div class="fgrp"><label class="fl">Choisissez un mot de passe</label><input class="inp" type="password" id="invite-accept-password" autocomplete="new-password" placeholder="Min. 8 caractères" required></div>
         <div class="err-box" id="invite-accept-err"></div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:8px"><span data-i18n="terms_join_prefix">En rejoignant l'équipe, tu acceptes les</span> <a href="/legal/conditions-generales.html" target="_blank" rel="noopener" data-i18n="terms_link_cg">conditions générales</a> <span data-i18n="terms_and">et la</span> <a href="/legal/confidentialite.html" target="_blank" rel="noopener" data-i18n="terms_link_privacy">politique de confidentialité</a>.</div>
         <button class="btn btn-g" id="invite-accept-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-check"></i> Rejoindre l'équipe</button>
@@ -130,10 +130,11 @@
     </div>
     <div id="tab-login" class="auth-tab-content active">
       <form id="login-form" onsubmit="handleLogin(event)">
-        <div class="fgrp"><label class="fl" data-i18n="lbl_email">Email</label><input class="inp" type="email" id="login-email" placeholder="vous@exemple.com" required></div>
-        <div class="fgrp"><label class="fl" data-i18n="lbl_password">Mot de passe</label><input class="inp" type="password" id="login-password" placeholder="••••••••" required></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_email">Email</label><input class="inp" type="email" id="login-email" name="email" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="vous@exemple.com" required></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_password">Mot de passe</label><input class="inp" type="password" id="login-password" name="password" autocomplete="current-password" placeholder="••••••••" required></div>
         <div class="err-box" id="login-err"></div>
         <button class="btn btn-g" id="login-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-login"></i> <span data-i18n="btn_login">Se connecter</span></button>
+        <button type="button" class="auth-forgot" id="login-forgot" onclick="rsOpen({from:'login',email:document.getElementById('login-email').value})" data-i18n="rs_forgot">Mot de passe oublié ?</button>
       </form>
       <form id="login-2fa-step" style="display:none" onsubmit="submitLogin2fa(event)">
         <div style="text-align:center;margin-bottom:14px"><i class="ti ti-shield-lock" style="font-size:36px;color:var(--green)"></i>
@@ -149,10 +150,10 @@
       <form onsubmit="handleRegister(event)">
         <div id="reg-roles" class="reg-roles" role="radiogroup"></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_fullname">Nom complet</label><input class="inp" type="text" id="reg-name" placeholder="Votre nom" required></div>
-        <div class="fgrp"><label class="fl" data-i18n="lbl_email">Email</label><input class="inp" type="email" id="reg-email" placeholder="vous@exemple.com" required></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_email">Email</label><input class="inp" type="email" id="reg-email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="vous@exemple.com" required></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_company">Entreprise</label><input class="inp" type="text" id="reg-company" data-i18n="lbl_company_ph" data-i18n-placeholder placeholder="Optionnel"></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_referral">Code de parrainage</label><input class="inp" type="text" id="reg-referral" data-i18n="lbl_referral_ph" data-i18n-placeholder placeholder="Optionnel — +5 jours d'essai" style="text-transform:uppercase"></div>
-        <div class="fgrp"><label class="fl" data-i18n="lbl_password">Mot de passe</label><input class="inp" type="password" id="reg-password" data-i18n="lbl_password_min" data-i18n-placeholder placeholder="Min. 8 caractères" required></div>
+        <div class="fgrp"><label class="fl" data-i18n="lbl_password">Mot de passe</label><input class="inp" type="password" id="reg-password" autocomplete="new-password" data-i18n="lbl_password_min" data-i18n-placeholder placeholder="Min. 8 caractères" required></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_sector">Secteur d'activité</label><div id="reg-sector-grid" class="sector-chips"></div><div id="reg-sector-hint" style="font-size:11px;color:var(--muted);margin-top:6px"></div></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_birth_date">Date de naissance (facultatif)</label><input class="inp" type="date" id="reg-birth" min="1900-01-01"><div style="font-size:11px;color:var(--muted);margin-top:4px" data-i18n="birth_hint">Tes contacts de la messagerie recevront un petit rappel le jour de ton anniversaire. Tu peux le désactiver dans ton profil.</div></div>
         <label class="terms-check"><input type="checkbox" id="reg-terms"><span><span data-i18n="terms_accept_prefix">J'accepte les</span> <a href="/legal/conditions-generales.html" target="_blank" rel="noopener" data-i18n="terms_link_cg">conditions générales</a> <span data-i18n="terms_and">et la</span> <a href="/legal/confidentialite.html" target="_blank" rel="noopener" data-i18n="terms_link_privacy">politique de confidentialité</a></span></label>
@@ -415,13 +416,15 @@
               <div id="chat-blocked-text" style="font-size:13px;color:var(--muted);margin-bottom:10px"></div>
               <button class="btn btn-g btn-sm" onclick="unblockCurrentContact()"><i class="ti ti-lock-open"></i> <span data-i18n="unblock_user_action">Débloquer</span></button>
             </div>
-            <div id="recording-row" style="display:none;padding:12px;border-top:1px solid var(--b);align-items:center;gap:10px">
-              <i class="ti ti-microphone" style="color:var(--red);font-size:20px;animation:pulse 1.2s infinite"></i>
-              <span data-i18n="recording_in_progress">Enregistrement...</span>
-              <span id="recording-timer" style="font-family:var(--mono);color:var(--muted)">0:00</span>
-              <div class="vb-bars" id="vb-rec" aria-hidden="true"></div>
-              <button class="btn btn-o btn-sm" onclick="cancelVoiceRecording()" data-i18n="view_once_cancel">Annuler</button>
-              <button class="btn btn-g btn-sm" onclick="stopVoiceRecording()"><i class="ti ti-send"></i> <span data-i18n="btn_send_short">Envoyer</span></button>
+            <div id="recording-row" class="rec-row" style="display:none">
+              <button type="button" class="rec-cancel" onclick="cancelVoiceRecording()" aria-label="Annuler l'enregistrement" title="Annuler l'enregistrement" data-i18n-aria="rec_cancel"><i class="ti ti-trash" aria-hidden="true"></i></button>
+              <div class="rec-pill" role="status">
+                <i class="ti ti-microphone" aria-hidden="true"></i>
+                <span class="rec-lbl" data-i18n="recording_in_progress">Enregistrement...</span>
+                <span id="recording-timer" class="rec-time">0:00</span>
+                <div class="vb-bars" id="vb-rec" aria-hidden="true"></div>
+              </div>
+              <button type="button" class="rec-send" onclick="stopVoiceRecording()" aria-label="Envoyer le message vocal" title="Envoyer le message vocal" data-i18n-aria="rec_send"><i class="ti ti-send" aria-hidden="true"></i></button>
             </div>
           </div>
         </div>
@@ -2416,58 +2419,59 @@
   </div>
 </div>
 
-<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=10.0.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=10.0.0" defer><\/script>':""))})();</script>
-<script src="/js/vendor/qrcode.min.js?v=10.0.0" defer></script>
-<script src="/js/base-1.js?v=10.0.0" defer></script>
-<script src="/js/securite-roles.js?v=10.0.0" defer></script>
-<script src="/js/hors-ligne.js?v=10.0.0" defer></script>
-<script src="/js/facturation.js?v=10.0.0" defer></script>
-<script src="/js/stock-caisse.js?v=10.0.0" defer></script>
-<script src="/js/rh-paie.js?v=10.0.0" defer></script>
-<script src="/js/compta-ohada.js?v=10.0.0" defer></script>
-<script src="/js/marketing.js?v=10.0.0" defer></script>
-<script src="/js/plateforme.js?v=10.0.0" defer></script>
-<script src="/js/accueil-aide.js?v=10.0.0" defer></script>
-<script src="/js/import.js?v=10.0.0" defer></script>
-<script src="/js/achats.js?v=10.0.0" defer></script>
-<script src="/js/relances-auto.js?v=10.0.0" defer></script>
-<script src="/js/boutique.js?v=10.0.0" defer></script>
-<script src="/js/projets.js?v=10.0.0" defer></script>
-<script src="/js/immobilisations-rapports.js?v=10.0.0" defer></script>
-<script src="/js/rendez-vous.js?v=10.0.0" defer></script>
-<script src="/js/cabinet.js?v=10.0.0" defer></script>
-<script src="/js/listes.js?v=10.0.0" defer></script>
-<script src="/js/juridique.js?v=10.0.0" defer></script>
-<script src="/js/contacts-confidentialite.js?v=10.0.0" defer></script>
-<script src="/js/secteurs.js?v=10.0.0" defer></script>
-<script src="/js/restaurant.js?v=10.0.0" defer></script>
-<script src="/js/bar.js?v=10.0.0" defer></script>
-<script src="/js/froid.js?v=10.0.0" defer></script>
-<script src="/js/hotel.js?v=10.0.0" defer></script>
-<script src="/js/salon.js?v=10.0.0" defer></script>
-<script src="/js/commerce.js?v=10.0.0" defer></script>
-<script src="/js/commandes.js?v=10.0.0" defer></script>
-<script src="/js/abonnements.js?v=10.0.0" defer></script>
-<script src="/js/coeur-1.js?v=10.0.0" defer></script>
-<script src="/js/coeur-2.js?v=10.0.0" defer></script>
-<script src="/js/coeur-3.js?v=10.0.0" defer></script>
-<script src="/js/v93.js?v=10.0.0" defer></script>
-<script src="/js/bar-fiche.js?v=10.0.0" defer></script>
-<script src="/js/ecole.js?v=10.0.0" defer></script>
-<script src="/js/ambassade.js?v=10.0.0" defer></script>
-<script src="/js/pointage.js?v=10.0.0" defer></script>
-<script src="/js/espaces.js?v=10.0.0" defer></script>
-<script src="/js/reductions.js?v=10.0.0" defer></script>
-<script src="/js/premiers-reglages.js?v=10.0.0" defer></script>
-<script src="/js/annuaire.js?v=10.0.0" defer></script>
-<script src="/js/notifs.js?v=10.0.0" defer></script>
-<script src="/js/appels.js?v=10.0.0" defer></script>
-<script src="/js/comptes.js?v=10.0.0" defer></script>
-<script src="/js/messagerie.js?v=10.0.0" defer></script>
-<script src="/js/paiement.js?v=10.0.0" defer></script>
-<script src="/js/securite-v99.js?v=10.0.0" defer></script>
-<script src="/js/verrou-v100.js?v=10.0.0" defer></script>
-<script src="/js/apparence-v100.js?v=10.0.0" defer></script>
+<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=10.1.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=10.1.0" defer><\/script>':""))})();</script>
+<script src="/js/vendor/qrcode.min.js?v=10.1.0" defer></script>
+<script src="/js/base-1.js?v=10.1.0" defer></script>
+<script src="/js/securite-roles.js?v=10.1.0" defer></script>
+<script src="/js/hors-ligne.js?v=10.1.0" defer></script>
+<script src="/js/facturation.js?v=10.1.0" defer></script>
+<script src="/js/stock-caisse.js?v=10.1.0" defer></script>
+<script src="/js/rh-paie.js?v=10.1.0" defer></script>
+<script src="/js/compta-ohada.js?v=10.1.0" defer></script>
+<script src="/js/marketing.js?v=10.1.0" defer></script>
+<script src="/js/plateforme.js?v=10.1.0" defer></script>
+<script src="/js/accueil-aide.js?v=10.1.0" defer></script>
+<script src="/js/import.js?v=10.1.0" defer></script>
+<script src="/js/achats.js?v=10.1.0" defer></script>
+<script src="/js/relances-auto.js?v=10.1.0" defer></script>
+<script src="/js/boutique.js?v=10.1.0" defer></script>
+<script src="/js/projets.js?v=10.1.0" defer></script>
+<script src="/js/immobilisations-rapports.js?v=10.1.0" defer></script>
+<script src="/js/rendez-vous.js?v=10.1.0" defer></script>
+<script src="/js/cabinet.js?v=10.1.0" defer></script>
+<script src="/js/listes.js?v=10.1.0" defer></script>
+<script src="/js/juridique.js?v=10.1.0" defer></script>
+<script src="/js/contacts-confidentialite.js?v=10.1.0" defer></script>
+<script src="/js/secteurs.js?v=10.1.0" defer></script>
+<script src="/js/restaurant.js?v=10.1.0" defer></script>
+<script src="/js/bar.js?v=10.1.0" defer></script>
+<script src="/js/froid.js?v=10.1.0" defer></script>
+<script src="/js/hotel.js?v=10.1.0" defer></script>
+<script src="/js/salon.js?v=10.1.0" defer></script>
+<script src="/js/commerce.js?v=10.1.0" defer></script>
+<script src="/js/commandes.js?v=10.1.0" defer></script>
+<script src="/js/abonnements.js?v=10.1.0" defer></script>
+<script src="/js/coeur-1.js?v=10.1.0" defer></script>
+<script src="/js/coeur-2.js?v=10.1.0" defer></script>
+<script src="/js/coeur-3.js?v=10.1.0" defer></script>
+<script src="/js/v93.js?v=10.1.0" defer></script>
+<script src="/js/bar-fiche.js?v=10.1.0" defer></script>
+<script src="/js/ecole.js?v=10.1.0" defer></script>
+<script src="/js/ambassade.js?v=10.1.0" defer></script>
+<script src="/js/pointage.js?v=10.1.0" defer></script>
+<script src="/js/espaces.js?v=10.1.0" defer></script>
+<script src="/js/reductions.js?v=10.1.0" defer></script>
+<script src="/js/premiers-reglages.js?v=10.1.0" defer></script>
+<script src="/js/annuaire.js?v=10.1.0" defer></script>
+<script src="/js/notifs.js?v=10.1.0" defer></script>
+<script src="/js/appels.js?v=10.1.0" defer></script>
+<script src="/js/comptes.js?v=10.1.0" defer></script>
+<script src="/js/messagerie.js?v=10.1.0" defer></script>
+<script src="/js/paiement.js?v=10.1.0" defer></script>
+<script src="/js/securite-v99.js?v=10.1.0" defer></script>
+<script src="/js/verrou-v100.js?v=10.1.0" defer></script>
+<script src="/js/apparence-v100.js?v=10.1.0" defer></script>
+<script src="/js/reset-v101.js?v=10.1.0" defer></script>
 
 </body>
 </html>

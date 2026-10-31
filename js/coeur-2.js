@@ -340,7 +340,7 @@ async function startVoiceRecording(){
 }
 function _stopRecordingInternal(){
   return new Promise(resolve=>{
-    if(!_mediaRecorder){resolve(null);return;}
+    if(!_mediaRecorder||_mediaRecorder.state==="inactive"){resolve(null);return;}
     _mediaRecorder.onstop=()=>{
       _mediaRecorder.stream.getTracks().forEach(tr=>tr.stop());
       resolve(new Blob(_recordedChunks,{type:"audio/webm"}));
@@ -349,6 +349,7 @@ function _stopRecordingInternal(){
   });
 }
 async function stopVoiceRecording(){
+  if(!_mediaRecorder||_mediaRecorder.state==="inactive")return;
   clearInterval(_recordingTimerInterval);
   document.getElementById("chat-input-row").style.display="flex";
   document.getElementById("recording-row").style.display="none";

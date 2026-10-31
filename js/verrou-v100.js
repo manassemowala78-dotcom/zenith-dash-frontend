@@ -1,5 +1,5 @@
 // ── 10.0.0 · Verrouillage de l'application : visage, empreinte ou mot de passe ──
-const LK={st:null,shown:false,reason:"",pwd:false,last:Date.now(),unlockAt:Date.now(),hiddenAt:0,sup:0,tab:Math.random().toString(36).slice(2),
+const LK={st:null,shown:false,reason:"",pwd:false,reveal:false,fname:Math.random().toString(36).slice(2,10),last:Date.now(),unlockAt:Date.now(),hiddenAt:0,sup:0,tab:Math.random().toString(36).slice(2),
   busy:false,blocked:false,cd:null,cdEnd:0,err:"",left:null,uploads:0};
 const LK_GRACE=2500,LK_SHOW_MIN=800,LK_RECHECK_WAIT=20;
 function lkT(k,v){let s=t(k);if(v)Object.keys(v).forEach(x=>{s=s.split(`{${x}}`).join(v[x]);});return s;}
@@ -129,7 +129,9 @@ function lkIco(k){
     key:'<circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3M17 6l3 3M14 9l2 2"/>',
     eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
     shield:'<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/>',
-    phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'}[k]||"";
+    phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
+    mobile:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+    pc:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>'}[k]||"";
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 }
 function lkWho(){
@@ -175,26 +177,32 @@ function lkRender(){
   const left=LK.left;
   const err=LK.err?`<div class="lk-err" role="alert">${esc(LK.err)}</div>`:"";
   const showPwd=!bio||LK.pwd;
-  const form=`<form class="lk-form" onsubmit="event.preventDefault();lkPwdUnlock()" autocomplete="on">
-      ${!re?`<span class="lk-pwd-sub">${esc(t("lk_pwd_sub"))}</span>`:""}
-      <input type="text" name="username" autocomplete="username" value="${esc((State.tenant&&State.tenant.email)||"")}" hidden>
+  const phone=!re&&lkPhoneOk();
+  const sec=lkSecretOk();
+  const ign='data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other"';
+  const form=`<form class="lk-form" onsubmit="event.preventDefault();lkPwdUnlock()" autocomplete="off" ${ign}>
+      ${!re&&!phone?`<span class="lk-pwd-sub">${esc(t("lk_pwd_sub"))}</span>`:""}
       <label class="lk-lbl" for="zd-lk-pwd">${esc(t("lk_pwd_lbl"))}</label>
-      <span class="lk-field${LK.err?" bad":""}"><input id="zd-lk-pwd" type="password" autocomplete="current-password" maxlength="200" spellcheck="false">
-        <button type="button" class="lk-eye" aria-label="${esc(t("lk_show_pwd"))}" onclick="const i=document.getElementById('zd-lk-pwd');i.type=i.type==='password'?'text':'password'">${lkIco("eye")}</button></span>
+      <span class="lk-field${LK.err?" bad":""}"><input id="zd-lk-pwd" name="zd-${LK.fname}" ${sec?`type="text" class="lk-secret${LK.reveal?" lk-reveal":""}" autocomplete="off"`:`type="${LK.reveal?"text":"password"}" autocomplete="new-password"`} autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="200" enterkeyhint="go" ${ign}>
+        <button type="button" class="lk-eye" aria-label="${esc(t("lk_show_pwd"))}" aria-pressed="${LK.reveal?"true":"false"}" onclick="lkReveal()">${lkIco("eye")}</button></span>
       ${err}
-      <button type="submit" class="lk-go"${LK.busy?" disabled":""}>${esc(t("lk_unlock"))}</button>
+      <button type="submit" class="lk-go${phone&&!bio?" lk-go2":""}"${LK.busy?" disabled":""}>${esc(t("lk_unlock"))}</button>
     </form>`;
-  ov.className=`zd-lock${showPwd?" pwd":""}${bio?" has-bio":""}${re?" re":""}`;
+  const phoneBtn=phone&&!bio?`<div class="lk-phone"><button type="button" id="zd-lk-phone" class="lk-go lk-phone-go" onclick="lkPhoneUnlock()"${LK.busy?" disabled":""}>${lkIco("mobile")}<span>${esc(t("lk_phone_btn"))}</span></button>
+      <span class="lk-phone-x">${esc(t("lk_phone_x"))}</span></div><div class="lk-or"><span></span>${esc(t("lk_or"))}<span></span></div>`:"";
+  ov.className=`zd-lock${showPwd?" pwd":""}${bio?" has-bio":""}${re?" re":""}${phone&&!bio?" has-phone":""}`;
   ov.setAttribute("aria-label",re?lkT("lk_recheck_t",{n:w.name}):t("lk_locked"));
   ov.innerHTML=`<div class="lk-box">
     <div class="lk-logo"><span class="lk-logo-mark" aria-hidden="true"></span>Zenith<span>Dash</span></div>
     <div class="lk-mid">${head}${cd}${bioBtn}
       ${bio?`<div class="lk-or"><span></span>${esc(t("lk_or"))}<span></span></div>`:""}
-      ${form}
+      ${phoneBtn}${form}
       ${bio&&LK.pwd?`<button type="button" class="lk-link lk-use-bio" onclick="LK.pwd=false;LK.err='';lkRender()">${lkIco("fp")}${esc(t("lk_use_bio"))}</button>`:""}
     </div>
     <div class="lk-foot">${call}
       ${bio&&!LK.pwd?`<button type="button" class="lk-alt" onclick="LK.pwd=true;lkRender();setTimeout(()=>document.getElementById('zd-lk-pwd')?.focus(),30)">${lkIco("key")}${esc(t("lk_use_pwd"))}</button>`:""}
+      ${phone&&bio?`<button type="button" class="lk-link lk-phone-alt" onclick="lkPhoneUnlock()">${lkIco("mobile")}${esc(t("lk_phone_btn"))}</button>`:""}
+      ${!re?`<button type="button" class="lk-link" id="zd-lk-forgot" onclick="lkForgot()">${esc(t("rs_forgot"))}</button>`:""}
       <button type="button" class="lk-link muted" onclick="lkLogout()">${esc(t("lk_not_you"))}</button>
     </div></div>`;
   const pi=document.getElementById("zd-lk-pwd");if(pi&&typed)pi.value=typed;
@@ -232,8 +240,40 @@ async function lkBioUnlock(){
   }
   LK.busy=false;lkRender();
 }
+let _lkSec=null;
+function lkSecretOk(){if(_lkSec===null){try{_lkSec=!!(window.CSS&&CSS.supports&&CSS.supports("-webkit-text-security","disc"));}catch(_){_lkSec=false;}}return _lkSec;}
+function lkMobile(){return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));}
+function lkPhoneOk(){return !!(window.PublicKeyCredential&&LK.st&&(LK.st.credentials||[]).length&&!lkMobile());}
+function lkReveal(){
+  LK.reveal=!LK.reveal;
+  const i=document.getElementById("zd-lk-pwd");if(!i)return;
+  if(lkSecretOk())i.classList.toggle("lk-reveal",LK.reveal);else i.type=LK.reveal?"text":"password";
+  i.closest(".lk-field")?.querySelector(".lk-eye")?.setAttribute("aria-pressed",LK.reveal?"true":"false");
+  try{i.focus({preventScroll:true});}catch(_){}
+}
+function lkForgot(){
+  const email=(LK.st&&LK.st.email)||(State.tenant&&State.tenant.email)||"";
+  if(typeof rsOpen==="function")rsOpen({from:"lock",email});
+}
+async function lkPhoneUnlock(){
+  if(LK.busy)return;LK.busy=true;LK.err="";lkRender();
+  try{
+    const o=await api("POST","/security/lock/webauthn/auth/options?via=phone");
+    const cred=await navigator.credentials.get({publicKey:lkGetOpts(o)});
+    await api("POST","/security/lock/unlock/webauthn",{credential:lkCredOut(cred,false)});
+    LK.busy=false;lkUnlocked();return;
+  }catch(e){
+    const d=e&&e.data&&e.data.detail;
+    if(d&&d.error==="no_credential")LK.err=t("lk_phone_none");
+    else if(e&&(e.name==="NotAllowedError"||e.name==="AbortError"))LK.err=t("lk_phone_cancel");
+    else if(e&&e.name)LK.err=lkBioErr(e);
+    else LK.err=(e&&e.message)||t("lk_phone_cancel");
+  }
+  LK.busy=false;lkRender();
+}
+window.addEventListener("pagehide",()=>{const i=document.getElementById("zd-lk-pwd");if(i)i.value="";});
 function lkHide(){
-  LK.shown=false;clearInterval(LK.cd);
+  LK.shown=false;LK.reveal=false;clearInterval(LK.cd);
   const ov=document.getElementById("zd-lock");if(ov){ov.style.display="none";ov.innerHTML="";}
   document.body.classList.remove("zd-app-locked");
 }
@@ -342,6 +382,11 @@ async function lkSet(body){
 }
 
 // ── Profil → Sécurité ──
+function lkUseTxt(c){
+  if(!c||!c.last_used_at)return "";
+  const w=typeof fmtDateTime==="function"?fmtDateTime(c.last_used_at):(typeof fmtDate==="function"?fmtDate(c.last_used_at):"");
+  return `<span class="lk-used">${esc(c.last_used_remote?lkT("lk_used_pc",{d:c.last_used_device||"PC",w}):lkT("lk_used",{w}))}</span>`;
+}
 function lkDur(s){return s<60?lkT("lk_s",{n:s}):lkT("lk_min",{n:Math.round(s/60)});}
 async function lkRenderSettings(){
   const pg=document.getElementById("page-profile");if(!pg)return;
@@ -351,7 +396,7 @@ async function lkRenderSettings(){
     box=document.createElement("div");box.id="zd-lk-settings";box.className="es-keep";
     if(anchor)anchor.after(box);else pg.appendChild(box);
   }
-  const s=LK.st||await lkRefresh();if(!s){box.innerHTML="";return;}
+  const s=(await lkRefresh())||LK.st;if(!s){box.innerHTML="";return;}
   const sup=await lkBioSupported();
   const here=lkBioLocal(),cr=s.credentials||[];
   const mine=cr.find(c=>c.id===here),others=cr.filter(c=>c.id!==here);
@@ -362,10 +407,11 @@ async function lkRenderSettings(){
       <div class="lk-cap">${esc(t("lk_when"))}</div>
       <div class="lk-opts" role="radiogroup" aria-label="${esc(t("lk_when"))}">${s.options.delays.map(v=>radio("delay_s",v,s.delay_s,dl[v]||lkDur(v),v===0?`<small>${esc(t("lk_default"))}</small>`:"")).join("")}</div>
       <div class="lk-cap">${esc(t("lk_how"))}</div>
-      <div class="lk-row">${lkIco("fp")}<div><b>${esc(t("lk_bio_name"))}</b><span>${mine?esc(`${mine.name} · ${t("lk_this_dev")}`):esc(sup?t("lk_bio_off_here"):t("lk_no_sensor"))}</span></div>
+      <div class="lk-row">${lkIco("fp")}<div><b>${esc(t("lk_bio_name"))}</b><span>${mine?esc(`${mine.name} · ${t("lk_this_dev")}`):esc(sup?t("lk_bio_off_here"):(cr.length&&!lkMobile()?t("lk_no_sensor_phone"):t("lk_no_sensor")))}</span>${mine?lkUseTxt(mine):""}</div>
         ${mine?`<button type="button" class="btn btn-o btn-sm lk-rm" onclick="lkRemove('${esc(mine.id)}')">${esc(t("lk_remove"))}</button>`:(sup?`<button type="button" class="btn btn-g btn-sm" id="zd-lk-add" onclick="lkRegister()">${esc(t("lk_add_here"))}</button>`:"")}</div>
-      ${others.length?`<div class="lk-others"><span>${esc(t("lk_other_devs"))}</span>${others.map(c=>`<div class="lk-row sm"><div><b>${esc(c.name||"")}</b><span>${esc(c.created_at?fmtDate(c.created_at):"")}</span></div><button type="button" class="btn btn-o btn-sm lk-rm" onclick="lkRemove('${esc(c.id)}')">${esc(t("lk_remove"))}</button></div>`).join("")}</div>`:""}
+      ${others.length?`<div class="lk-others"><span>${esc(t("lk_other_devs"))}</span>${others.map(c=>`<div class="lk-row sm"><div><b>${esc(c.name||"")}</b><span>${esc(c.created_at?fmtDate(c.created_at):"")}</span>${lkUseTxt(c)}</div><button type="button" class="btn btn-o btn-sm lk-rm" onclick="lkRemove('${esc(c.id)}')">${esc(t("lk_remove"))}</button></div>`).join("")}</div>`:""}
       <div class="lk-row">${lkIco("key")}<div><b>${esc(t("lk_pwd_lbl"))}</b><span>${esc(t("lk_pwd_always"))}</span></div></div>
+      ${mine&&lkMobile()?`<div class="lk-pchint">${lkIco("pc")}<div><b>${esc(t("lk_pc_add_t"))}</b><span>${esc(t("lk_pc_add_x"))}</span></div></div>`:""}
       <p class="lk-note">${esc(t("lk_bio_note"))}</p>
     </div>
     <div class="card lk-card lk-strict${s.strict?" on":""}" style="margin-bottom:16px">

@@ -99,7 +99,7 @@ function clOtherAvatar(c){
 }
 
 // Sons : sonnerie, tonalité d'attente, bips
-const CLS={ctx:null,timer:null,vib:null};
+const CLS={ctx:null,timer:null,vib:null,closeT:null};
 function clTone(seq){
   try{
     CLS.ctx=CLS.ctx||new (window.AudioContext||window.webkitAudioContext)();const c=CLS.ctx;if(c.state==="suspended")c.resume().catch(()=>{});
@@ -107,8 +107,10 @@ function clTone(seq){
     seq.forEach(([f,s,d,ty,v])=>{const o=c.createOscillator(),g=c.createGain();o.type=ty||"sine";o.frequency.value=f;v=v||.16;
       g.gain.setValueAtTime(0,t0+s);g.gain.linearRampToValueAtTime(v,t0+s+.02);g.gain.setValueAtTime(v,t0+s+Math.max(.03,d-.06));g.gain.linearRampToValueAtTime(0,t0+s+d);
       o.connect(g);g.connect(c.destination);o.start(t0+s);o.stop(t0+s+d+.03);});
+    if(CL.call&&CL.t0){const end=Math.max(...seq.map(x=>x[1]+x[2]))*1000+400;clearTimeout(CLS.closeT);CLS.closeT=setTimeout(()=>{if(CL.call&&CL.t0)clCtxClose();},end);}
   }catch(_){}
 }
+function clCtxClose(){clearTimeout(CLS.closeT);const c=CLS.ctx;CLS.ctx=null;if(c){try{c.close();}catch(_){}}}
 const CL_RINGTONE=[[659,0,.16,"triangle",.2],[784,.18,.16,"triangle",.2],[988,.36,.32,"triangle",.2],[659,.9,.16,"triangle",.2],[784,1.08,.16,"triangle",.2],[988,1.26,.32,"triangle",.2]];
 const CL_RINGBACK=[[425,0,1.1,"sine",.07]];
 function clSound(kind){
@@ -219,7 +221,7 @@ async function clJoin(callId,kind){
 function clJoinById(id,kind){clJoin(id,kind);}
 async function clEnter(r,kind,mode,lkp){
   if(CL.room){try{CL.room.disconnect();}catch(_){}}
-  Object.assign(CL,{call:r.call,kind,cam:kind==="video",mic:true,sound:true,share:false,hand:false,facing:"user",min:false,side:false,quality:null,speakers:[],
+  Object.assign(CL,{call:r.call,kind,cam:kind==="video",mic:true,sound:true,share:false,hand:false,facing:"user",min:false,side:false,quality:null,speakers:[],vol:1,echoAt:0,aec:null,
     out:mode==="out",t0:r.call.answered_at?parseServerDate(r.call.answered_at).getTime():null,room:null});
   CL.tiles.forEach(el=>el.remove());CL.tiles.clear();
   clRenderCall();
@@ -230,7 +232,7 @@ async function clEnter(r,kind,mode,lkp){
   if(!CL.call||CL.call.id!==r.call.id)return;
   const dev=clDevPrefs();
   const vcap={resolution:LK.VideoPresets.h540.resolution};if(clCoarse())vcap.facingMode="user";if(dev.cam)vcap.deviceId=dev.cam;
-  const acap={echoCancellation:true,noiseSuppression:true,autoGainControl:true,voiceIsolation:true,channelCount:1};if(dev.mic)acap.deviceId=dev.mic;
+  const acap={...CL_ACAP};if(dev.mic)acap.deviceId=dev.mic;
   const room=new LK.Room({adaptiveStream:true,dynacast:true,webAudioMix:false,
     publishDefaults:{simulcast:true,dtx:true,red:true,videoSimulcastLayers:[LK.VideoPresets.h180,LK.VideoPresets.h360],screenShareEncoding:LK.ScreenSharePresets?LK.ScreenSharePresets.h1080fps15.encoding:undefined},
     videoCaptureDefaults:vcap,audioCaptureDefaults:acap,audioOutput:dev.out?{deviceId:dev.out}:undefined});
@@ -238,7 +240,7 @@ async function clEnter(r,kind,mode,lkp){
   await room.connect(r.lk.url,r.lk.token,{autoSubscribe:true});
   if(CL.room!==room){try{room.disconnect();}catch(_){}return;}
   clStatus("");
-  try{await clMicOn(room.localParticipant);}catch(e){CL.mic=false;clDevError("mic",e);}
+  try{await clMicOn(room.localParticipant);await clAecCheck();}catch(e){CL.mic=false;clDevError("mic",e);}
   if(CL.out&&!room.remoteParticipants.size){CL.hold=true;try{const pub=room.localParticipant.getTrackPublication(LK.Track.Source.Microphone);if(pub&&pub.track)await pub.track.mute();}catch(_){}}
   if(CL.cam){try{await clCamOn(room.localParticipant);}catch(e){CL.cam=false;clDevError("cam",e);}}
   if(room.remoteParticipants.size)clOnRemoteJoin(true);
@@ -269,10 +271,11 @@ function clSyncLocal(){
 }
 function clOnRemoteJoin(silent){
   if(CL.out){CL.out=false;clSoundStop();}
+  clSoundStop();clCtxClose();
   if(CL.hold){CL.hold=false;try{const pub=CL.room&&CL.LK&&CL.room.localParticipant.getTrackPublication(CL.LK.Track.Source.Microphone);if(pub&&pub.track&&CL.mic)pub.track.unmute();}catch(_){}}
   if(!CL.t0)CL.t0=Date.now();
-  if(!silent)clBeep("join");
-  clTick();
+  if(!silent&&clCoarse()&&navigator.vibrate){try{navigator.vibrate(80);}catch(_){}}
+  clTick();clBar();
 }
 function clCheckAlone(){
   const c=CL.call,room=CL.room;if(!c||!room||c.is_group)return;
@@ -302,7 +305,8 @@ function clEndText(reason){
 function clFinish(reason,silent){
   const c=CL.call;
   const lostRinging=reason==="lost"&&c&&CL.out&&!CL.t0;
-  CL.hold=false;clearTimeout(CL.offT);
+  CL.hold=false;clearTimeout(CL.offT);clearTimeout(CLS.closeT);
+  document.getElementById("cl-more")?.remove();document.getElementById("cl-echo-ban")?.remove();
   clSoundStop();clearInterval(CL.ping);clearInterval(CL.timer);cancelAnimationFrame(CL.raf);CL.ping=CL.timer=null;
   const room=CL.room;CL.room=null;
   if(room){try{room.disconnect();}catch(_){}}
@@ -367,6 +371,7 @@ function clMax(){const ov=document.getElementById("cl-ov");if(ov){ov.classList.r
 function clBar(){
   const bar=document.getElementById("cl-bar");if(!bar||!CL.call)return;
   const grp=CL.call.is_group,canShare=!clCoarse()&&!!(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia);
+  const live=!!(CL.t0&&CL.room&&CL.room.remoteParticipants.size);
   const b=(fn,ic,label,cls)=>`<button type="button" class="cl-b ${cls||""}" onclick="${fn}" aria-label="${esc(label)}" title="${esc(label)}"${cls&&cls.includes("on")?' aria-pressed="true"':""}><i class="ti ${ic}"></i></button>`;
   bar.innerHTML=[
     b("clToggleMic()",CL.mic?"ti-microphone":"ti-microphone-off",t(CL.mic?"cl_mic_off":"cl_mic_on"),CL.mic?"":"off"),
@@ -375,12 +380,14 @@ function clBar(){
     b("clToggleSound()",CL.sound?"ti-volume":"ti-volume-off",t(CL.sound?"cl_sound_off":"cl_sound_on"),CL.sound?"":"off"),
     !clCoarse()?b("clDevices()","ti-adjustments",t("cl_devices")):"",
     canShare?b("clToggleShare()",CL.share?"ti-screen-share-off":"ti-screen-share",t(CL.share?"cl_share_stop":"cl_share"),CL.share?"on":""):"",
-    grp?b("clToggleHand()","ti-hand-stop",t(CL.hand?"cl_hand_down":"cl_hand_up"),CL.hand?"on":""):"",
-    grp?b("clToggleSide()","ti-users",t("cl_participants"),CL.side?"on":""):"",
+    live&&!clCoarse()?b("clEchoAsk()","ti-ear",t("cl_echo_btn")):"",
+    grp&&!clCoarse()?b("clToggleHand()","ti-hand-stop",t(CL.hand?"cl_hand_down":"cl_hand_up"),CL.hand?"on":""):"",
+    grp&&!clCoarse()?b("clToggleSide()","ti-users",t("cl_participants"),CL.side?"on":""):"",
+    clCoarse()&&(live||grp)?b("clMoreOpen()","ti-dots",t("cl_more_opts"),CL.hand||CL.side?"on":""):"",
     b("clHangup()","ti-phone-off",t(grp?"cl_leave":"cl_hangup"),"red")
   ].join("");
 }
-async function clToggleMic(){const lp=CL.room?.localParticipant;CL.mic=!CL.mic;clBar();if(lp){try{if(CL.mic)await clMicOn(lp);else await lp.setMicrophoneEnabled(false);}catch(e){CL.mic=lp.isMicrophoneEnabled;clBar();clDevError("mic",e);}}clRefreshSoon();}
+async function clToggleMic(){const lp=CL.room?.localParticipant;CL.mic=!CL.mic;clBar();if(lp){try{if(CL.mic){await clMicOn(lp);await clAecCheck();}else await lp.setMicrophoneEnabled(false);}catch(e){CL.mic=lp.isMicrophoneEnabled;clBar();clDevError("mic",e);}}clRefreshSoon();}
 async function clToggleCam(){
   const lp=CL.room?.localParticipant;CL.cam=!CL.cam;clBar();
   if(lp){try{if(CL.cam)await clCamOn(lp);else await lp.setCameraEnabled(false);}catch(e){CL.cam=lp.isCameraEnabled;clBar();clDevError("cam",e);}}
@@ -404,6 +411,7 @@ function clAttachAudio(track,pub,p){
   if(box)box.querySelectorAll("audio").forEach(a=>{if(a.dataset.sid===track.sid||(a.dataset.pid===p.identity&&a.dataset.src===String(src))){try{track.detach(a);}catch(_){}a.srcObject=null;a.remove();}});
   try{track.detach().forEach(e=>e.remove());}catch(_){}
   const el=track.attach();el.dataset.pid=p.identity;el.dataset.sid=track.sid||"";el.dataset.src=String(src);el.muted=!CL.sound;el.autoplay=true;el.setAttribute("playsinline","");
+  try{el.volume=typeof CL.vol==="number"?CL.vol:1;}catch(_){}
   const out=clDevPrefs().out;if(out&&typeof el.setSinkId==="function")el.setSinkId(out).catch(()=>{});
   box?.appendChild(el);
 }
@@ -483,7 +491,7 @@ async function clPickDevice(kind,key,id){
   const room=CL.room;
   if(key==="out"){document.querySelectorAll("#cl-audio audio").forEach(a=>{if(typeof a.setSinkId==="function")a.setSinkId(id).catch(()=>{});});}
   if(!room)return;
-  try{await room.switchActiveDevice(kind,id);}
+  try{await room.switchActiveDevice(kind,id);if(key==="mic")await clAecCheck();}
   catch(e){if(key==="cam"&&CL.cam){try{await clCamOn(room.localParticipant);}catch(e2){clDevError("cam",e2);}}else showToast(t("cl_dev_fail"),"error");}
   clRefreshSoon();
 }
@@ -516,6 +524,7 @@ function clMuteAll(){
 }
 function clData(payload,p){
   let d=null;try{d=JSON.parse(new TextDecoder().decode(payload));}catch(_){return;}
+  if(d&&d.t==="echo"&&p&&CL.call){clEchoFix(p);return;}
   if(d&&d.t==="muteall"&&p&&CL.call&&p.identity===CL.call.from?.id){
     if(CL.mic){CL.mic=false;CL.room?.localParticipant.setMicrophoneEnabled(false).catch(()=>{});clBar();clRefreshSoon();}
     showToast(clT("cl_muted_by",{n:p.name||""}));
@@ -899,3 +908,65 @@ clDecline=async function(message){
   clHideRing(c.id);
   window.addEventListener("online",()=>{api("POST",`/calls/${c.id}/decline`,message&&String(message).trim()?{message:String(message).trim()}:{}).catch(()=>{});},{once:true});
 };
+
+// ── 10.1.0 · Écho : anti-écho vérifié, plus de son de l'app pendant l'appel, « J'entends de l'écho » ──
+const CL_ACAP={echoCancellation:true,noiseSuppression:true,autoGainControl:true,voiceIsolation:true,channelCount:1};
+function clMicPub(){try{return CL.room&&CL.LK?CL.room.localParticipant.getTrackPublication(CL.LK.Track.Source.Microphone):null;}catch(_){return null;}}
+async function clMicRestart(){
+  const pub=clMicPub();if(!pub||!pub.track||typeof pub.track.restartTrack!=="function")return false;
+  const dev=clDevPrefs();await pub.track.restartTrack({...CL_ACAP,...(dev.mic?{deviceId:dev.mic}:{})});return true;
+}
+async function clAecCheck(){
+  try{
+    const pub=clMicPub(),mt=pub&&pub.track&&pub.track.mediaStreamTrack;if(!mt||!mt.getSettings)return;
+    CL.aec=mt.getSettings().echoCancellation;
+    if(CL.aec===false){await clMicRestart();const m2=clMicPub()?.track?.mediaStreamTrack;CL.aec=m2&&m2.getSettings?m2.getSettings().echoCancellation:null;}
+  }catch(_){}
+}
+function clApplyVol(){document.querySelectorAll("#cl-audio audio").forEach(a=>{try{a.volume=CL.vol;}catch(_){}});}
+function clFirst(n){return String(n||"").trim().split(/\s+/)[0]||"";}
+async function clEchoAsk(){
+  const room=CL.room;if(!room||!room.remoteParticipants.size)return;
+  if(Date.now()-(CL.echoAt||0)<8000){showToast(t("cl_echo_wait"));return;}
+  CL.echoAt=Date.now();
+  const others=[...room.remoteParticipants.values()];
+  try{
+    await room.localParticipant.publishData(new TextEncoder().encode(JSON.stringify({t:"echo"})),{reliable:true});
+    showToast(!CL.call.is_group&&others.length===1?clT("cl_echo_sent",{n:clFirst(others[0].name)}):t("cl_echo_sent_grp"));
+  }catch(_){CL.echoAt=0;showToast(t("cl_echo_fail"),"error");}
+}
+async function clEchoFix(p){
+  if(!CL.room)return;
+  CL.vol=0.6;clApplyVol();clCtxClose();
+  const pub=clMicPub();
+  if(CL.mic&&!CL.hold&&pub&&pub.track&&!pub.isMuted){try{await clMicRestart();await clAecCheck();}catch(_){}}
+  clEchoBanner(p);
+}
+function clEchoBanner(p){
+  const ov=document.getElementById("cl-ov");if(!ov||!CL.call)return;
+  document.getElementById("cl-echo-ban")?.remove();
+  const el=document.createElement("div");el.id="cl-echo-ban";el.className="cl-echo-ban";el.setAttribute("role","status");
+  const who=CL.call.is_group?t("cl_echo_someone"):clT("cl_echo_who",{n:clFirst(p&&p.name)});
+  el.innerHTML=`<i class="ti ti-headphones" aria-hidden="true"></i><div><b>${esc(who)}</b><span>${esc(t("cl_echo_fixed"))}</span>
+    <div class="cl-echo-acts"><button type="button" class="cl-echo-ok" onclick="document.getElementById('cl-echo-ban')?.remove()">${esc(t("cl_echo_ok"))}</button>
+    <button type="button" class="cl-echo-vol" onclick="CL.vol=1;clApplyVol();document.getElementById('cl-echo-ban')?.remove()">${esc(t("cl_echo_vol"))}</button></div></div>`;
+  ov.appendChild(el);
+  if(clCoarse()&&navigator.vibrate){try{navigator.vibrate([60,60,60]);}catch(_){}}
+}
+function clMoreClose(){document.getElementById("cl-more")?.remove();}
+function clMoreOpen(){
+  const ov=document.getElementById("cl-ov");if(!ov||!CL.call)return;
+  clMoreClose();
+  const grp=CL.call.is_group,room=CL.room,live=!!(CL.t0&&room&&room.remoteParticipants.size);
+  const one=!grp&&live?[...room.remoteParticipants.values()][0]:null;
+  const el=document.createElement("div");el.id="cl-more";el.className="cl-more";
+  el.addEventListener("click",e=>{if(e.target===el)clMoreClose();});
+  el.innerHTML=`<div class="cl-more-s" role="dialog" aria-modal="true" aria-label="${esc(t("cl_more_opts"))}"><span class="cl-grab" aria-hidden="true"></span>
+    ${live?`<button type="button" class="cl-mi echo" onclick="clMoreClose();clEchoAsk()"><i class="ti ti-ear" aria-hidden="true"></i><span><b>${esc(t("cl_echo_btn"))}</b><small>${esc(one?clT("cl_echo_x",{n:clFirst(one.name)}):t("cl_echo_x_grp"))}</small></span></button>`:""}
+    ${grp?`<button type="button" class="cl-mi${CL.hand?" on":""}" onclick="clMoreClose();clToggleHand()"><i class="ti ti-hand-stop" aria-hidden="true"></i><span><b>${esc(t(CL.hand?"cl_hand_down":"cl_hand_up"))}</b></span></button>
+    <button type="button" class="cl-mi${CL.side?" on":""}" onclick="clMoreClose();clToggleSide()"><i class="ti ti-users" aria-hidden="true"></i><span><b>${esc(t("cl_participants"))}</b></span></button>`:""}
+    <button type="button" class="cl-mi muted" onclick="clMoreClose()"><span><b>${esc(t("btn_close"))}</b></span></button></div>`;
+  ov.appendChild(el);
+  setTimeout(()=>el.querySelector(".cl-mi")?.focus({preventScroll:true}),30);
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.getElementById("cl-more"))clMoreClose();});
