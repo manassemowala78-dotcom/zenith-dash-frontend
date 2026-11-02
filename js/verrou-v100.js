@@ -62,6 +62,7 @@ function lkOnHide(){
   if(lkSuppressed())return;
   LK.hiddenAt=Date.now();
   lkBeacon("/security/lock/away");
+  try{lkPrefetch().catch(()=>{});}catch(_){}
 }
 function lkOnShow(){
   if(!State.token||LK.shown)return;
@@ -152,6 +153,7 @@ function lkShow(reason){
   if(LK.reason==="recheck"&&first){LK.cdEnd=Date.now()+LK_RECHECK_WAIT*1000;clearInterval(LK.cd);LK.cd=setInterval(lkTick,500);}
   lkRender();
   if(first)lkRefresh();
+  if(first){lkPrefetch().catch(()=>{});setTimeout(lkAuto,120);}
   if(first)setTimeout(()=>{const b=document.getElementById(lkBioHere()?"zd-lk-bio":"zd-lk-pwd");if(b&&LK.shown)try{b.focus({preventScroll:true});}catch(_){}},60);
 }
 function lkTick(){
@@ -226,20 +228,64 @@ async function lkPwdUnlock(){
   }
   LK.busy=false;
 }
-async function lkBioUnlock(){
+// ── 10.2.0 · Empreinte instantanée : demande préparée à l'avance, fenêtre ouverte toute seule, écran levé tout de suite ──
+const LK_PRE_MAX=240000;
+LK.pre={o:null,at:0,p:null};LK.pending=null;LK.autoAt=0;
+function lkPrefetch(){
+  if(!State.token||!lkBioHere()||!window.PublicKeyCredential)return Promise.resolve(null);
+  if(LK.pre.o&&Date.now()-LK.pre.at<LK_PRE_MAX)return Promise.resolve(LK.pre.o);
+  if(LK.pre.p)return LK.pre.p;
+  const p=api("POST","/security/lock/webauthn/auth/options").then(o=>{LK.pre={o,at:Date.now(),p:null};return o;}).catch(e=>{LK.pre={o:null,at:0,p:null};throw e;});
+  LK.pre.p=p;return p;
+}
+async function lkTakeOpts(){
+  let o=null;
+  if(LK.pre.o&&Date.now()-LK.pre.at<LK_PRE_MAX)o=LK.pre.o;
+  else if(LK.pre.p)o=await LK.pre.p;
+  else o=await api("POST","/security/lock/webauthn/auth/options");
+  LK.pre={o:null,at:0,p:null};
+  return o;
+}
+function lkAuto(){
+  if(!LK.shown||LK.busy||!lkBioHere()||LK.pwd||document.visibilityState!=="visible"||!lkMobile())return;
+  if(!["away","boot","server","recheck"].includes(LK.reason))return;
+  if(lkLoad("zd_lk_noauto",false))return;
+  if(Date.now()-LK.autoAt<4000||Date.now()<(LK.autoBlock||0))return;
+  LK.autoAt=Date.now();
+  lkPrefetch().then(()=>{if(LK.shown&&!LK.busy&&document.visibilityState==="visible")lkBioUnlock(true);}).catch(()=>{});
+}
+async function lkBioUnlock(auto){
   if(LK.busy)return;LK.busy=true;LK.err="";
+  if(!auto)lkRender();
+  let cred=null;
   try{
-    const o=await api("POST","/security/lock/webauthn/auth/options");
-    const cred=await navigator.credentials.get({publicKey:lkGetOpts(o)});
-    await api("POST","/security/lock/unlock/webauthn",{credential:lkCredOut(cred,false)});
-    LK.busy=false;lkUnlocked();return;
+    const o=await lkTakeOpts();
+    cred=await navigator.credentials.get({publicKey:lkGetOpts(o)});
   }catch(e){
     const d=e&&e.data&&e.data.detail;
     if(d&&d.error==="no_credential"){const m=lkBioMap();delete m[lkPid()];lkSave("zd_lk_bio",m);LK.pwd=true;LK.err=t("lk_bio_gone");}
-    else LK.err=e&&e.name?lkBioErr(e):((e&&e.message)||t("lk_bio_cancel"));
+    else if(!(auto&&e&&(e.name==="NotAllowedError"||e.name==="AbortError"||e.name==="SecurityError")))LK.err=e&&e.name?lkBioErr(e):((e&&e.message)||t("lk_bio_cancel"));
+    LK.busy=false;lkRender();return;
   }
-  LK.busy=false;lkRender();
+  const done=api("POST","/security/lock/unlock/webauthn",{credential:lkCredOut(cred,false)});
+  LK.pending=done;LK.busy=false;
+  lkUnlocked(true);
+  try{await done;LK.pending=null;lkConfirmed();}
+  catch(e){
+    LK.pending=null;
+    if(e&&e.status===401){lkHide();return;}
+    LK.autoBlock=Date.now()+60000;
+    lkShow("server");LK.err=(e&&e.message)||t("lk_bio_cancel");lkRender();
+  }
 }
+function lkConfirmed(){
+  if(LK.blocked){
+    LK.blocked=false;
+    const act=document.querySelector(".page.active")?.id?.replace("page-","");
+    if(act)try{loadPage(act);}catch(_){}
+  }
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&LK.shown)setTimeout(lkAuto,150);});
 let _lkSec=null;
 function lkSecretOk(){if(_lkSec===null){try{_lkSec=!!(window.CSS&&CSS.supports&&CSS.supports("-webkit-text-security","disc"));}catch(_){_lkSec=false;}}return _lkSec;}
 function lkMobile(){return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));}
@@ -273,18 +319,14 @@ async function lkPhoneUnlock(){
 }
 window.addEventListener("pagehide",()=>{const i=document.getElementById("zd-lk-pwd");if(i)i.value="";});
 function lkHide(){
-  LK.shown=false;LK.reveal=false;clearInterval(LK.cd);
+  LK.shown=false;LK.reveal=false;LK.autoAt=0;clearInterval(LK.cd);
   const ov=document.getElementById("zd-lock");if(ov){ov.style.display="none";ov.innerHTML="";}
   document.body.classList.remove("zd-app-locked");
 }
-function lkUnlocked(){
+function lkUnlocked(optimistic){
   lkHide();LK.err="";LK.pwd=false;LK.unlockAt=LK.last=Date.now();LK.hiddenAt=0;LK.left=null;
   lkSave("zd_lk_vis",{t:LK.tab,at:Date.now()});
-  if(LK.blocked){
-    LK.blocked=false;
-    const act=document.querySelector(".page.active")?.id?.replace("page-","");
-    if(act)try{loadPage(act);}catch(_){}
-  }
+  if(!optimistic)lkConfirmed();
   lkFirstPrompt();
 }
 function lkLogout(){lkHide();try{doLogout();}catch(_){}}
@@ -296,7 +338,10 @@ if(typeof readApiResponse==="function"){
     if(r&&r.status===423&&State.token){
       let d=null;try{d=await r.clone().json();}catch(_){}
       if(d&&d.detail&&d.detail.error==="app_locked"){
-        LK.blocked=true;if(!LK.shown)lkShow("server");
+        LK.blocked=true;
+        if(LK.pending){try{await LK.pending;}catch(_){}}
+        if(!LK.pending&&!LK.shown&&!LK.blocked){const err=new Error(t("lk_locked"));err.status=423;err.zdLocked=true;throw err;}
+        if(!LK.shown&&!(LK.unlockAt&&Date.now()-LK.unlockAt<3000&&!LK.err))lkShow("server");
         const err=new Error(t("lk_locked"));err.status=423;err.zdLocked=true;throw err;
       }
     }
@@ -305,7 +350,7 @@ if(typeof readApiResponse==="function"){
 }
 if(typeof showToast==="function"){
   const _lkToast=showToast;
-  showToast=function(msg){if(LK.shown&&msg===t("lk_locked"))return;return _lkToast.apply(this,arguments);};
+  showToast=function(msg){if((LK.shown||LK.pending||Date.now()-LK.unlockAt<5000)&&msg===t("lk_locked"))return;return _lkToast.apply(this,arguments);};
 }
 if(typeof doLogout==="function"){
   const _lkOut=doLogout;

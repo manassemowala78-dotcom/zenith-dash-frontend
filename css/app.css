@@ -2138,3 +2138,29 @@ html.light .rs-resend:disabled{color:var(--lk-mu,var(--muted))}
 .cl-mi:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .rs-logo,.lk-logo{direction:ltr}
 [dir=rtl] .rs-top-link svg{transform:scaleX(-1)}
+/* ── 10.2.0 · accès administrateur, envoi des e-mails ── */
+#zd-admin{position:fixed;inset:0;z-index:10062;display:none;background:var(--bg);color:var(--text);overflow-y:auto;-webkit-overflow-scrolling:touch;align-items:stretch;justify-content:center}
+.za-box{justify-content:center}
+.za-head{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px}
+.za-ic{width:42px;height:42px;border-radius:12px;background:rgba(167,123,255,.15);color:#a77bff;display:flex;align-items:center;justify-content:center;flex:none}.za-ic svg{width:22px;height:22px}
+html.light .za-ic{color:#6a3fd6}
+.za-x{margin:0;text-align:center;font-size:13px;line-height:1.55;color:var(--lk-tx2,var(--muted))}
+.rs-go.za-go{background:#a77bff;color:#12082a}
+html.light .rs-go.za-go{background:#6a3fd6;color:#fff}
+.za-back{align-self:center}
+@media(min-width:769px) and (hover:hover){
+  #zd-admin{align-items:center;padding:24px}
+  #zd-admin .rs-box{max-width:440px;min-height:0;margin:auto;background:var(--card);border:1px solid rgba(167,123,255,.35);border-radius:18px;padding:26px 32px 26px}
+}
+.zm-card{margin-bottom:16px}
+.zm-h{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:12px}.zm-h .ti{color:var(--green)}
+.zm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:760px){.zm-grid{grid-template-columns:1fr}}
+.zm-tile{border:1px solid var(--b);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.zm-tile b{font-size:14.5px;overflow-wrap:anywhere}.zm-tile .btn{align-self:flex-start;margin-top:4px}
+.zm-tile.good{border-color:color-mix(in srgb,var(--green) 45%,transparent)}.zm-tile.bad{border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+.zm-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.zm-sub{font-size:12px;color:var(--muted);line-height:1.45}
+.zm-tile.good .zm-sub{color:var(--green)}.zm-tile.bad .zm-sub{color:var(--red)}
+.zm-t{width:100%;border-collapse:collapse;font-size:13px}.zm-t td{padding:8px 6px;border-top:1px solid var(--b);vertical-align:top}
+.zm-ok{color:var(--green)}.zm-ko{color:var(--red)}

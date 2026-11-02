@@ -33,7 +33,7 @@ function rsTz(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||nul
 function rsOpen(o){
   o=o||{};
   clearInterval(RS.tick);
-  Object.assign(RS,{step:"ask",from:o.from||"login",email:(o.email||"").trim(),masked:"",token:null,name:"",need2fa:false,busy:false,err:"",info:"",resendAt:0,reveal:false,pw:"",pw2:"",code:"",c2:""});
+  Object.assign(RS,{admin:false,fname:Math.random().toString(36).slice(2,9),step:"ask",from:o.from||"login",email:(o.email||"").trim(),masked:"",token:null,name:"",need2fa:false,busy:false,err:"",info:"",resendAt:0,reveal:false,pw:"",pw2:"",code:"",c2:""});
   let ov=document.getElementById("zd-reset");
   if(!ov){ov=document.createElement("div");ov.id="zd-reset";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");document.body.appendChild(ov);}
   ov.style.display="flex";document.body.classList.add("zd-reset-open");
@@ -80,7 +80,7 @@ function rsRender(){
       <div class="rs-head"><span class="rs-ic">${rsIco("key")}</span><b class="rs-t" id="rs-title">${esc(t("rs_forgot"))}</b><p>${esc(t("rs_ask_x"))}</p></div>
       <form class="rs-form" onsubmit="event.preventDefault();rsAsk()" novalidate>
         <label class="rs-lbl" for="rs-email">${esc(t("rs_email_lbl"))}</label>
-        <input class="rs-in" id="rs-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="320" value="${esc(RS.email)}" placeholder="vous@exemple.com">
+        <input class="rs-in" id="rs-email" type="text" inputmode="email" name="zd-rs-${RS.fname}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="320" value="${esc(RS.email)}" placeholder="vous@exemple.com" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other">
         ${rsErrBox()}
         <button type="submit" class="rs-go" id="rs-send"${RS.busy?" disabled":""}>${esc(RS.busy?t("rs_sending"):t("rs_get_code"))}</button>
       </form>
@@ -105,16 +105,16 @@ function rsRender(){
     const rule=(okv,txt,neutral)=>`<span class="rs-rule${neutral?"":okv?" ok":""}"><span class="rs-dot" aria-hidden="true">${neutral?"•":okv?"✓":"•"}</span>${esc(txt)}</span>`;
     h=`${logo}<div class="rs-head"><b class="rs-t" id="rs-title">${esc(t("rs_new_t"))}</b><p>${esc(rsT("rs_new_for",{n:RS.name||RS.email}))}</p></div>
       <form class="rs-form" onsubmit="event.preventDefault();rsDone()" novalidate>
-        <input type="text" name="username" autocomplete="username" value="${esc(RS.email)}" hidden readonly>
+        ${RS.admin?"":`<input type="text" name="username" autocomplete="username" value="${esc(RS.email)}" hidden readonly>`}
         ${RS.need2fa?`<div class="rs-2fa">${rsIco("shield")}<div><label class="rs-lbl" for="rs-2fa">${esc(t("rs_2fa_lbl"))}</label>
           <input class="rs-in" id="rs-2fa" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="20" placeholder="123 456" value="${esc(RS.c2)}"><span class="rs-sub">${esc(t("rs_2fa_x"))}</span></div></div>`:""}
         <label class="rs-lbl" for="rs-pw">${esc(t("rs_new_lbl"))}</label>
-        <span class="rs-field"><input class="rs-in" id="rs-pw" type="${RS.reveal?"text":"password"}" autocomplete="new-password" maxlength="128" value="${esc(RS.pw)}" oninput="rsPwInput()">
+        <span class="rs-field"><input class="rs-in${RS.admin&&lkSecretOk()?" lk-secret"+(RS.reveal?" lk-reveal":""):""}" id="rs-pw" type="${RS.admin&&lkSecretOk()?"text":(RS.reveal?"text":"password")}" autocomplete="${RS.admin?"off":"new-password"}" maxlength="128" value="${esc(RS.pw)}" oninput="rsPwInput()">
           <button type="button" class="rs-eye" aria-label="${esc(t("lk_show_pwd"))}" aria-pressed="${RS.reveal?"true":"false"}" onclick="rsSave();RS.reveal=!RS.reveal;rsRender();document.getElementById('rs-pw')?.focus()">${rsIco("eye")}</button></span>
         <div class="rs-meter ${lvl}" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
         <div class="rs-rules" id="rs-rules">${rule(r.len,t("rs_rule_len"))}${rule(r.mix,t("rs_rule_mix"))}${rule(false,t("rs_rule_old"),true)}</div>
         <label class="rs-lbl" for="rs-pw2">${esc(t("rs_again_lbl"))}</label>
-        <input class="rs-in" id="rs-pw2" type="${RS.reveal?"text":"password"}" autocomplete="new-password" maxlength="128" value="${esc(RS.pw2)}">
+        <input class="rs-in${RS.admin&&lkSecretOk()?" lk-secret"+(RS.reveal?" lk-reveal":""):""}" id="rs-pw2" type="${RS.admin&&lkSecretOk()?"text":(RS.reveal?"text":"password")}" autocomplete="${RS.admin?"off":"new-password"}" maxlength="128" value="${esc(RS.pw2)}">
         <div class="rs-note">${rsIco("info")}<span>${esc(t("rs_signout_note"))}</span></div>
         ${rsErrBox()}
         <button type="submit" class="rs-go" id="rs-save"${RS.busy?" disabled":""}>${esc(RS.busy?t("rs_saving"):t("rs_save"))}</button>
@@ -169,7 +169,7 @@ async function rsVerify(){
   if(RS.busy)return;RS.busy=true;RS.err="";rsRender();
   try{
     const r=await rsPost("/auth/password-reset/verify",{email:RS.email,code:d});
-    Object.assign(RS,{token:r.token,name:r.name||"",need2fa:!!r.requires_2fa,step:"new",busy:false,err:"",pw:"",pw2:"",c2:""});
+    Object.assign(RS,{token:r.token,name:r.name||"",need2fa:!!r.requires_2fa,admin:!!r.admin,step:"new",busy:false,err:"",pw:"",pw2:"",c2:""});
     if(r.email)RS.email=r.email;
     clearInterval(RS.tick);rsRender();
     setTimeout(()=>document.getElementById(RS.need2fa?"rs-2fa":"rs-pw")?.focus({preventScroll:true}),40);
@@ -198,7 +198,8 @@ async function rsDone(){
   }
 }
 function rsToLogin(){
-  const em=RS.email;const fromLock=RS.from==="lock";
+  const em=RS.email;const fromLock=RS.from==="lock";const adm=RS.admin;
+  if(adm){rsClose();try{if(typeof lkHide==="function")lkHide();}catch(_){}try{doLogout();}catch(_){}if(typeof zdAdminOpen==="function")zdAdminOpen();return;}
   rsClose();
   if(fromLock||State.token){try{if(typeof lkHide==="function")lkHide();}catch(_){}try{doLogout();}catch(_){}}
   try{if(typeof showAuthTab==="function")showAuthTab("login");}catch(_){}

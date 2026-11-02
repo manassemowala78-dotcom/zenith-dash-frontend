@@ -150,8 +150,8 @@ V93_PAGES.carts=async function(){
 async function cartLoad(){
   const el=cartEl();
   try{
-    const [d,w]=await Promise.all([api("GET",`/carts?day=${_cart.day}`),api("GET",`/carts/summary?start=${cartAddDays(_cart.day,-6)}&end=${_cart.day}`)]);
-    _cart.data=d;_cart.week=w;
+    const [d,w,m]=await Promise.all([api("GET",`/carts?day=${_cart.day}`),api("GET",`/carts/summary?start=${cartAddDays(_cart.day,-6)}&end=${_cart.day}`),api("GET",`/carts/month?month=${_cart.day.slice(0,7)}`).catch(()=>null)]);
+    _cart.data=d;_cart.week=w;_cart.month=m;
     if(!d.settings.per_thermos&&!_cart.showSettings)_cart.showSettings=true;
     cartRender();
   }catch(e){el.innerHTML=`<div class="card" style="color:var(--red)">${esc(e.message)}</div>`;}
@@ -165,15 +165,15 @@ function cartRender(){
     ${_cart.showSettings&&mgr?`<div class="card" style="margin-bottom:14px"><div style="font-weight:700;margin-bottom:10px">${esc(t("carts_settings"))}</div>
       <div class="cart-set">
         <div class="fgrp"><label class="fl" for="cs-per">${esc(t("carts_per_thermos"))}</label><input class="inp" type="number" min="0" step="any" id="cs-per" value="${s.per_thermos||""}" placeholder="7000"></div>
-        <div class="fgrp"><label class="fl" for="cs-mode">${esc(t("carts_salary_mode"))}</label><select class="inp" id="cs-mode"><option value="day" ${s.salary_mode==="day"?"selected":""}>${esc(t("carts_salary_day"))}</option><option value="thermos" ${s.salary_mode==="thermos"?"selected":""}>${esc(t("carts_salary_thermos"))}</option></select></div>
-        <div class="fgrp"><label class="fl" for="cs-sal">${esc(t("carts_salary_amount"))}</label><input class="inp" type="number" min="0" step="any" id="cs-sal" value="${s.salary_amount||""}" placeholder="5000"></div>
+        <div class="fgrp"><label class="fl" for="cs-mode">${esc(t("carts_salary_mode"))}</label><select class="inp" id="cs-mode" onchange="const l=document.querySelector('label[for=cs-sal]');if(l)l.textContent=t(this.value==='month'?'carts_salary_amount_month':'carts_salary_amount')"><option value="day" ${s.salary_mode==="day"?"selected":""}>${esc(t("carts_salary_day"))}</option><option value="thermos" ${s.salary_mode==="thermos"?"selected":""}>${esc(t("carts_salary_thermos"))}</option><option value="month" ${s.salary_mode==="month"?"selected":""}>${esc(t("carts_salary_month"))}</option></select></div>
+        <div class="fgrp"><label class="fl" for="cs-sal">${esc(s.salary_mode==="month"?t("carts_salary_amount_month"):t("carts_salary_amount"))}</label><input class="inp" type="number" min="0" step="any" id="cs-sal" value="${s.salary_amount||""}" placeholder="5000"></div>
         <div class="fgrp"><label class="fl" for="cs-cur">${esc(t("carts_currency"))}</label><select class="inp" id="cs-cur">${["CDF","USD","XAF","XOF","MAD","EUR"].map(c=>`<option ${s.currency===c?"selected":""}>${c}</option>`).join("")}</select></div>
       </div>
       <div style="font-size:12px;color:var(--muted);margin:2px 0 10px">${esc(t("carts_settings_note"))}</div>
       <button class="btn btn-g btn-sm" onclick="cartSaveSettings()"><i class="ti ti-device-floppy"></i> ${esc(t("btn_save"))}</button></div>`:""}
     <div class="card" style="margin-bottom:14px"><div style="font-weight:700;margin-bottom:10px">${esc(t("carts_of_day"))}</div>
       ${d.carts.length?`<div class="tbl-wrap"><table class="cart-tbl cart-day"><thead><tr><th>${esc(t("carts_cart"))}</th><th>${esc(t("carts_vendor"))}</th><th class="r">${esc(t("carts_thermos"))}</th><th class="r">${esc(t("carts_expected"))}</th><th class="r">${esc(t("carts_paid"))}</th><th class="r">${esc(t("carts_gap"))}</th><th class="r">${esc(t("carts_salary"))}</th><th></th></tr></thead><tbody>
-        ${d.carts.map(c=>`<tr><td class="cn">${esc(c.name)}</td><td class="cv">${esc(c.vendor)}</td><td class="r" data-l="${esc(t("carts_thermos"))}"><input class="inp cart-in" type="number" min="0" step="1" value="${c.thermos}" id="ct-${c.id}" onchange="cartSaveDay('${c.id}')" aria-label="${esc(t("carts_thermos"))} ${esc(c.name)}"></td><td class="r mono" data-l="${esc(t("carts_expected"))}">${cartMoney(c.expected)}</td><td class="r" data-l="${esc(t("carts_paid"))}"><input class="inp cart-in w" type="number" min="0" step="any" value="${c.paid}" id="cp-${c.id}" onchange="cartSaveDay('${c.id}')" aria-label="${esc(t("carts_paid"))} ${esc(c.name)}"></td><td class="r" data-l="${esc(t("carts_gap"))}">${c.thermos||c.paid?gap(c.gap):"—"}</td><td class="r mono" data-l="${esc(t("carts_salary"))}">${cartMoney(c.salary)}</td><td class="r ce">${mgr?`<button class="btn btn-o btn-sm" onclick="cartEdit('${c.id}')" title="${esc(t("carts_edit"))}" aria-label="${esc(t("carts_edit"))}"><i class="ti ti-pencil"></i></button>`:""}</td></tr>`).join("")}
+        ${d.carts.map(c=>`<tr><td class="cn">${esc(c.name)}</td><td class="cv">${esc(c.vendor)}</td><td class="r" data-l="${esc(t("carts_thermos"))}"><input class="inp cart-in" type="number" min="0" step="1" value="${c.thermos}" id="ct-${c.id}" onchange="cartSaveDay('${c.id}')" aria-label="${esc(t("carts_thermos"))} ${esc(c.name)}"></td><td class="r mono" data-l="${esc(t("carts_expected"))}">${cartMoney(c.expected)}</td><td class="r" data-l="${esc(t("carts_paid"))}"><input class="inp cart-in w" type="number" min="0" step="any" value="${c.paid}" id="cp-${c.id}" onchange="cartSaveDay('${c.id}')" aria-label="${esc(t("carts_paid"))} ${esc(c.name)}"></td><td class="r" data-l="${esc(t("carts_gap"))}">${c.thermos||c.paid?gap(c.gap):"—"}</td><td class="r mono" data-l="${esc(t("carts_salary"))}">${s.salary_mode==="month"&&!c.salary?`<span class="badge bb">${esc(t("carts_sal_monthly"))}</span>`:cartMoney(c.salary)}</td><td class="r ce">${mgr?`<button class="btn btn-o btn-sm" onclick="cartEdit('${c.id}')" title="${esc(t("carts_edit"))}" aria-label="${esc(t("carts_edit"))}"><i class="ti ti-pencil"></i></button>`:""}</td></tr>`).join("")}
         </tbody><tfoot><tr><td colspan="2" class="cn"><b>${esc(t("carts_total"))}</b></td><td class="r" data-l="${esc(t("carts_thermos"))}"><b>${T.thermos}</b></td><td class="r mono" data-l="${esc(t("carts_expected"))}"><b>${cartMoney(T.expected)}</b></td><td class="r mono" data-l="${esc(t("carts_paid"))}"><b>${cartMoney(T.paid)}</b></td><td class="r" data-l="${esc(t("carts_gap"))}">${T.thermos||T.paid?gap(T.gap):"—"}</td><td class="r mono" data-l="${esc(t("carts_salary"))}"><b>${cartMoney(T.salary)}</b></td><td class="ce"></td></tr></tfoot></table></div>`:`<div style="color:var(--muted);font-size:13px">${esc(t("carts_none"))}</div>`}
       ${mgr?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><input class="inp" id="cart-new" placeholder="${esc(t("carts_vendor_ph"))}" style="flex:1;min-width:0"><button class="btn btn-o btn-sm" onclick="cartAdd()"><i class="ti ti-plus"></i> ${esc(t("carts_add"))}</button></div>`:""}
     </div>
@@ -184,15 +184,31 @@ function cartRender(){
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><input class="inp" id="cart-el" placeholder="${esc(t("carts_exp_ph"))}" style="flex:1;min-width:0"><input class="inp" id="cart-ea" type="number" min="0" step="any" placeholder="${esc(t("carts_amount"))}" style="width:120px"><button class="btn btn-o btn-sm" onclick="cartAddExpense()"><i class="ti ti-plus"></i> ${esc(t("btn_add"))}</button></div></div>
       <div class="card"><div style="font-weight:700;margin-bottom:10px">${esc(t("carts_result"))}</div>
         <div class="cart-line"><span>${esc(t("carts_paid_in"))}</span><b class="mono">${cartMoney(T.paid)}</b><span></span></div>
-        <div class="cart-line"><span>${esc(t("carts_salaries"))}</span><span class="mono">−${cartMoney(T.salary)}</span><span></span></div>
+        <div class="cart-line"><span>${esc(t("carts_salaries"))}${s.salary_mode==="month"?` <small style="color:var(--muted)">(${esc(t("carts_sal_in_month"))})</small>`:""}</span><span class="mono">−${cartMoney(T.salary)}</span><span></span></div>
         <div class="cart-line"><span>${esc(t("carts_expenses"))}</span><span class="mono">−${cartMoney(T.expenses)}</span><span></span></div>
         <div class="cart-profit"><span>${esc(t("carts_profit"))}</span><b class="mono" style="color:${T.profit>=0?"var(--green)":"var(--red)"}">${cartMoney(T.profit)}</b></div>
         ${T.gap<0?`<div class="cart-warn">${esc(abTr("carts_missing",{a:cartMoney(-T.gap)}))}</div>`:""}</div>
     </div>
+    ${cartMonthCard()}
     <div class="card" style="margin-top:14px"><div style="font-weight:700;margin-bottom:10px">${esc(t("carts_week"))}</div>
       ${(_cart.week?.days||[]).length?`<div class="tbl-wrap"><table class="cart-tbl"><thead><tr><th>${esc(t("carts_day"))}</th><th class="r">${esc(t("carts_thermos"))}</th><th class="r">${esc(t("carts_paid"))}</th><th class="r">${esc(t("carts_salaries"))}</th><th class="r">${esc(t("carts_expenses"))}</th><th class="r">${esc(t("carts_profit"))}</th></tr></thead><tbody>
         ${_cart.week.days.map(r=>`<tr><td>${esc(abDate(r.day))}</td><td class="r">${r.thermos}</td><td class="r mono">${cartMoney(r.paid)}</td><td class="r mono">${cartMoney(r.salary)}</td><td class="r mono">${cartMoney(r.expenses)}</td><td class="r mono"><b>${cartMoney(r.profit)}</b></td></tr>`).join("")}
         </tbody><tfoot><tr><td><b>${esc(t("carts_total"))}</b></td><td class="r"><b>${_cart.week.totals.thermos}</b></td><td class="r mono"><b>${cartMoney(_cart.week.totals.paid)}</b></td><td class="r mono"><b>${cartMoney(_cart.week.totals.salary)}</b></td><td class="r mono"><b>${cartMoney(_cart.week.totals.expenses)}</b></td><td class="r mono"><b>${cartMoney(_cart.week.totals.profit)}</b></td></tr></tfoot></table></div>`:`<div style="color:var(--muted);font-size:13px">${esc(t("carts_week_empty"))}</div>`}</div>`;
+}
+function cartMonthCard(){
+  const m=_cart.month;if(!m)return "";
+  const s=_cart.data.settings;
+  const lab=(()=>{try{return new Date(m.month+"-15T12:00:00").toLocaleDateString(State.lang==="ar"?"ar":State.lang||"fr",{month:"long",year:"numeric"});}catch(_){return m.month;}})();
+  const line=(a,b,neg)=>`<div class="cart-line"><span>${a}</span><span class="mono">${neg?"−":""}${cartMoney(b)}</span><span></span></div>`;
+  const salLab=m.vendors_month?esc(abTr("carts_m_salaries_n",{n:m.vendors_month,a:cartMoney(m.salary_per_month)})):esc(t("carts_salaries"));
+  return `<div class="card cart-month" style="margin-top:14px"><div style="font-weight:700;margin-bottom:10px">${esc(abTr("carts_m_title",{m:lab}))}</div>
+    ${line(esc(t("carts_paid_in")),m.paid)}
+    ${m.vendors_month?line(salLab,m.salary_month,true):""}
+    ${m.salary_daily?line(esc(m.vendors_month?t("carts_m_salaries_daily"):t("carts_salaries")),m.salary_daily,true):""}
+    ${!m.vendors_month&&!m.salary_daily?line(esc(t("carts_salaries")),0,true):""}
+    ${line(esc(t("carts_m_expenses")),m.expenses,true)}
+    <div class="cart-profit"><span>${esc(t("carts_m_profit"))}</span><b class="mono" style="color:${m.profit>=0?"var(--green)":"var(--red)"}">${cartMoney(m.profit)}</b></div>
+    ${s.salary_mode==="month"?`<div style="font-size:12px;color:var(--muted);margin-top:8px">${esc(t("carts_m_note"))}</div>`:""}</div>`;
 }
 function cartSetDay(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v||""))return;_cart.day=v;cartLoad();}
 function cartShift(n){cartSetDay(cartAddDays(_cart.day,n));}
