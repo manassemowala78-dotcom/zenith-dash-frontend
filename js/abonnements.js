@@ -188,7 +188,7 @@ function abUpdateMbar(){
   const q=_ab.quote;
   if(!q||_abSumVisible){bar.hidden=true;return;}
   document.getElementById("ab-mbar-l").textContent=_ab.months===1?t("ab_total_m"):abTr("ab_total_n",{n:_ab.months});
-  document.getElementById("ab-mbar-v").textContent=abMoney(q.total);
+  document.getElementById("ab-mbar-v").innerHTML=(q.promo_discount>0&&q.total_before_promo?`<s class="pm-old">${esc(abMoney(q.total_before_promo))}</s> `:"")+esc(abMoney(q.total));
   bar.hidden=false;
 }
 function abRequote(){
@@ -212,9 +212,10 @@ function abRenderSummary(){
   const U=k=>q.promos&&q.promos[k]&&q.promos[k].until?abTr("ab_until_short",{d:abDate(q.promos[k].until)}):"";
   if(q.sector_discount>0)h+=L(esc(abTr("ab_sector_disc",{n:q.sector_count,p:q.sector_discount_pct})+U("sectors")),"−"+abMoney(q.sector_discount),"disc");
   if(q.referral_discount>0)h+=L(esc(abTr("ab_ref_disc",{n:q.referral_filleuls,p:q.referral_pct})+U("referral")),"−"+abMoney(q.referral_discount),"disc");
+  if(q.promo_discount>0&&q.promo)h+=L(esc(abTr("ab_promo_disc",{n:q.promo.name,p:q.promo.pct})),"−"+abMoney(q.promo_discount),"disc promo");
   if(q.capped)h+=`<div class="ab-cap">${esc(abTr("ab_cap",{p:q.cap_pct}))}</div>`;
   if(q.months>1)h=L(esc(abTr(q.free_months?"ab_sum_dur_free":"ab_sum_dur",{n:q.months,f:q.free_months,a:q.access_months})+(q.duration_pct||q.free_months?U("duration"):"")),q.duration_pct?`−${q.duration_pct} %`:"","dur")+h;
-  h+=`<div class="ab-total"><span>${esc(q.months===1?t("ab_total_m"):abTr("ab_total_n",{n:q.months}))}</span><b>${abMoney(q.total)}</b></div>`;
+  h+=`<div class="ab-total"><span>${esc(q.months===1?t("ab_total_m"):abTr("ab_total_n",{n:q.months}))}</span><b>${q.promo_discount>0&&q.total_before_promo?`<s class="pm-old">${abMoney(q.total_before_promo)}</s> `:""}${abMoney(q.total)}</b></div>`;
   if(q.months>1&&q.per_access_month)h+=`<div class="ab-small">${esc(abTr("ab_per_access",{p:abMoney(q.per_access_month)}))}</div>`;
   if(q.saving_vs_monthly>0)h+=`<div class="ab-save">${esc(abTr("ab_saving",{s:abMoney(q.saving_vs_monthly)}))}</div>`;
   const nG=q.gifts.length;

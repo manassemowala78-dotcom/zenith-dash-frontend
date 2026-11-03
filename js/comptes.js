@@ -260,7 +260,7 @@ function faRender(){
         <label><input type="radio" name="fa-dur" value="date" ${f.until?"checked":""} onchange="document.getElementById('fa-until').disabled=false"> Jusqu'au</label>
         <input class="inp" type="date" id="fa-until" min="${today}" value="${esc(f.until||"")}" ${f.until?"":"disabled"} aria-label="Date de fin"></div></div>
     </div>
-    <div class="fgrp"><label class="fl" for="fa-msg">Message joint à la notification (optionnel)</label><textarea class="inp" id="fa-msg" rows="2" maxlength="400" placeholder="Ex. : Pour fêter nos 1 000 inscrits, tout est offert ce mois-ci.">${esc(f.message||"")}</textarea></div>
+    <div class="fgrp"><label class="fl" for="fa-msg">Message joint à la notification (optionnel)</label><textarea class="inp" id="fa-msg" rows="4" maxlength="3000" oninput="zdCount(this)" aria-describedby="fa-msg-n" placeholder="Ex. : Pour fêter nos 1 000 inscrits, tout est offert ce mois-ci.">${esc(f.message||"")}</textarea>${typeof zdCountHtml==="function"?zdCountHtml("fa-msg",f.message||"",3000):""}</div>
     <label class="cm-chk"><input type="checkbox" id="fa-notify" checked> Prévenir tout le monde par notification (${f.accounts} compte${f.accounts>1?"s":""} gérant${f.accounts>1?"s":""})</label>
     <div class="fa-job" id="fa-job" role="status"${j.running?"":" hidden"}>${faJobHtml(j)}</div>
     <div class="fa-btns"><button type="button" class="btn btn-g btn-sm" onclick="faSave(true)"><i class="ti ti-gift"></i> ${f.active?"Mettre à jour":"Activer la gratuité"}</button>

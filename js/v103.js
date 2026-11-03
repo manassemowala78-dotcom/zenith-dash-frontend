@@ -77,7 +77,7 @@ function feRender(){
         <label class="fe-cap" for="fe-subj">Objet de l'e-mail</label>
         <input class="inp" id="fe-subj" type="text" maxlength="200" value="${esc(subj)}">
         <label class="fe-cap" for="fe-msg">Ton message</label>
-        <textarea class="inp" id="fe-msg" rows="4" maxlength="1500">${esc(msg)}</textarea>
+        <textarea class="inp" id="fe-msg" rows="6" maxlength="5000" oninput="zdCount(this)" aria-describedby="fe-msg-n">${esc(msg)}</textarea>${typeof zdCountHtml==="function"?zdCountHtml("fe-msg",msg||"",5000):""}
         <small class="fe-small">Laisse le texte proposé tel quel : il se met à jour tout seul si tu changes la date.</small>
       </div>
       <div class="fe-col">
@@ -201,8 +201,8 @@ if(typeof faSave==="function"){
 // ── Bandeau pour les comptes ──
 const FB={data:null,at:0,busy:false};
 function fbKey(){return "zd_fe_dismiss_"+(State.tenant?.id||"")+(State.tenant?.acting_as_member_id?"_"+State.tenant.acting_as_member_id:"");}
-function fbDate(iso){try{const[y,m,d]=String(iso).split("-").map(Number);return new Date(Date.UTC(y,m-1,d,12)).toLocaleDateString(typeof zdLocale==="function"?zdLocale():"fr-FR",{timeZone:"UTC",day:"numeric",month:"long",year:"numeric"});}catch(_){return iso;}}
-function fbDayMonth(iso){try{const[y,m,d]=String(iso).split("-").map(Number);return new Date(Date.UTC(y,m-1,d,12)).toLocaleDateString(typeof zdLocale==="function"?zdLocale():"fr-FR",{timeZone:"UTC",day:"numeric",month:"long"});}catch(_){return iso;}}
+function fbDate(iso){if(typeof zdLongDate==="function")return zdLongDate(iso);try{const[y,m,d]=String(iso).split("-").map(Number);return new Date(Date.UTC(y,m-1,d,12)).toLocaleDateString(typeof zdLocale==="function"?zdLocale():"fr-FR",{timeZone:"UTC",day:"numeric",month:"long",year:"numeric"});}catch(_){return iso;}}
+function fbDayMonth(iso){const same=Number(String(iso).slice(0,4))===new Date().getFullYear();if(typeof zdLongDate==="function")return zdLongDate(iso,!same);try{const[y,m,d]=String(iso).split("-").map(Number);return new Date(Date.UTC(y,m-1,d,12)).toLocaleDateString(typeof zdLocale==="function"?zdLocale():"fr-FR",Object.assign({timeZone:"UTC",day:"numeric",month:"long"},same?{}:{year:"numeric"}));}catch(_){return iso;}}
 function fbEl(){
   let el=document.getElementById("fe-banner");
   if(!el){const main=document.querySelector("#app-screen .main");if(!main)return null;el=document.createElement("div");el.id="fe-banner";const ob=document.getElementById("offline-bar");if(ob&&ob.parentNode===main)ob.after(el);else main.prepend(el);}
