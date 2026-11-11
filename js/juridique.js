@@ -1,4 +1,4 @@
-const LEGAL_PAGES=[["legal_mentions","/legal/mentions-legales.html"],["legal_terms","/legal/conditions-generales.html"],["legal_privacy","/legal/confidentialite.html"]];
+const LEGAL_PAGES=[["legal_mentions","/legal/mentions-legales.html"],["legal_terms","/legal/conditions-generales.html"],["legal_privacy","/legal/confidentialite.html"],["legal_refund","/legal/remboursement.html"]];
 function legalLinksInner(){return LEGAL_PAGES.map(([k,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(t(k))}</a>`).join('<span aria-hidden="true">·</span>');}
 function legalLinksHtml(){return `<div class="legal-links">${legalLinksInner()}</div>`;}
 function renderLegalLinks(){

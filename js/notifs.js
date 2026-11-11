@@ -4,7 +4,7 @@
   .forEach(a=>{if(a&&!a.includes("msgarchive"))a.push("msgarchive");});
 if(typeof PAGE_MODULES==="object"&&PAGE_MODULES.messaging)PAGE_MODULES.msgarchive=PAGE_MODULES.messaging;
 const NF_CATS=["messages","groups","payments","bookings","stock","team","other"];
-const NF_TONE_IDS=["zenith","goutte","clochette","caisse","marimba","douce","silence"];
+const NF_TONE_IDS=["alerte","double","zenith","goutte","clochette","caisse","marimba","douce","silence"];
 let _nf=null,_nfAt=0;
 async function nfLoad(force){
   if(!State.token)return null;
@@ -14,17 +14,41 @@ async function nfLoad(force){
 }
 
 // ── Sons : tonalités libres de droits (synthèse) et chanson de la personne ──
-const NF_TONES={zenith:[["sine",880,0,.13],["sine",1320,.12,.24]],goutte:[["sine",1500,0,.07],["sine",760,.06,.16]],clochette:[["triangle",1568,0,.5],["triangle",2093,.1,.5]],
+const NF_TONES={alerte:[["sawtooth",988,0,.16,.5],["sawtooth",1319,.2,.16,.5],["sawtooth",988,.4,.16,.5],["sawtooth",1319,.6,.16,.5],["sawtooth",1568,.8,.34,.5]],
+  double:[["square",1175,0,.14,.32],["square",1175,.22,.2,.32]],
+  zenith:[["sine",880,0,.13],["sine",1320,.12,.24]],goutte:[["sine",1500,0,.07],["sine",760,.06,.16]],clochette:[["triangle",1568,0,.5],["triangle",2093,.1,.5]],
   caisse:[["square",1046,0,.06],["square",1318,.08,.06],["triangle",1568,.17,.32]],marimba:[["sine",523,0,.2],["sine",659,.13,.2],["sine",784,.26,.34]],douce:[["sine",440,0,.65],["sine",554,.22,.65]]};
-let _nfCtx=null,_nfAudio=null,_nfAudioT=null;
+let _nfCtx=null,_nfAudio=null,_nfAudioT=null,_nfMaster=null;
+function nfVolLevel(){try{const v=localStorage.getItem("zd_nf_vol");return ["loud","normal","soft"].includes(v)?v:"loud";}catch(_){return "loud";}}
+function nfVolMult(){return {loud:1.9,normal:1,soft:.45}[nfVolLevel()];}
+function nfCtx(){
+  _nfCtx=_nfCtx||new (window.AudioContext||window.webkitAudioContext)();
+  if(!_nfMaster){
+    _nfMaster=_nfCtx.createGain();const comp=_nfCtx.createDynamicsCompressor();   // fort sans saturer
+    comp.threshold.value=-14;comp.knee.value=12;comp.ratio.value=6;comp.attack.value=.003;comp.release.value=.2;
+    _nfMaster.connect(comp);comp.connect(_nfCtx.destination);
+  }
+  return _nfCtx;
+}
+// Les navigateurs n'autorisent le son qu'après un premier toucher : on le « débloque » dès le premier geste
+function nfUnlock(){
+  try{
+    const ctx=nfCtx();if(ctx.state==="suspended")ctx.resume();
+    const b=ctx.createBuffer(1,1,22050),src=ctx.createBufferSource();src.buffer=b;src.connect(ctx.destination);src.start(0);
+  }catch(_){}
+}
+["pointerdown","touchstart","keydown","click"].forEach(ev=>document.addEventListener(ev,function f(){nfUnlock();if(_nfCtx&&_nfCtx.state==="running")document.removeEventListener(ev,f,true);},{capture:true,passive:true}));
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&_nfCtx&&_nfCtx.state==="suspended")_nfCtx.resume().catch(()=>{});});
 function nfTone(id){
   const seq=NF_TONES[id];if(!seq)return;
   try{
-    _nfCtx=_nfCtx||new (window.AudioContext||window.webkitAudioContext)();const ctx=_nfCtx;if(ctx.state==="suspended")ctx.resume();
+    const ctx=nfCtx();if(ctx.state==="suspended")ctx.resume().catch(()=>{});
+    _nfMaster.gain.value=nfVolMult();
     const t0=ctx.currentTime+.02;
-    seq.forEach(([type,f,st,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;
-      g.gain.setValueAtTime(0,t0+st);g.gain.linearRampToValueAtTime(type==="square"?.07:.2,t0+st+.015);g.gain.exponentialRampToValueAtTime(.0005,t0+st+d);
-      o.connect(g);g.connect(ctx.destination);o.start(t0+st);o.stop(t0+st+d+.05);});
+    seq.forEach(([type,f,st,d,amp])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;
+      const peak=amp||(type==="square"?.07:.2);
+      g.gain.setValueAtTime(0,t0+st);g.gain.linearRampToValueAtTime(peak,t0+st+.012);g.gain.setValueAtTime(peak,t0+st+Math.max(.02,d-.05));g.gain.exponentialRampToValueAtTime(.0005,t0+st+d);
+      o.connect(g);g.connect(_nfMaster);o.start(t0+st);o.stop(t0+st+d+.05);});
   }catch(_){}
 }
 function nfStop(){clearTimeout(_nfAudioT);if(_nfAudio){try{_nfAudio.pause();}catch(_){}}_nfAudio=null;}
@@ -49,7 +73,7 @@ function nfQuietNow(){
   const d=new Date();const n=d.getHours()*60+d.getMinutes();
   return a<b?(n>=a&&n<b):(n>=a||n<b);
 }
-function nfVibrate(){try{if(_nf&&_nf.vibrate&&navigator.vibrate&&matchMedia("(pointer:coarse)").matches)navigator.vibrate([120,60,120]);}catch(_){}}
+function nfVibrate(){try{if(_nf&&_nf.vibrate&&navigator.vibrate&&matchMedia("(pointer:coarse)").matches)navigator.vibrate(_nf.vib==="short"?[120,60,120]:[500,200,500,200,500]);}catch(_){}}
 function nfAlert(cat,sound,alwaysRing){
   if(!_nf)return;
   const c=(_nf.cats||{})[cat];if(c&&c.app===false)return;
@@ -200,7 +224,12 @@ async function nfRenderCard(force){
   const song=s.song;
   box.innerHTML=`<div class="nf-card">
     <div class="nf-row"><div><b>${esc(t("nf_phone"))}</b><small>${esc(t("nf_phone_x"))}</small></div>${nfSwitch(s.phone,"nfSet({phone:!_nf.phone})",t("nf_phone"))}</div>
-    <div class="nf-row"><div><b>${esc(t("nf_vibrate"))}</b></div>${nfSwitch(s.vibrate,"nfSet({vibrate:!_nf.vibrate})",t("nf_vibrate"))}</div>
+    <div class="nf-h">${esc(t("nf_vol_t"))}</div><small class="nf-hint">${esc(t("nf_vol_x"))}</small>
+    <div class="nf-seg" role="radiogroup" aria-label="${esc(t("nf_vol_t"))}">${["loud","normal","soft"].map(v=>`<button type="button" role="radio" aria-checked="${nfVolLevel()===v}" class="nf-sg${nfVolLevel()===v?" on":""}" onclick="nfSetVol('${v}')">${esc(t("nf_vol_"+v))}</button>`).join("")}</div>
+    <div class="nf-h">${esc(t("nf_vib_t"))}</div>
+    <div class="nf-seg" role="radiogroup" aria-label="${esc(t("nf_vib_t"))}">${["long","short","none"].map(v=>`<button type="button" role="radio" aria-checked="${(s.vib||"long")===v}" class="nf-sg${(s.vib||"long")===v?" on":""}" onclick="nfSet({vib:'${v}'})">${esc(t("nf_vib_"+v))}</button>`).join("")}</div>
+    <div class="nf-test"><b>${esc(t("nf_test_t"))}</b><small>${esc(t("nf_test_x"))}</small><button type="button" class="btn btn-g" id="nf-test-btn" onclick="nfTest(this)"><i class="ti ti-bell-ringing"></i> ${esc(t("nf_test_btn"))}</button>
+      <small class="nf-hint">${esc(t("nf_android_hint"))}</small></div>
     <div class="nf-h">${esc(t("nf_what"))}</div>
     <div class="nf-cats">${NF_CATS.map(c=>{const v=s.cats[c];return `<div class="nf-cat"><div class="nf-cn"><b>${esc(t("nf_cat_"+c))}</b></div>
       <div class="nf-chips"><button type="button" class="nf-chip${v.push?" on":""}" aria-pressed="${v.push}" onclick="nfSetCat('${c}',{push:${!v.push}})">${esc(t("nf_where_phone"))}</button><button type="button" class="nf-chip${v.app?" on":""}" aria-pressed="${v.app}" onclick="nfSetCat('${c}',{app:${!v.app}})">${esc(t("nf_where_app"))}</button></div>
@@ -605,3 +634,14 @@ loadAdminUsers=async function(){
     admRender();
   }catch(e){tb.innerHTML=`<tr><td colspan="12" style="color:var(--red);padding:20px">${esc(e.message)}</td></tr>`;}
 };
+
+function nfSetVol(v){try{localStorage.setItem("zd_nf_vol",v);}catch(_){}nfRenderCard();nfUnlock();nfTone("alerte");nfVibrate();}
+async function nfTest(btn){
+  nfUnlock();nfPlay((_nf&&_nf.cats&&_nf.cats.messages&&_nf.cats.messages.sound)||"alerte");nfVibrate();   // l'appli ouverte sonne tout de suite
+  if(btn)btn.disabled=true;
+  try{
+    const r=await api("POST","/push/test-delayed");
+    showToast(t(r&&r.scheduled?"nf_test_sent":"nf_test_nodev"),r&&r.scheduled?"info":"error");
+  }catch(e){showToast(e.message,"error");}
+  setTimeout(()=>{if(btn)btn.disabled=false;},6000);
+}

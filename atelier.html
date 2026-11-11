@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://*.paddle.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://*.r2.cloudflarestorage.com https://*.r2.dev http://localhost:9000 http://127.0.0.1:9000; media-src 'self' data: blob: https://*.r2.cloudflarestorage.com https://*.r2.dev http://localhost:9000 http://127.0.0.1:9000; connect-src 'self' https://zenith-dash-production.up.railway.app wss://zenith-dash-production.up.railway.app https://zenith-dash-staging.up.railway.app wss://zenith-dash-staging.up.railway.app https://*.livekit.cloud wss://*.livekit.cloud https://*.r2.cloudflarestorage.com https://*.r2.dev https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://*.paddle.com http://localhost:8000 ws://localhost:8000 http://127.0.0.1:8000 ws://127.0.0.1:8000 http://localhost:9000 http://127.0.0.1:9000 http://localhost:7880 ws://localhost:7880; frame-src 'self' blob: https://*.paddle.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#060a10">
+<title>Suivi de réparation · Zenith Dash</title>
+<link rel="icon" href="/favicon.png">
+<style>
+:root{--bg:#060a10;--card:#121a28;--line:rgba(255,255,255,.1);--green:#00e080;--red:#ff5f6d;--amber:#f5a623;--text:#e8eaf2;--muted:#9aa3c0}
+@media (prefers-color-scheme:light){:root{--bg:#f4f6fb;--card:#ffffff;--line:rgba(0,0,0,.12);--green:#00a866;--red:#e0333f;--amber:#b7791f;--text:#131a2a;--muted:#5b6475}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;display:flex;justify-content:center}
+.wrap{width:100%;max-width:520px;padding:18px max(16px,env(safe-area-inset-left)) calc(24px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-right))}
+.brand{font-size:12px;color:var(--muted);margin-bottom:14px}
+.brand b{color:var(--green)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+h1{font-size:20px;margin:0 0 4px}
+.sub{font-size:13px;color:var(--muted)}
+.st{display:inline-block;margin-top:10px;font-weight:800;font-size:15px;color:var(--green)}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;position:relative;font-size:14px;color:var(--muted)}
+.steps li .d{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:3px}
+.steps li.on{color:var(--text)}
+.steps li.on .d{background:var(--green);border-color:var(--green)}
+.steps li.cur{font-weight:800}
+.steps small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.row{display:flex;justify-content:space-between;font-size:14px;padding:4px 0}
+.btn{display:inline-flex;gap:6px;align-items:center;justify-content:center;width:100%;padding:12px;border-radius:12px;background:var(--green);color:#03140b;font-weight:800;text-decoration:none;margin-top:6px}
+.err{color:var(--red);text-align:center;padding:30px 0}
+</style>
+</head>
+<body>
+<main class="wrap" id="app" aria-live="polite"><div class="sub" style="text-align:center;padding:40px 0">…</div></main>
+<script src="/js/atelier.js?v=10.6.0" defer></script>
+</body>
+</html>

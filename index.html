@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://*.paddle.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://*.r2.cloudflarestorage.com https://*.r2.dev http://localhost:9000 http://127.0.0.1:9000; media-src 'self' data: blob: https://*.r2.cloudflarestorage.com https://*.r2.dev http://localhost:9000 http://127.0.0.1:9000; connect-src 'self' https://zenith-dash-production.up.railway.app wss://zenith-dash-production.up.railway.app https://zenith-dash-staging.up.railway.app wss://zenith-dash-staging.up.railway.app https://*.livekit.cloud wss://*.livekit.cloud https://*.r2.cloudflarestorage.com https://*.r2.dev https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://*.paddle.com http://localhost:8000 ws://localhost:8000 http://127.0.0.1:8000 ws://127.0.0.1:8000 http://localhost:9000 http://127.0.0.1:9000 http://localhost:7880 ws://localhost:7880; frame-src 'self' blob: https://*.paddle.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,interactive-widget=resizes-content">
+<script>document.documentElement.classList.add("zd-boot");</script>
 <title>Zenith Dash — Logiciel de gestion pour PME, restaurants, hôtels et commerces</title>
 <meta name="description" content="Factures, caisse, stock, paie RDC, comptabilité OHADA et commandes en ligne pour PME, restaurants, hôtels, salons et commerces. Essai gratuit 14 jours.">
 <meta name="robots" content="index, follow">
@@ -27,9 +28,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Zenith Dash">
-<link rel="preload" href="/css/icons.woff2?v=10.3.1" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/icons.css?v=10.3.1">
-<link rel="stylesheet" href="/css/app.css?v=10.3.1">
+<link rel="preload" href="/css/icons.woff2?v=10.6.0" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/icons.css?v=10.6.0">
+<link rel="stylesheet" href="/css/app.css?v=10.6.0">
+<link rel="stylesheet" href="/css/v105.css?v=10.6.0">
 </head>
 <body class="zd-no-ai">
 <!-- PORTAIL CLIENT (accès public, sans compte) -->
@@ -89,8 +91,8 @@
 <p>Zenith Dash gère toute ton entreprise depuis ton téléphone ou ton ordinateur : factures et devis, caisse, stock, clients, paie RDC (IPR, CNSS), comptabilité OHADA, messagerie d'équipe et commandes en ligne. Essai gratuit de 14 jours, en 6 langues (français, anglais, espagnol, arabe, swahili, lingala), utilisable même hors connexion.</p>
 <h2>Un espace adapté à chaque secteur</h2>
 <ul><li>PME et services : facturation, CRM, stock, RH, paie et comptabilité.</li><li>Restaurant et bar : plan de salle, écran cuisine, addition partagée, menu QR, commandes à emporter et en livraison.</li><li>Hôtel : planning des chambres, réception, note de séjour, ménage, réservation et acompte en ligne.</li><li>Salon de beauté : agenda, rendez-vous en ligne, forfaits et commissions.</li><li>Commerce et pharmacie : caisse, codes-barres, prix de gros, carnet de crédit, lots et péremptions, ordonnancier.</li><li>Chambre froide : températures, registre HACCP, lots, bons d'entrée et de sortie, facturation du stockage.</li></ul>
-<p>Paiement des clients par Mobile Money (M-Pesa, Orange Money, Airtel Money), virement ou espèces. Active JavaScript pour utiliser l'application.</p>
-<p><a href="/legal/mentions-legales.html" style="color:#22c55e">Mentions légales</a> · <a href="/legal/conditions-generales.html" style="color:#22c55e">Conditions générales</a> · <a href="/legal/confidentialite.html" style="color:#22c55e">Confidentialité</a></p>
+<p>Suivi des paiements reçus de tes clients : Mobile Money (M-Pesa, Orange Money, Airtel Money), virement ou espèces. Abonnements satisfait ou remboursé pendant 14 jours. Active JavaScript pour utiliser l'application.</p>
+<p><a href="/legal/mentions-legales.html" style="color:#22c55e">Mentions légales</a> · <a href="/legal/conditions-generales.html" style="color:#22c55e">Conditions générales</a> · <a href="/legal/confidentialite.html" style="color:#22c55e">Confidentialité</a> · <a href="/legal/remboursement.html" style="color:#22c55e">Remboursement</a></p>
 </div></noscript>
 <div id="landing" style="display:none"></div>
 <div id="tour-overlay" style="display:none"><div id="tour-spot"></div><div id="tour-tip" class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b id="tour-title"></b><span id="tour-count" style="font-size:11px;color:var(--muted);font-family:var(--mono)"></span></div><div id="tour-text" style="font-size:13px;line-height:1.5;margin-bottom:12px"></div><div style="display:flex;justify-content:space-between;gap:8px"><button class="btn btn-o btn-sm" onclick="endTour()" data-i18n="tour_skip">Passer</button><button class="btn btn-g btn-sm" id="tour-next" onclick="nextTourStep()">Suivant</button></div></div></div>
@@ -119,7 +121,7 @@
         <div class="fgrp"><label class="fl">Votre nom</label><input class="inp" type="text" id="invite-accept-name" placeholder="Votre nom complet" required></div>
         <div class="fgrp"><label class="fl">Choisissez un mot de passe</label><input class="inp" type="password" id="invite-accept-password" autocomplete="new-password" placeholder="Min. 8 caractères" required></div>
         <div class="err-box" id="invite-accept-err"></div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px"><span data-i18n="terms_join_prefix">En rejoignant l'équipe, tu acceptes les</span> <a href="/legal/conditions-generales.html" target="_blank" rel="noopener" data-i18n="terms_link_cg">conditions générales</a> <span data-i18n="terms_and">et la</span> <a href="/legal/confidentialite.html" target="_blank" rel="noopener" data-i18n="terms_link_privacy">politique de confidentialité</a>.</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px"><span data-i18n="terms_join_prefix">En rejoignant l'équipe, tu acceptes les</span> <a href="/legal/conditions-generales.html" target="_blank" rel="noopener" data-i18n="terms_link_cg">conditions générales</a><span data-i18n="terms_sep">, la</span> <a href="/legal/confidentialite.html" target="_blank" rel="noopener" data-i18n="terms_link_privacy">politique de confidentialité</a> <span data-i18n="terms_and">et la</span> <a href="/legal/remboursement.html" target="_blank" rel="noopener" data-i18n="terms_link_refund">politique de remboursement</a>.</div>
         <button class="btn btn-g" id="invite-accept-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-check"></i> Rejoindre l'équipe</button>
       </form>
     </div>
@@ -148,6 +150,14 @@
     </div>
     <div id="tab-register" class="auth-tab-content">
       <form onsubmit="handleRegister(event)">
+        <div class="ob-prog" aria-hidden="true"><div class="ob-bar"><i style="width:33%"></i></div><small id="reg-step-lbl">1 / 3</small></div>
+        <div class="reg-photo">
+          <button type="button" id="reg-photo-btn" class="reg-photo-b" onclick="document.getElementById('reg-photo-gal').click()" data-i18n-aria="ob_photo_add" aria-label="Ajouter une photo de profil"><i class="ti ti-camera"></i></button>
+          <div class="reg-photo-tx"><b data-i18n="ob_photo">Photo de profil</b><span data-i18n="ob_photo_x">Facultatif · tu pourras la changer plus tard</span>
+            <div class="reg-photo-act"><button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('reg-photo-cam').click()" data-i18n="ob_take">Prendre une photo</button><button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('reg-photo-gal').click()" data-i18n="ob_gallery">Galerie</button><button type="button" class="btn btn-o btn-sm" id="reg-photo-rm" style="display:none" onclick="regPhotoPick(null)" data-i18n="ob_photo_rm">Retirer</button></div></div>
+          <input type="file" id="reg-photo-gal" accept="image/*" style="display:none" onchange="regPhotoPick(this.files[0]);this.value=''">
+          <input type="file" id="reg-photo-cam" accept="image/*" capture="user" style="display:none" onchange="regPhotoPick(this.files[0]);this.value=''">
+        </div>
         <div id="reg-roles" class="reg-roles" role="radiogroup"></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_fullname">Nom complet</label><input class="inp" type="text" id="reg-name" placeholder="Votre nom" required></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_email">Email</label><input class="inp" type="email" id="reg-email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="vous@exemple.com" required></div>
@@ -156,7 +166,7 @@
         <div class="fgrp"><label class="fl" data-i18n="lbl_password">Mot de passe</label><input class="inp" type="password" id="reg-password" autocomplete="new-password" data-i18n="lbl_password_min" data-i18n-placeholder placeholder="Min. 8 caractères" required></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_sector">Secteur d'activité</label><div id="reg-sector-grid" class="sector-chips"></div><div id="reg-sector-hint" style="font-size:11px;color:var(--muted);margin-top:6px"></div></div>
         <div class="fgrp"><label class="fl" data-i18n="lbl_birth_date">Date de naissance (facultatif)</label><input class="inp" type="date" id="reg-birth" min="1900-01-01"><div style="font-size:11px;color:var(--muted);margin-top:4px" data-i18n="birth_hint">Tes contacts de la messagerie recevront un petit rappel le jour de ton anniversaire. Tu peux le désactiver dans ton profil.</div></div>
-        <label class="terms-check"><input type="checkbox" id="reg-terms"><span><span data-i18n="terms_accept_prefix">J'accepte les</span> <a href="/legal/conditions-generales.html" target="_blank" rel="noopener" data-i18n="terms_link_cg">conditions générales</a> <span data-i18n="terms_and">et la</span> <a href="/legal/confidentialite.html" target="_blank" rel="noopener" data-i18n="terms_link_privacy">politique de confidentialité</a></span></label>
+        <label class="terms-check"><input type="checkbox" id="reg-terms"><span><span data-i18n="terms_accept_prefix">J'accepte les</span> <a href="/legal/conditions-generales.html" target="_blank" rel="noopener" data-i18n="terms_link_cg">conditions générales</a><span data-i18n="terms_sep">, la</span> <a href="/legal/confidentialite.html" target="_blank" rel="noopener" data-i18n="terms_link_privacy">politique de confidentialité</a> <span data-i18n="terms_and">et la</span> <a href="/legal/remboursement.html" target="_blank" rel="noopener" data-i18n="terms_link_refund">politique de remboursement</a></span></label>
         <div class="err-box" id="reg-err"></div>
         <button class="btn btn-g" id="reg-btn" type="submit" style="width:100%;margin-top:4px"><i class="ti ti-user-plus"></i> <span data-i18n="btn_register">Commencer l'essai gratuit</span></button>
       </form>
@@ -396,9 +406,9 @@
             <div id="chat-input-row" class="mv-composer">
               <button type="button" class="mv-cb" id="extra-features-btn" onclick="toggleExtraFeaturesMenu()" aria-label="Joindre" title="Joindre"><i class="ti ti-plus" aria-hidden="true"></i></button>
               <div id="extra-features-menu" class="mv-pop" style="display:none">
-                <label class="mv-pi"><i class="ti ti-photo" style="color:#7fb4ff" aria-hidden="true"></i> <span data-i18n="mv_photo">Photo ou vidéo</span><input type="file" id="chat-photo-input" accept="image/*,video/*" multiple style="display:none" onchange="mvSendFiles(this.files);this.value='';document.getElementById('extra-features-menu').style.display='none'"></label>
+                <label class="mv-pi"><i class="ti ti-photo" style="color:#7fb4ff" aria-hidden="true"></i> <span data-i18n="mv_photo">Photo ou vidéo</span><input type="file" id="chat-photo-input" accept="image/*,video/*" multiple style="display:none" onchange="mvPickFiles([...this.files]);this.value='';document.getElementById('extra-features-menu').style.display='none'"></label>
                 <label class="mv-pi"><i class="ti ti-camera" style="color:#ffb3c7" aria-hidden="true"></i> <span data-i18n="mv_camera">Prendre une photo</span><input type="file" id="chat-camera-input" accept="image/*" capture="environment" style="display:none" onchange="mvSendFiles(this.files);this.value='';document.getElementById('extra-features-menu').style.display='none'"></label>
-                <label class="mv-pi"><i class="ti ti-paperclip" style="color:var(--m-acs)" aria-hidden="true"></i> <span data-i18n="attach_file">Joindre un fichier</span><input type="file" id="chat-file-input" style="display:none" onchange="sendFileMessage(this.files[0]);document.getElementById('extra-features-menu').style.display='none'"></label>
+                <label class="mv-pi"><i class="ti ti-paperclip" style="color:var(--m-acs)" aria-hidden="true"></i> <span data-i18n="attach_file">Joindre un fichier</span><input type="file" id="chat-file-input" multiple style="display:none" onchange="mvPickFiles([...this.files]);this.value='';document.getElementById('extra-features-menu').style.display='none'"></label>
                 <div class="mv-pi" onclick="toggleViewOnce();toggleExtraFeaturesMenu()"><i class="ti ti-eye" id="view-once-btn" aria-hidden="true"></i> <span data-i18n="view_once_toggle">Vue unique</span></div>
                 <div class="mv-pi" onclick="toggleEphemeralMenu()"><i class="ti ti-clock" id="ephemeral-btn" aria-hidden="true"></i> <span data-i18n="ephemeral_toggle">Message éphémère</span></div>
                 <div class="mv-pi" onclick="openPollModal();toggleExtraFeaturesMenu()"><i class="ti ti-chart-bar" style="color:#d6b3ff" aria-hidden="true"></i> <span data-i18n="poll_action">Sondage</span></div>
@@ -1617,7 +1627,7 @@
 <div id="modal-terms-update" class="modal-overlay">
   <div class="modal" style="width:480px">
     <div class="modal-title"><i class="ti ti-file-certificate" style="color:var(--green)"></i> <span data-i18n="terms_update_title">Nos conditions évoluent</span></div>
-    <div style="font-size:13px;line-height:1.6;margin-bottom:12px" data-i18n="terms_update_text">Pour continuer à utiliser Zenith Dash, prends connaissance de nos conditions générales et de notre politique de confidentialité, puis accepte-les.</div>
+    <div style="font-size:13px;line-height:1.6;margin-bottom:12px" data-i18n="terms_update_text">Pour continuer à utiliser Zenith Dash, prends connaissance de nos conditions générales, de notre politique de confidentialité et de notre politique de remboursement, puis accepte-les.</div>
     <div class="legal-links" style="justify-content:flex-start;margin:0 0 12px" id="terms-update-links"></div>
     <label class="terms-check"><input type="checkbox" id="terms-update-check"><span data-i18n="terms_update_check">J'ai lu et j'accepte ces documents</span></label>
     <div class="err-box" id="terms-update-err"></div>
@@ -2419,63 +2429,79 @@
   </div>
 </div>
 
-<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=10.3.1" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=10.3.1" defer><\/script>':""))})();</script>
-<script src="/js/vendor/qrcode.min.js?v=10.3.1" defer></script>
-<script src="/js/base-1.js?v=10.3.1" defer></script>
-<script src="/js/securite-roles.js?v=10.3.1" defer></script>
-<script src="/js/hors-ligne.js?v=10.3.1" defer></script>
-<script src="/js/facturation.js?v=10.3.1" defer></script>
-<script src="/js/stock-caisse.js?v=10.3.1" defer></script>
-<script src="/js/rh-paie.js?v=10.3.1" defer></script>
-<script src="/js/compta-ohada.js?v=10.3.1" defer></script>
-<script src="/js/marketing.js?v=10.3.1" defer></script>
-<script src="/js/plateforme.js?v=10.3.1" defer></script>
-<script src="/js/accueil-aide.js?v=10.3.1" defer></script>
-<script src="/js/import.js?v=10.3.1" defer></script>
-<script src="/js/achats.js?v=10.3.1" defer></script>
-<script src="/js/relances-auto.js?v=10.3.1" defer></script>
-<script src="/js/boutique.js?v=10.3.1" defer></script>
-<script src="/js/projets.js?v=10.3.1" defer></script>
-<script src="/js/immobilisations-rapports.js?v=10.3.1" defer></script>
-<script src="/js/rendez-vous.js?v=10.3.1" defer></script>
-<script src="/js/cabinet.js?v=10.3.1" defer></script>
-<script src="/js/listes.js?v=10.3.1" defer></script>
-<script src="/js/juridique.js?v=10.3.1" defer></script>
-<script src="/js/contacts-confidentialite.js?v=10.3.1" defer></script>
-<script src="/js/secteurs.js?v=10.3.1" defer></script>
-<script src="/js/restaurant.js?v=10.3.1" defer></script>
-<script src="/js/bar.js?v=10.3.1" defer></script>
-<script src="/js/froid.js?v=10.3.1" defer></script>
-<script src="/js/hotel.js?v=10.3.1" defer></script>
-<script src="/js/salon.js?v=10.3.1" defer></script>
-<script src="/js/commerce.js?v=10.3.1" defer></script>
-<script src="/js/commandes.js?v=10.3.1" defer></script>
-<script src="/js/abonnements.js?v=10.3.1" defer></script>
-<script src="/js/coeur-1.js?v=10.3.1" defer></script>
-<script src="/js/coeur-2.js?v=10.3.1" defer></script>
-<script src="/js/coeur-3.js?v=10.3.1" defer></script>
-<script src="/js/v93.js?v=10.3.1" defer></script>
-<script src="/js/bar-fiche.js?v=10.3.1" defer></script>
-<script src="/js/ecole.js?v=10.3.1" defer></script>
-<script src="/js/ambassade.js?v=10.3.1" defer></script>
-<script src="/js/pointage.js?v=10.3.1" defer></script>
-<script src="/js/espaces.js?v=10.3.1" defer></script>
-<script src="/js/reductions.js?v=10.3.1" defer></script>
-<script src="/js/premiers-reglages.js?v=10.3.1" defer></script>
-<script src="/js/annuaire.js?v=10.3.1" defer></script>
-<script src="/js/notifs.js?v=10.3.1" defer></script>
-<script src="/js/appels.js?v=10.3.1" defer></script>
-<script src="/js/comptes.js?v=10.3.1" defer></script>
-<script src="/js/messagerie.js?v=10.3.1" defer></script>
-<script src="/js/paiement.js?v=10.3.1" defer></script>
-<script src="/js/securite-v99.js?v=10.3.1" defer></script>
-<script src="/js/verrou-v100.js?v=10.3.1" defer></script>
-<script src="/js/apparence-v100.js?v=10.3.1" defer></script>
-<script src="/js/reset-v101.js?v=10.3.1" defer></script>
-<script src="/js/v102.js?v=10.3.1" defer></script>
-<script src="/js/v103.js?v=10.3.1" defer></script>
-<script src="/js/v1031.js?v=10.3.1" defer></script>
-<script src="/js/promos-v1031.js?v=10.3.1" defer></script>
+<script>(function(){var l="fr";try{l=localStorage.getItem("zd_lang")||"fr"}catch(e){}document.write('<script src="/js/i18n/fr.js?v=10.6.0" defer><\/script>'+(/^(en|es|ar|sw|ln)$/.test(l)?'<script src="/js/i18n/'+l+'.js?v=10.6.0" defer><\/script>':""))})();</script>
+<script src="/js/vendor/qrcode.min.js?v=10.6.0" defer></script>
+<script src="/js/base-1.js?v=10.6.0" defer></script>
+<script src="/js/securite-roles.js?v=10.6.0" defer></script>
+<script src="/js/hors-ligne.js?v=10.6.0" defer></script>
+<script src="/js/facturation.js?v=10.6.0" defer></script>
+<script src="/js/stock-caisse.js?v=10.6.0" defer></script>
+<script src="/js/rh-paie.js?v=10.6.0" defer></script>
+<script src="/js/compta-ohada.js?v=10.6.0" defer></script>
+<script src="/js/marketing.js?v=10.6.0" defer></script>
+<script src="/js/plateforme.js?v=10.6.0" defer></script>
+<script src="/js/accueil-aide.js?v=10.6.0" defer></script>
+<script src="/js/import.js?v=10.6.0" defer></script>
+<script src="/js/achats.js?v=10.6.0" defer></script>
+<script src="/js/relances-auto.js?v=10.6.0" defer></script>
+<script src="/js/boutique.js?v=10.6.0" defer></script>
+<script src="/js/projets.js?v=10.6.0" defer></script>
+<script src="/js/immobilisations-rapports.js?v=10.6.0" defer></script>
+<script src="/js/rendez-vous.js?v=10.6.0" defer></script>
+<script src="/js/cabinet.js?v=10.6.0" defer></script>
+<script src="/js/listes.js?v=10.6.0" defer></script>
+<script src="/js/juridique.js?v=10.6.0" defer></script>
+<script src="/js/contacts-confidentialite.js?v=10.6.0" defer></script>
+<script src="/js/secteurs.js?v=10.6.0" defer></script>
+<script src="/js/restaurant.js?v=10.6.0" defer></script>
+<script src="/js/bar.js?v=10.6.0" defer></script>
+<script src="/js/froid.js?v=10.6.0" defer></script>
+<script src="/js/hotel.js?v=10.6.0" defer></script>
+<script src="/js/salon.js?v=10.6.0" defer></script>
+<script src="/js/commerce.js?v=10.6.0" defer></script>
+<script src="/js/commandes.js?v=10.6.0" defer></script>
+<script src="/js/abonnements.js?v=10.6.0" defer></script>
+<script src="/js/coeur-1.js?v=10.6.0" defer></script>
+<script src="/js/coeur-2.js?v=10.6.0" defer></script>
+<script src="/js/coeur-3.js?v=10.6.0" defer></script>
+<script src="/js/v93.js?v=10.6.0" defer></script>
+<script src="/js/bar-fiche.js?v=10.6.0" defer></script>
+<script src="/js/ecole.js?v=10.6.0" defer></script>
+<script src="/js/pointage.js?v=10.6.0" defer></script>
+<script src="/js/espaces.js?v=10.6.0" defer></script>
+<script src="/js/reductions.js?v=10.6.0" defer></script>
+<script src="/js/premiers-reglages.js?v=10.6.0" defer></script>
+<script src="/js/annuaire.js?v=10.6.0" defer></script>
+<script src="/js/notifs.js?v=10.6.0" defer></script>
+<script src="/js/appels.js?v=10.6.0" defer></script>
+<script src="/js/comptes.js?v=10.6.0" defer></script>
+<script src="/js/messagerie.js?v=10.6.0" defer></script>
+<script src="/js/paiement.js?v=10.6.0" defer></script>
+<script src="/js/securite-v99.js?v=10.6.0" defer></script>
+<script src="/js/verrou-v100.js?v=10.6.0" defer></script>
+<script src="/js/apparence-v100.js?v=10.6.0" defer></script>
+<script src="/js/reset-v101.js?v=10.6.0" defer></script>
+<script src="/js/v102.js?v=10.6.0" defer></script>
+<script src="/js/v103.js?v=10.6.0" defer></script>
+<script src="/js/v1031.js?v=10.6.0" defer></script>
+<script src="/js/promos-v1031.js?v=10.6.0" defer></script>
+<script src="/js/v1032.js?v=10.6.0" defer></script>
+<script src="/js/garage.js?v=10.6.0" defer></script>
+<script src="/js/v105-base.js?v=10.6.0" defer></script>
+<script src="/js/v105-pages.js?v=10.6.0" defer></script>
+<script src="/js/v105-resto.js?v=10.6.0" defer></script>
+<script src="/js/v105-bar.js?v=10.6.0" defer></script>
+<script src="/js/v105-hotel.js?v=10.6.0" defer></script>
+<script src="/js/v105-commerce.js?v=10.6.0" defer></script>
+<script src="/js/v105-froid-ecole.js?v=10.6.0" defer></script>
+<script src="/js/v105-extras.js?v=10.6.0" defer></script>
+<script src="/js/v105-reset.js?v=10.6.0" defer></script>
+<script src="/js/v106-fichiers.js?v=10.6.0" defer></script>
+<script src="/js/v106-vocal.js?v=10.6.0" defer></script>
+<script src="/js/v106-permissions.js?v=10.6.0" defer></script>
+<script src="/js/v106-onboarding.js?v=10.6.0" defer></script>
+<script src="/js/v106-retour.js?v=10.6.0" defer></script>
+<script src="/js/v106-hors-ligne.js?v=10.6.0" defer></script>
 
 </body>
 </html>

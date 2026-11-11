@@ -565,8 +565,9 @@ async function handleRegister(e){
       referral_code:isClient?null:(document.getElementById("reg-referral").value.trim()||null),birth_date:registerBirthValue(),accept_terms:true,
       sector:isClient?null:(typeof _regSector==="string"?_regSector:"pme"),account_type:isClient?"client":"manager"});
     window._zdJustRegistered=true;
-    showAppLayout();
-  }catch(err){showErr("reg-err",err.message);btn.innerHTML=label;btn.disabled=false;}
+  }catch(err){showErr("reg-err",err.message);btn.innerHTML=label;btn.disabled=false;return;}
+  try{await zdOnboard();}catch(_){}
+  showAppLayout();
 }
 function showAuthTab(tab){
   document.querySelectorAll(".auth-tab-content").forEach(t=>t.style.display="none");
@@ -1170,6 +1171,14 @@ Object.getOwnPropertyNames(window).filter(n=>/^submit[A-Z]/.test(n)).forEach(wra
 document.addEventListener("DOMContentLoaded",async ()=>{
   applyLanguage(State.lang);
   setTheme(State.theme);
+  setTimeout(()=>document.documentElement.classList.remove("zd-boot"),4000);   // filet de sécurité
+  try{
+    // Adresse simple et pas de session : l'accueil s'affiche tout de suite, sans écran de connexion avant lui
+    if(!State.token&&!location.search&&!location.hash&&typeof showLandingNow==="function")showLandingNow();
+  }catch(_){}
+  try{await zdBoot();}finally{document.documentElement.classList.remove("zd-boot");}
+});
+async function zdBoot(){
   if(typeof abRenderRegRoles==="function")abRenderRegRoles();
   const isPortal=await checkPortalView();
   if(isPortal) return;
@@ -1184,4 +1193,4 @@ document.addEventListener("DOMContentLoaded",async ()=>{
   if(!hasInvite&&await checkAccountantInvite()) return;
   if(!hasInvite&&State.token&&State.tenant) showAppLayout();
   else if(!hasInvite&&!new URLSearchParams(window.location.search).get("ref")&&!new URLSearchParams(window.location.search).get("invite")) showLanding();
-});
+}

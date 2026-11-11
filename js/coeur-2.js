@@ -255,7 +255,7 @@ function appendMessageBubble(m){
         <button class="btn btn-sm btn-o" onclick="startConvFromSharedContact('${c.tenant_id}','${escJs(c.name)}')">${t("start_conv_btn")}</button></div>`;
     }catch(e){content=t("shared_contact_prefix");}
   }else if(m.message_type==="voice"){
-    content=`<audio controls preload="metadata" class="mb-audio" src="${m.file_url}"></audio>`;
+    content=zvHtml(m.file_url,m.file_name);
   }else if(m.message_type==="file"){
     media=zdMediaKind(m);
     content=media&&m.file_url?zdMediaHtml(m,media):`<a href="${m.file_url}" target="_blank" rel="noopener" class="mb-card"><span class="mb-card-ic"><i class="ti ti-file" aria-hidden="true"></i></span><span class="mb-card-tx"><b>${esc(m.file_name)||t("msg_file_label")}</b><span>${t("mv_open_file")}</span></span></a>`;
@@ -309,7 +309,7 @@ async function revealViewOnceMessage(msgId){
     }
     bubble.style.cursor="default";bubble.onclick=null;
     let content;
-    if(r.message_type==="voice"&&r.file_url) content=`<audio controls preload="metadata" style="height:36px;max-width:220px" src="${r.file_url}"></audio>`;
+    if(r.message_type==="voice"&&r.file_url) content=zvHtml(r.file_url,r.file_name);
     else if(r.file_url) content=`<a href="${r.file_url}" target="_blank" style="color:inherit;text-decoration:underline">${esc(r.content)||t("msg_file_label")}</a>`;
     else content=esc(r.content);
     bubble.innerHTML=`${content}<div style="font-size:10px;opacity:.6;margin-top:3px">${t("viewed_indicator")}</div>`;
@@ -356,7 +356,8 @@ async function stopVoiceRecording(){
   const blob=await _stopRecordingInternal();
   _mediaRecorder=null;
   if(!blob||blob.size===0)return;
-  const file=new File([blob],`voice-${Date.now()}.webm`,{type:"audio/webm"});
+  const secs=Math.max(1,Math.round((Date.now()-_recordingStartTime)/1000));
+  const file=new File([blob],`voice-${Date.now()}-${secs}s.webm`,{type:"audio/webm"});
   await sendFileMessage(file);
 }
 async function cancelVoiceRecording(){
@@ -1046,7 +1047,7 @@ function renderMediaTab(tab){
       <i class="ti ti-file" style="font-size:20px;color:var(--blue)"></i><span style="font-size:13px">${esc(i.file_name)}</span>
     </a>`).join("");
   }else if(tab==="voice"){
-    content.innerHTML=items.map(i=>`<div style="padding:10px;border-bottom:1px solid var(--b)"><audio controls preload="metadata" style="width:100%;height:36px" src="${i.file_url}"></audio></div>`).join("");
+    content.innerHTML=items.map(i=>`<div style="padding:10px;border-bottom:1px solid var(--b)">${zvHtml(i.file_url,i.file_name)}</div>`).join("");
   }else if(tab==="links"){
     content.innerHTML=items.map(i=>`<a href="${i.url}" target="_blank" style="display:block;padding:10px;border-bottom:1px solid var(--b);color:var(--blue);text-decoration:underline;font-size:13px;word-break:break-all">${esc(i.url)}</a>`).join("");
   }

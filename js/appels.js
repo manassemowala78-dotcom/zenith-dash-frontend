@@ -383,7 +383,7 @@ function clBar(){
     live&&!clCoarse()?b("clEchoAsk()","ti-ear",t("cl_echo_btn")):"",
     grp&&!clCoarse()?b("clToggleHand()","ti-hand-stop",t(CL.hand?"cl_hand_down":"cl_hand_up"),CL.hand?"on":""):"",
     grp&&!clCoarse()?b("clToggleSide()","ti-users",t("cl_participants"),CL.side?"on":""):"",
-    clCoarse()&&(live||grp)?b("clMoreOpen()","ti-dots",t("cl_more_opts"),CL.hand||CL.side?"on":""):"",
+    b("clMoreOpen()","ti-dots",t("cl_more_opts"),CL.hand||CL.side?"on":""),
     b("clHangup()","ti-phone-off",t(grp?"cl_leave":"cl_hangup"),"red")
   ].join("");
 }
@@ -954,14 +954,18 @@ function clEchoBanner(p){
   if(clCoarse()&&navigator.vibrate){try{navigator.vibrate([60,60,60]);}catch(_){}}
 }
 function clMoreClose(){document.getElementById("cl-more")?.remove();}
-function clMoreOpen(){
+async function clMoreOpen(){
   const ov=document.getElementById("cl-ov");if(!ov||!CL.call)return;
+  clMoreClose();
+  let permHtml="";try{permHtml=typeof zpermCallHtml==="function"?await zpermCallHtml():"";}catch(_){}
+  if(!document.getElementById("cl-ov")||!CL.call)return;
   clMoreClose();
   const grp=CL.call.is_group,room=CL.room,live=!!(CL.t0&&room&&room.remoteParticipants.size);
   const one=!grp&&live?[...room.remoteParticipants.values()][0]:null;
   const el=document.createElement("div");el.id="cl-more";el.className="cl-more";
   el.addEventListener("click",e=>{if(e.target===el)clMoreClose();});
   el.innerHTML=`<div class="cl-more-s" role="dialog" aria-modal="true" aria-label="${esc(t("cl_more_opts"))}"><span class="cl-grab" aria-hidden="true"></span>
+    ${permHtml}
     ${live?`<button type="button" class="cl-mi echo" onclick="clMoreClose();clEchoAsk()"><i class="ti ti-ear" aria-hidden="true"></i><span><b>${esc(t("cl_echo_btn"))}</b><small>${esc(one?clT("cl_echo_x",{n:clFirst(one.name)}):t("cl_echo_x_grp"))}</small></span></button>`:""}
     ${grp?`<button type="button" class="cl-mi${CL.hand?" on":""}" onclick="clMoreClose();clToggleHand()"><i class="ti ti-hand-stop" aria-hidden="true"></i><span><b>${esc(t(CL.hand?"cl_hand_down":"cl_hand_up"))}</b></span></button>
     <button type="button" class="cl-mi${CL.side?" on":""}" onclick="clMoreClose();clToggleSide()"><i class="ti ti-users" aria-hidden="true"></i><span><b>${esc(t("cl_participants"))}</b></span></button>`:""}

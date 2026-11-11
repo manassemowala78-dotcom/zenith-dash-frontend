@@ -5,7 +5,8 @@ const LK_GRACE=2500,LK_SHOW_MIN=800,LK_RECHECK_WAIT=20;
 function lkT(k,v){let s=t(k);if(v)Object.keys(v).forEach(x=>{s=s.split(`{${x}}`).join(v[x]);});return s;}
 function lkLoad(k,d){try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?d:v;}catch(_){return d;}}
 function lkSave(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(_){}}
-function lkCfg(){return Object.assign({delay_s:0,strict:false,idle_s:60,recheck_s:900},lkLoad("zd_lk_cfg",{}));}
+function lkCfg(){return Object.assign({delay_s:-1,strict:false,idle_s:0,recheck_s:0},lkLoad("zd_lk_cfg",{}));}
+function lkDelayMs(){const d=lkCfg().delay_s;return d<0?Infinity:d*1000;}
 function lkPid(){return (LK.st&&LK.st.person_id)||lkLoad("zd_lk_pid",null)||(State.tenant&&State.tenant.id)||"";}
 function lkBioMap(){return lkLoad("zd_lk_bio",{});}
 function lkBioLocal(){return lkBioMap()[lkPid()]||null;}
@@ -72,7 +73,7 @@ function lkOnShow(){
   const other=v&&v.t!==LK.tab?v.at:0;
   const gap=Date.now()-Math.max(LK.hiddenAt,other||0);
   LK.hiddenAt=0;
-  if(gap>=Math.max(lkCfg().delay_s*1000,LK_SHOW_MIN))lkLock("away");else lkBack();
+  if(gap>=Math.max(lkDelayMs(),LK_SHOW_MIN))lkLock("away");else lkBack();
 }
 async function lkBack(){
   try{const r=await api("POST","/security/lock/back");if(r&&r.locked&&!LK.shown)lkShow("away");}catch(_){}
@@ -115,11 +116,11 @@ if(typeof apiUpload==="function"){
 document.addEventListener("scroll",()=>{LK.last=Date.now();},{capture:true,passive:true});
 setInterval(()=>{
   if(!State.token||LK.shown||document.visibilityState!=="visible")return;
-  const cfg=lkCfg();if(!cfg.strict)return;
+  const cfg=lkCfg();if(!(cfg.idle_s>0||cfg.recheck_s>0))return;
   if(lkBusy()){LK.last=Date.now();return;}
   const now=Date.now();
-  if(now-LK.last>=cfg.idle_s*1000){lkLock("idle");return;}
-  if(cfg.recheck_s&&now-LK.unlockAt>=cfg.recheck_s*1000)lkLock("recheck");
+  if(cfg.idle_s>0&&now-LK.last>=cfg.idle_s*1000){lkLock("idle");return;}
+  if(cfg.recheck_s>0&&now-LK.unlockAt>=cfg.recheck_s*1000)lkLock("recheck");
 },2000);
 
 // ── L'écran verrouillé ──
@@ -422,7 +423,7 @@ async function lkSet(body){
     const s=await api("PUT","/security/lock/settings",body);LK.st=s;
     lkSave("zd_lk_cfg",{delay_s:s.delay_s,strict:s.strict,idle_s:s.idle_s,recheck_s:s.recheck_s});
     LK.unlockAt=LK.last=Date.now();
-    showToast(t("lk_saved"));lkRenderSettings();
+    showToast(t("lk_saved"));lkRenderSettings();if(typeof lkAfterSet==="function")lkAfterSet();
   }catch(e){showToast(e.message,"error");lkRenderSettings();}
 }
 
@@ -445,12 +446,9 @@ async function lkRenderSettings(){
   const sup=await lkBioSupported();
   const here=lkBioLocal(),cr=s.credentials||[];
   const mine=cr.find(c=>c.id===here),others=cr.filter(c=>c.id!==here);
-  const radio=(name,val,cur,label,extra)=>`<label class="lk-opt${val===cur?" on":""}"><input type="radio" name="${name}" value="${val}"${val===cur?" checked":""} onchange="lkSet({${name}:${val}})"><span>${esc(label)}</span>${extra||""}</label>`;
-  const dl={0:t("lk_d0"),60:t("lk_d60"),300:t("lk_d300"),900:t("lk_d900"),3600:t("lk_d3600")};
   box.innerHTML=`<div class="card lk-card" style="margin-bottom:16px">
-      <div class="lk-card-h"><span class="lk-card-ic">${lkIco("lock")}</span><div><b>${esc(t("lk_card_t"))}</b><span class="lk-on">${esc(t("lk_on"))}</span></div></div>
-      <div class="lk-cap">${esc(t("lk_when"))}</div>
-      <div class="lk-opts" role="radiogroup" aria-label="${esc(t("lk_when"))}">${s.options.delays.map(v=>radio("delay_s",v,s.delay_s,dl[v]||lkDur(v),v===0?`<small>${esc(t("lk_default"))}</small>`:"")).join("")}</div>
+      <div class="lk-card-h"><span class="lk-card-ic">${lkIco("lock")}</span><div><b>${esc(t("lk_card_t"))}</b><span class="${(s.delay_s>=0||s.idle_s>0||s.recheck_s>0)?"lk-on":""}">${esc((s.delay_s>=0||s.idle_s>0||s.recheck_s>0)?t("lk_on"):t("lk_off_default"))}</span></div></div>
+      ${lkTimingHtml(s)}
       <div class="lk-cap">${esc(t("lk_how"))}</div>
       <div class="lk-row">${lkIco("fp")}<div><b>${esc(t("lk_bio_name"))}</b><span>${mine?esc(`${mine.name} · ${t("lk_this_dev")}`):esc(sup?t("lk_bio_off_here"):(cr.length&&!lkMobile()?t("lk_no_sensor_phone"):t("lk_no_sensor")))}</span>${mine?lkUseTxt(mine):""}</div>
         ${mine?`<button type="button" class="btn btn-o btn-sm lk-rm" onclick="lkRemove('${esc(mine.id)}')">${esc(t("lk_remove"))}</button>`:(sup?`<button type="button" class="btn btn-g btn-sm" id="zd-lk-add" onclick="lkRegister()">${esc(t("lk_add_here"))}</button>`:"")}</div>
@@ -458,19 +456,23 @@ async function lkRenderSettings(){
       <div class="lk-row">${lkIco("key")}<div><b>${esc(t("lk_pwd_lbl"))}</b><span>${esc(t("lk_pwd_always"))}</span></div></div>
       ${mine&&lkMobile()?`<div class="lk-pchint">${lkIco("pc")}<div><b>${esc(t("lk_pc_add_t"))}</b><span>${esc(t("lk_pc_add_x"))}</span></div></div>`:""}
       <p class="lk-note">${esc(t("lk_bio_note"))}</p>
-    </div>
-    <div class="card lk-card lk-strict${s.strict?" on":""}" style="margin-bottom:16px">
-      <div class="lk-card-h"><span class="lk-card-ic st">${lkIco("fp")}</span><div><b>${esc(t("lk_strict_t"))}</b><span>${esc(s.strict?t("lk_on"):t("lk_strict_off"))}</span></div>
-        <label class="lk-switch"><input type="checkbox" id="zd-lk-strict"${s.strict?" checked":""} onchange="lkSet({strict:this.checked})"><span class="lk-sw" aria-hidden="true"></span><span class="sr-only">${esc(t("lk_strict_t"))}</span></label></div>
-      <p class="lk-note">${esc(t("lk_strict_x"))}</p>
-      <div class="lk-strict-body"${s.strict?"":" hidden"}>
-        <div class="lk-cap">${esc(t("lk_idle_lbl"))}</div>
-        <div class="lk-chips" role="radiogroup" aria-label="${esc(t("lk_idle_lbl"))}">${s.options.idle.map(v=>radio("idle_s",v,s.idle_s,lkDur(v))).join("")}</div>
-        <div class="lk-cap">${esc(t("lk_recheck_lbl"))}</div>
-        <div class="lk-chips" role="radiogroup" aria-label="${esc(t("lk_recheck_lbl"))}">${[...s.options.recheck.filter(v=>v>0),0].map(v=>radio("recheck_s",v,s.recheck_s,v?lkDur(v):t("lk_never"))).join("")}</div>
-        <p class="lk-note">${esc(t("lk_strict_note"))}</p>
-      </div>
     </div>`;
+}
+// Les trois réglages (profil ET écran d'inscription) : tous sur « Jamais » par défaut
+function lkTimingHtml(s){
+  const radio=(name,val,cur,label,extra)=>`<label class="lk-opt${val===cur?" on":""}"><input type="radio" name="${name}" value="${val}"${val===cur?" checked":""} onchange="lkSet({${name}:${val}})"><span>${esc(label)}</span>${extra||""}</label>`;
+  const dl={0:t("lk_d0"),60:t("lk_d60"),300:t("lk_d300"),900:t("lk_d900"),3600:t("lk_d3600")};
+  const nv=t("lk_never");
+  const delays=(s.options.delays||[]).filter(v=>v>=0).concat([-1]);
+  const idles=(s.options.idle||[]).filter(v=>v>0).concat([0]);
+  const rcs=(s.options.recheck||[]).filter(v=>v>0).concat([0]);
+  return `<div class="lk-cap">${esc(t("lk_when"))}</div>
+      <div class="lk-opts" role="radiogroup" aria-label="${esc(t("lk_when"))}">${delays.map(v=>radio("delay_s",v,s.delay_s,v<0?nv:(dl[v]||lkDur(v)),v<0?`<small>${esc(t("lk_default"))}</small>`:"")).join("")}</div>
+      <div class="lk-cap">${esc(t("lk_idle_lbl"))}</div>
+      <div class="lk-chips" role="radiogroup" aria-label="${esc(t("lk_idle_lbl"))}">${idles.map(v=>radio("idle_s",v,s.idle_s,v?lkDur(v):nv)).join("")}</div>
+      <div class="lk-cap">${esc(t("lk_recheck_lbl"))}</div>
+      <div class="lk-chips" role="radiogroup" aria-label="${esc(t("lk_recheck_lbl"))}">${rcs.map(v=>radio("recheck_s",v,s.recheck_s,v?lkDur(v):nv)).join("")}</div>
+      <p class="lk-note">${esc(t("lk_never_note"))}</p>`;
 }
 if(typeof loadPage==="function"){
   const _lkLP=loadPage;
@@ -481,6 +483,6 @@ if(typeof loadPage==="function"){
 (function lkBoot(){
   if(!State.token)return;
   const v=lkLoad("zd_lk_vis",null);
-  if(v&&v.at&&Date.now()-v.at>=Math.max(lkCfg().delay_s*1000,LK_GRACE))lkLock("boot");
+  if(v&&v.at&&Date.now()-v.at>=Math.max(lkDelayMs(),LK_GRACE))lkLock("boot");
   else setTimeout(()=>{if(State.token&&!LK.shown)lkBack();},400);
 })();

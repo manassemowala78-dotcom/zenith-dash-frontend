@@ -1,6 +1,6 @@
 let _mkt={tab:"segments",segments:[],status:null};
 function segmentsAllowed(){const p=State.tenant?.plan;return !!State.tenant?.is_creator||["trial","professional","business","business_plus","enterprise"].includes(p);}
-function loyaltyAllowed(){const p=State.tenant?.plan;return !!State.tenant?.is_creator||["trial","business_plus","enterprise"].includes(p);}
+function loyaltyAllowed(){if(typeof State.tenant?.loyalty_ok==="boolean")return State.tenant.loyalty_ok;const p=State.tenant?.plan;return !!State.tenant?.is_creator||["trial","business_plus","enterprise"].includes(p);}
 async function loadMarketing(){showMarketingTab(_mkt.tab);}
 async function showMarketingTab(tab){
   _mkt.tab=tab;

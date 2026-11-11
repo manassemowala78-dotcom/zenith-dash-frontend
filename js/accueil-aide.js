@@ -41,7 +41,7 @@ function startTour(force){
   if(!force&&(State.tenant?.onboarding?.tour_done||isTeamMember()&&State.tenant?.member_role!=="admin"))return;
   _tourSteps=TOUR_STEPS.filter(s=>memberCanOpen(s.p)&&tourTarget(s));
   if(!_tourSteps.length)return;
-  _tourIndex=0;document.getElementById("tour-overlay").style.display="block";showTourStep();
+  const _tov=document.getElementById("tour-overlay");if(!_tov)return;_tourIndex=0;_tov.style.display="block";showTourStep();
 }
 function showTourStep(){
   const step=_tourSteps[_tourIndex];const el=tourTarget(step);
@@ -86,13 +86,15 @@ async function dismissChecklist(){
   try{await api("PUT","/profile/onboarding",{checklist_dismissed:true});}catch(_){}
 }
 let _landingCycle="monthly",_landingPlans=null;
-async function showLanding(){
-  const l=document.getElementById("landing");if(!l)return;
-  try{if(localStorage.getItem("zd_skip_landing")==="1")return;}catch(_){}
+function showLandingNow(){
+  const l=document.getElementById("landing");if(!l)return false;
+  try{if(localStorage.getItem("zd_skip_landing")==="1")return false;}catch(_){}
   document.getElementById("auth-screen").style.display="none";
-  l.style.display="block";renderLanding();
-  if(!_landingPlans){try{const r=await fetch(`${API_BASE}/billing/catalog`);_landingPlans=await r.json();}catch(_){_landingPlans={};}renderLandingPricing();}
+  if(l.style.display!=="block"||!l.firstElementChild){l.style.display="block";renderLanding();}
+  document.documentElement.classList.remove("zd-boot");
+  return true;
 }
+async function showLanding(){showLandingNow();}
 function hideLanding(tab){
   document.getElementById("landing").style.display="none";
   document.getElementById("auth-screen").style.display="flex";
@@ -102,20 +104,35 @@ function hideLanding(tab){
 const LANDING_FEATURES=[["ti-file-invoice","lf_invoice"],["ti-cash-register","lf_pos"],["ti-users","lf_hr"],["ti-book-2","lf_ledger"],["ti-speakerphone","lf_crm"],["ti-message-circle","lf_chat"],["ti-device-mobile","lf_mobile"],["ti-shield-lock","lf_security"],["ti-building","lf_multi"]];
 function renderLanding(){
   const l=document.getElementById("landing");
-  l.innerHTML=`<div class="ld-nav"><div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px"><span class="ld-logo">⚡</span> Zenith <span style="color:var(--green)">Dash</span></div>
-      <div style="display:flex;gap:8px;align-items:center"><a href="#ld-pricing" class="ld-link">${t("ld_pricing")}</a><a href="#ld-faq" class="ld-link">${t("ld_faq")}</a><button class="btn btn-o btn-sm" onclick="hideLanding('login')">${t("btn_login")}</button></div></div>
-    <section class="ld-hero"><div class="ld-badge">${t("ld_badge")}</div><h1>${t("ld_title")}</h1><p>${t("ld_sub")}</p>
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn btn-g" style="font-size:16px;padding:12px 22px" onclick="hideLanding('register')">${t("ld_cta")}</button><button class="btn btn-o" style="font-size:16px;padding:12px 22px" onclick="hideLanding('login')">${t("btn_login")}</button></div>
-      <div class="ld-ticks"><span>✓ ${t("ld_tick1")}</span><span>✓ ${t("ld_tick2")}</span><span>✓ ${t("ld_tick3")}</span></div></section>
-    <section class="ld-section"><h2>${t("ld_features_title")}</h2><div class="ld-grid">${LANDING_FEATURES.map(([i,k])=>`<div class="ld-card"><i class="ti ${i}"></i><h3>${t(k+"_t")}</h3><p>${t(k+"_x")}</p></div>`).join("")}</div></section>
-    <section class="ld-section" id="ld-pricing"><h2>${t("ld_pricing_title")}</h2><p class="ld-muted">${t("ld_pricing_sub")}</p>
-      <div style="display:flex;justify-content:center;gap:6px;margin-bottom:16px"><button class="toggle-btn ${_landingCycle==="monthly"?"active":""}" onclick="_landingCycle='monthly';renderLanding();renderLandingPricing()">${t("ld_monthly")}</button><button class="toggle-btn ${_landingCycle==="annual"?"active":""}" onclick="_landingCycle='annual';renderLanding();renderLandingPricing()">${t("ld_annual")}</button></div>
-      <div id="ld-plans"></div></section>
-    <section class="ld-section" id="ld-faq"><h2>${t("ld_faq_title")}</h2>${[1,2,3,4,5,6].map(i=>`<details class="help-item"><summary>${t("ld_q"+i)}</summary><div class="help-body">${t("ld_a"+i)}</div></details>`).join("")}</section>
-    <section class="ld-section" style="text-align:center"><h2>${t("ld_final_title")}</h2><p class="ld-muted">${t("ld_final_sub")}</p>
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn btn-g" style="font-size:16px;padding:12px 22px" onclick="hideLanding('register')">${t("ld_cta")}</button><button class="btn btn-o" style="padding:12px 22px" onclick="openSupportWhatsapp('site')"><i class="ti ti-brand-whatsapp"></i> ${t("ld_contact")}</button></div></section>
-    <footer class="ld-footer">© ${new Date().getFullYear()} Zenith Dash · <a href="#" onclick="event.preventDefault();openHelpFromLanding()">${t("nav_help")}</a>${legalLinksHtml()}</footer>`;
-  if(_landingPlans)renderLandingPricing();
+  const langs=[...(document.querySelectorAll("#lang-selector option")||[])].map(o=>`<option value="${esc(o.value)}"${o.value===State.lang?" selected":""}>${esc(o.textContent.trim())}</option>`).join("");
+  l.innerHTML=`<div class="ld1">
+    <div class="ld1-top"><div class="ld1-brand"><span class="ld-logo">⚡</span> Zenith <span style="color:var(--green)">Dash</span></div>
+      <select class="inp ld1-lang" aria-label="${esc(t("lbl_language")||"Langue")}" onchange="applyLanguage(this.value);renderLanding()">${langs}</select></div>
+    <div class="ld1-mid"><h1>${esc(t("ld_pick_t"))}</h1><p>${esc(t("ld_pick_x"))}</p>
+      <div class="ld1-grid">${SECTOR_KEYS.map(k=>{const m=SECTOR_META[k];return `<button type="button" class="ld1-sec" style="--sc:${m.color}" onclick="ldPickSector('${k}')"><span class="ld1-ic"><i class="ti ti-${m.icon}" aria-hidden="true"></i></span><span class="ld1-tx"><b>${esc(t("sector_short_"+k))}</b><small>${esc(t("sector_tagline_"+k))}</small></span></button>`;}).join("")}</div>
+      <div class="ld1-legal"><a href="#" onclick="event.preventDefault();ldOpenPricing()">${esc(t("ld_pricing"))}</a>${legalLinksInner?` · ${legalLinksInner()}`:""}</div></div>
+    <div class="ld1-bar"><button type="button" class="ld1-go" onclick="hideLanding('register')">${esc(t("ld_create"))}</button><button type="button" class="ld1-in" onclick="hideLanding('login')">${esc(t("btn_login"))}</button></div></div>`;
+}
+function ldPickSector(k){
+  try{_regSector=k;}catch(_){}
+  hideLanding("register");
+  try{renderRegisterSectors();}catch(_){}
+}
+async function ldOpenPricing(){
+  let ov=document.getElementById("ld-price-ov");if(ov)ov.remove();
+  ov=document.createElement("div");ov.id="ld-price-ov";ov.className="modal-overlay";ov.style.display="flex";ov.style.zIndex=2000;
+  ov.innerHTML=`<div class="modal" role="dialog" aria-modal="true" style="max-width:860px;width:96vw;max-height:92vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0;font-size:20px">${esc(t("ld_pricing_title"))}</h2><button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('ld-price-ov').remove()" aria-label="${esc(t("btn_close"))}"><i class="ti ti-x"></i></button></div>
+    <p class="ld-muted" style="text-align:left">${esc(t("ld_pricing_sub"))}</p>
+    <div style="display:flex;gap:6px;margin-bottom:14px"><button class="toggle-btn ${_landingCycle==="monthly"?"active":""}" onclick="_landingCycle='monthly';ldPriceRefresh()">${esc(t("ld_monthly"))}</button><button class="toggle-btn ${_landingCycle==="annual"?"active":""}" onclick="_landingCycle='annual';ldPriceRefresh()">${esc(t("ld_annual"))}</button></div><div id="ld-plans"><div style="text-align:center;color:var(--muted)">${esc(t("loading"))}</div></div></div>`;
+  ov.addEventListener("click",e=>{if(e.target===ov)ov.remove();});
+  document.body.appendChild(ov);
+  if(!_landingPlans){try{const r=await fetch(`${API_BASE}/billing/catalog`);_landingPlans=await r.json();}catch(_){_landingPlans={};}}
+  renderLandingPricing();
+  const tb=ov.querySelectorAll(".toggle-btn");
+}
+function ldPriceRefresh(){
+  document.querySelectorAll("#ld-price-ov .toggle-btn").forEach((b,i)=>b.classList.toggle("active",(i===0)===(_landingCycle==="monthly")));
+  renderLandingPricing();
 }
 function ldPromoNote(c,P){
   const f=k=>t(k).replace("{a}",c.sector_discounts[0][1]).replace("{b}",c.sector_discounts[1][1]).replace("{c}",c.sector_discounts[2][1]).replace("{d}",c.sector_discounts[3][1]);
@@ -133,9 +150,9 @@ function renderLandingPricing(){
     ${ldPromoNote(c,P)}
     <div class="ld-plans">${tiers.map((k,i)=>`<div class="ld-plan${i===1?" featured":""}">${i===1?`<div class="ld-pop">${t("ld_popular")}</div>`:""}<div class="ld-plan-name">${esc(t("ab_tier_"+k))}</div>
       <div class="ld-muted" style="font-size:12px;margin-bottom:10px">${esc(t("ab_users").replace("{n}",c.tiers[i].users))}</div><ul>${t("ab_tf_"+i).split("|").map(x=>`<li>✓ ${esc(x)}</li>`).join("")}</ul>
-      <button class="btn ${i===1?"btn-g":"btn-o"}" style="width:100%" onclick="hideLanding('register')">${t("ld_start")}</button></div>`).join("")}</div>
+      <button class="btn ${i===1?"btn-g":"btn-o"}" style="width:100%" onclick="document.getElementById('ld-price-ov')?.remove();hideLanding('register')">${t("ld_start")}</button></div>`).join("")}</div>
     ${P("referral")?`<div class="ld-pnote"><i class="ti ti-gift"></i> ${esc(t("ld_ref_note"))}</div>`:""}`;
-  const tb=document.querySelectorAll("#ld-pricing .toggle-btn");if(tb.length===2)tb[1].hidden=!P("duration");
+  const tb=document.querySelectorAll("#ld-price-ov .toggle-btn");if(tb.length===2)tb[1].hidden=!P("duration");
 }
 function openHelpFromLanding(){
   const l=document.getElementById("landing");
