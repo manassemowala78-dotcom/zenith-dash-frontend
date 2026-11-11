@@ -1,4 +1,4 @@
-// ── 10.6.0 · Lecteur de messages vocaux Zenith ──
+// ── 10.6.2 · Lecteur de messages vocaux Zenith ──
 // Durée toujours visible, barre cliquable, vitesse 1× / 1,5× / 2×, rien qui déborde de la bulle.
 const ZV={cur:null,io:null};
 const ZV_SPEEDS=[1,1.5,2];
@@ -11,7 +11,7 @@ function zvHtml(src,name){
   if(!src)return "";
   const dur=zvDurFromName(name),sp=zvSpeed();
   return `<div class="zv" data-src="${esc(src)}" data-dur="${dur||""}">
-    <button type="button" class="zv-btn" aria-label="${esc(t("zv_play"))}"><i class="ti ti-player-play-filled" aria-hidden="true"></i></button>
+    <button type="button" class="zv-btn" aria-label="${esc(t("zv_play"))}"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg></button>
     <div class="zv-mid"><div class="zv-wave" role="slider" tabindex="0" aria-label="${esc(t("zv_pos"))}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${zvBars(src).map(h=>`<i style="height:${h}px"></i>`).join("")}</div>
       <div class="zv-row"><span class="zv-t">${dur?zvFmt(dur):"–:––"}</span><button type="button" class="zv-spd" aria-label="${esc(t("zv_speed"))}">${zvSpeedLbl(sp)}</button></div></div></div>`;
 }
@@ -43,7 +43,7 @@ function zvPaint(el,reset){
 function zvState(el,playing){
   el.classList.toggle("zv-on",playing);
   const b=el.querySelector(".zv-btn");
-  if(b){b.setAttribute("aria-label",t(playing?"zv_pause":"zv_play"));b.innerHTML=`<i class="ti ti-player-${playing?"pause":"play"}-filled" aria-hidden="true"></i>`;}
+  if(b){b.setAttribute("aria-label",t(playing?"zv_pause":"zv_play"));b.innerHTML=playing?`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="6" y="5" width="4.2" height="14" rx="1.2" fill="currentColor"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2" fill="currentColor"/></svg>`:`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>`;}
 }
 function zvToggle(el){
   const a=zvAudio(el);

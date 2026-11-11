@@ -1,4 +1,4 @@
-// ── 10.6.0 · Autorisations de l'appareil : micro, caméra, localisation, notifications ──
+// ── 10.6.2 · Autorisations de l'appareil : micro, caméra, localisation, notifications ──
 // Un seul endroit pour les demander : inscription, Profil et menu ⋮ d'un appel.
 const ZPERM=[
   {k:"mic",ic:"microphone",q:"microphone",lbl:"zp_mic",x:"zp_mic_x"},
