@@ -8,10 +8,42 @@ function initRegisterBirthLimit(){
   const e=document.getElementById("reg-birth");if(!e)return;
   const d=new Date();d.setFullYear(d.getFullYear()-18);e.max=d.toISOString().slice(0,10);
 }
+function zdTermsMiss(boxId,errId){
+  const c=document.getElementById(boxId);if(!c)return;
+  const row=c.closest(".terms-check");
+  if(row){row.classList.remove("terms-missing");void row.offsetWidth;row.classList.add("terms-missing");
+    let h=row.nextElementSibling;if(!h||!h.classList.contains("terms-warn")){h=document.createElement("div");h.className="terms-warn";h.setAttribute("role","alert");row.after(h);}
+    h.textContent=t("terms_tick_first");
+    try{row.scrollIntoView({block:"center",behavior:"smooth"});}catch(_){}}
+  try{navigator.vibrate&&navigator.vibrate(80);}catch(_){}
+  try{c.focus({preventScroll:true});}catch(_){}
+}
+function zdTermsSync(boxId,btnId,errId){
+  const c=document.getElementById(boxId),b=document.getElementById(btnId);if(!c||!b)return;
+  const on=!!c.checked;
+  b.classList.toggle("zd-need-terms",!on);b.setAttribute("aria-disabled",on?"false":"true");
+  if(on){const row=c.closest(".terms-check");row?.classList.remove("terms-missing");
+    const h=row?.nextElementSibling;if(h&&h.classList.contains("terms-warn"))h.remove();
+    const e=errId&&document.getElementById(errId);if(e&&e.textContent===t("terms_required")){e.textContent="";e.style.display="none";}}
+}
+function zdTermsGate(boxId,btnId,errId){
+  const c=document.getElementById(boxId),b=document.getElementById(btnId);if(!c||!b||b.dataset.termsGate)return;
+  b.dataset.termsGate="1";
+  c.addEventListener("change",()=>zdTermsSync(boxId,btnId,errId));
+  b.addEventListener("click",ev=>{if(!c.checked){ev.preventDefault();ev.stopImmediatePropagation();zdTermsMiss(boxId,errId);}},true);
+  const f=b.closest("form");
+  if(f)f.addEventListener("submit",ev=>{if(!c.checked){ev.preventDefault();ev.stopImmediatePropagation();zdTermsMiss(boxId,errId);}},true);
+  zdTermsSync(boxId,btnId,errId);
+}
 function registerTermsOk(){
   const c=document.getElementById("reg-terms");
-  if(c&&!c.checked){showErr("reg-err",t("terms_required"));c.closest(".terms-check")?.classList.add("terms-missing");c.focus();return false;}
+  if(c&&!c.checked){zdTermsMiss("reg-terms","reg-err");return false;}
   c?.closest(".terms-check")?.classList.remove("terms-missing");
+  return true;
+}
+function inviteTermsOk(){
+  const c=document.getElementById("invite-terms");
+  if(c&&!c.checked){zdTermsMiss("invite-terms","invite-accept-err");return false;}
   return true;
 }
 function registerBirthValue(){
@@ -19,11 +51,8 @@ function registerBirthValue(){
   return v||null;
 }
 function checkTermsAcceptance(user){
-  if(!user||!user.terms_required)return;
-  renderLegalLinks();
-  const c=document.getElementById("terms-update-check");if(c)c.checked=false;
-  const err=document.getElementById("terms-update-err");if(err){err.textContent="";err.style.display="none";}
-  const m=document.getElementById("modal-terms-update");if(m)m.style.display="flex";
+  try{if(State.tenant&&State.tenant.terms_required){State.tenant.terms_required=false;localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));}}catch(_){}
+  const m=document.getElementById("modal-terms-update");if(m)m.style.display="none";
 }
 function closeTermsModal(){const m=document.getElementById("modal-terms-update");if(m)m.style.display="none";}
 async function acceptCurrentTerms(){
@@ -55,7 +84,10 @@ function syncPublicLegalFooter(){
 }
 document.addEventListener("DOMContentLoaded",()=>{
   renderLegalLinks();initRegisterBirthLimit();
+  zdTermsGate("reg-terms","reg-btn","reg-err");zdTermsGate("invite-terms","invite-accept-btn","invite-accept-err");
   const obs=new MutationObserver(syncPublicLegalFooter);
   PUBLIC_VIEWS.forEach(id=>{const e=document.getElementById(id);if(e)obs.observe(e,{attributes:true,attributeFilter:["style"]});});
   syncPublicLegalFooter();
 });
+document.addEventListener("click",()=>setTimeout(()=>{zdTermsSync("reg-terms","reg-btn","reg-err");zdTermsSync("invite-terms","invite-accept-btn","invite-accept-err");},0),true);
+document.addEventListener("reset",()=>setTimeout(()=>{zdTermsSync("reg-terms","reg-btn","reg-err");zdTermsSync("invite-terms","invite-accept-btn","invite-accept-err");},0),true);

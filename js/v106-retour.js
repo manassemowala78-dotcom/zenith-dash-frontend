@@ -1,4 +1,4 @@
-// ── 10.6.2 · Le geste « retour » du téléphone ramène d'un pas dans l'application ──
+// ── 10.6.5 · Le geste « retour » du téléphone ramène d'un pas dans l'application ──
 // Liste des discussions → discussion : retour = liste. Menu/fenêtre ouverts : retour les ferme.
 // Sur l'accueil : « Appuie encore pour quitter ».
 const ZB={on:false,entries:[],ign:0,exitAt:0,nav:false,ov:new Set(),busy:false};
@@ -119,7 +119,8 @@ if(State&&State.token)setTimeout(zbInit,800);
    le cadre de l'appli, l'en-tête disparaît et le bas devient vide : on remet le cadre à sa place. */
 (function(){
   const frames=()=>[document.getElementById("app-screen"),document.querySelector(".layout"),document.body,document.documentElement];
-  function fix(){frames().forEach(e=>{if(e&&(e.scrollTop||e.scrollLeft)){e.scrollTop=0;e.scrollLeft=0;}});}
+  function appOn(){const a=document.getElementById("app-screen");return !!a&&a.style.display==="block";}
+  function fix(){if(!appOn())return;frames().forEach(e=>{if(e&&(e.scrollTop||e.scrollLeft)){e.scrollTop=0;e.scrollLeft=0;}});}
   document.addEventListener("scroll",ev=>{const t=ev.target;if(t===document||frames().includes(t))fix();},true);
   window.addEventListener("scroll",fix,{passive:true});
   window.addEventListener("resize",fix);

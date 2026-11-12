@@ -1,4 +1,4 @@
-// ── 10.6.2 · Envoyer plusieurs fichiers d'un coup (jusqu'à 30, 25 Mo chacun) ──
+// ── 10.6.5 · Envoyer plusieurs fichiers d'un coup (jusqu'à 30, 25 Mo chacun) ──
 const MF={files:[],max:30,maxBytes:25*1024*1024,urls:new Map(),sending:false};
 function mfSize(n){return n<1024?`${n} o`:n<1048576?`${Math.round(n/1024)} Ko`:`${(n/1048576).toFixed(n<10485760?1:0).replace(".",",")} Mo`;}
 function mfKind(f){const ty=f.type||"",n=f.name||"";if(/^image\//.test(ty)||/\.(jpe?g|png|gif|webp|heic|heif|avif|bmp)$/i.test(n))return "img";if(/^video\//.test(ty)||/\.(mp4|mov|webm|m4v|3gp)$/i.test(n))return "vid";return "doc";}

@@ -985,6 +985,7 @@ async function handleAcceptInvite(e){
   const password=document.getElementById("invite-accept-password").value;
   if(!name||!password){showErr("invite-accept-err","Remplissez tous les champs");return;}
   if(password.length<8){showErr("invite-accept-err","Mot de passe minimum 8 caractères");return;}
+  if(typeof inviteTermsOk==="function"&&!inviteTermsOk())return;
   const btn=document.getElementById("invite-accept-btn");
   btn.innerHTML="Connexion...";btn.disabled=true;
   try{
