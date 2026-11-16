@@ -1,4 +1,4 @@
-/* Zenith Dash 10.7.0 — clients potentiels.
+/* Zenith Dash 10.7.1 — clients potentiels.
    Onglets « Clients » / « Clients potentiels » dans la page Clients, fiche avec le parcours,
    passage en client automatique (réservation, commande, facture…) ou à la main. */
 (function(){

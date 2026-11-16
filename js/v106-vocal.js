@@ -1,4 +1,4 @@
-// ── 10.7.0 · Lecteur de messages vocaux Zenith ──
+// ── 10.7.1 · Lecteur de messages vocaux Zenith ──
 // Durée toujours visible, barre cliquable, vitesse 1× / 1,5× / 2×, rien qui déborde de la bulle.
 const ZV={cur:null,io:null};
 const ZV_SPEEDS=[1,1.5,2];

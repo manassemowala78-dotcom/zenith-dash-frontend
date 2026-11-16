@@ -1,4 +1,4 @@
-// ── 10.7.0 · Le geste « retour » du téléphone ramène d'un pas dans l'application ──
+// ── 10.7.1 · Le geste « retour » du téléphone ramène d'un pas dans l'application ──
 // Liste des discussions → discussion : retour = liste. Menu/fenêtre ouverts : retour les ferme.
 // Sur l'accueil : « Appuie encore pour quitter ».
 const ZB={on:false,entries:[],ign:0,exitAt:0,nav:false,ov:new Set(),busy:false};

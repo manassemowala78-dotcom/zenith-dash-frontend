@@ -1,4 +1,4 @@
-/* Zenith Dash 10.7.0 — « Filmer une vidéo » depuis la discussion.
+/* Zenith Dash 10.7.1 — « Filmer une vidéo » depuis la discussion.
    L'appli filme elle-même, en qualité allégée (environ 7 Mo par minute), pour que la vidéo passe sous la limite de 25 Mo.
    Si le téléphone ne le permet pas, on ouvre l'appareil photo du téléphone en mode vidéo. */
 (function(){

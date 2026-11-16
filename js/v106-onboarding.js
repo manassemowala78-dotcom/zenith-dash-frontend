@@ -1,4 +1,4 @@
-// ── 10.7.0 · Inscription : photo (étape 1), autorisations (étape 2), verrouillage (étape 3) ──
+// ── 10.7.1 · Inscription : photo (étape 1), autorisations (étape 2), verrouillage (étape 3) ──
 window._regPhoto=null;
 function regPhotoPick(file){
   const b=document.getElementById("reg-photo-btn"),rm=document.getElementById("reg-photo-rm");

@@ -1,5 +1,5 @@
-const CACHE_VERSION = "zd-v10.7.0";
-const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/icon-maskable-512.png", "/apple-touch-icon.png", "/favicon.png", "/css/app.css?v=10.7.0", "/css/v105.css?v=10.7.0", "/css/icons.css?v=10.7.0", "/css/icons.woff2?v=10.7.0", "/js/vendor/qrcode.min.js?v=10.7.0", "/js/base-1.js?v=10.7.0", "/js/securite-roles.js?v=10.7.0", "/js/hors-ligne.js?v=10.7.0", "/js/facturation.js?v=10.7.0", "/js/stock-caisse.js?v=10.7.0", "/js/rh-paie.js?v=10.7.0", "/js/compta-ohada.js?v=10.7.0", "/js/marketing.js?v=10.7.0", "/js/plateforme.js?v=10.7.0", "/js/accueil-aide.js?v=10.7.0", "/js/import.js?v=10.7.0", "/js/achats.js?v=10.7.0", "/js/relances-auto.js?v=10.7.0", "/js/boutique.js?v=10.7.0", "/js/projets.js?v=10.7.0", "/js/immobilisations-rapports.js?v=10.7.0", "/js/rendez-vous.js?v=10.7.0", "/js/cabinet.js?v=10.7.0", "/js/listes.js?v=10.7.0", "/js/juridique.js?v=10.7.0", "/js/contacts-confidentialite.js?v=10.7.0", "/js/secteurs.js?v=10.7.0", "/js/restaurant.js?v=10.7.0", "/js/bar.js?v=10.7.0", "/js/froid.js?v=10.7.0", "/js/hotel.js?v=10.7.0", "/js/salon.js?v=10.7.0", "/js/commerce.js?v=10.7.0", "/js/commandes.js?v=10.7.0", "/js/abonnements.js?v=10.7.0", "/js/coeur-1.js?v=10.7.0", "/js/coeur-2.js?v=10.7.0", "/js/coeur-3.js?v=10.7.0", "/js/v93.js?v=10.7.0", "/js/bar-fiche.js?v=10.7.0", "/js/ecole.js?v=10.7.0", "/js/pointage.js?v=10.7.0", "/js/espaces.js?v=10.7.0", "/js/reductions.js?v=10.7.0", "/js/premiers-reglages.js?v=10.7.0", "/js/annuaire.js?v=10.7.0", "/js/notifs.js?v=10.7.0", "/js/appels.js?v=10.7.0", "/js/comptes.js?v=10.7.0", "/js/messagerie.js?v=10.7.0", "/js/paiement.js?v=10.7.0", "/js/securite-v99.js?v=10.7.0", "/js/verrou-v100.js?v=10.7.0", "/js/apparence-v100.js?v=10.7.0", "/js/reset-v101.js?v=10.7.0", "/js/v102.js?v=10.7.0", "/js/v103.js?v=10.7.0", "/js/v1031.js?v=10.7.0", "/js/promos-v1031.js?v=10.7.0", "/js/v1032.js?v=10.7.0", "/js/garage.js?v=10.7.0", "/js/v105-base.js?v=10.7.0", "/js/v105-pages.js?v=10.7.0", "/js/v105-resto.js?v=10.7.0", "/js/v105-bar.js?v=10.7.0", "/js/v105-hotel.js?v=10.7.0", "/js/v105-commerce.js?v=10.7.0", "/js/v105-froid-ecole.js?v=10.7.0", "/js/v105-extras.js?v=10.7.0", "/js/v105-reset.js?v=10.7.0", "/js/v106-fichiers.js?v=10.7.0", "/js/v106-vocal.js?v=10.7.0", "/js/v106-permissions.js?v=10.7.0", "/js/v106-onboarding.js?v=10.7.0", "/js/v106-ecran.js?v=10.7.0", "/js/v106-retour.js?v=10.7.0", "/js/v106-hors-ligne.js?v=10.7.0", "/js/v106-plus.js?v=10.7.0", "/js/v107-messages.js?v=10.7.0", "/js/v107-video.js?v=10.7.0", "/js/v107-clients.js?v=10.7.0", "/reponse.html", "/js/reponse.js?v=10.7.0", "/js/i18n/fr.js?v=10.7.0"];
+const CACHE_VERSION = "zd-v10.7.2";
+const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/icon-maskable-512.png", "/apple-touch-icon.png", "/favicon.png", "/css/app.css?v=10.7.2", "/css/v105.css?v=10.7.2", "/css/icons.css?v=10.7.2", "/css/icons.woff2?v=10.7.2", "/js/vendor/qrcode.min.js?v=10.7.2", "/js/base-1.js?v=10.7.2", "/js/securite-roles.js?v=10.7.2", "/js/hors-ligne.js?v=10.7.2", "/js/facturation.js?v=10.7.2", "/js/stock-caisse.js?v=10.7.2", "/js/rh-paie.js?v=10.7.2", "/js/compta-ohada.js?v=10.7.2", "/js/marketing.js?v=10.7.2", "/js/plateforme.js?v=10.7.2", "/js/accueil-aide.js?v=10.7.2", "/js/import.js?v=10.7.2", "/js/achats.js?v=10.7.2", "/js/relances-auto.js?v=10.7.2", "/js/boutique.js?v=10.7.2", "/js/projets.js?v=10.7.2", "/js/immobilisations-rapports.js?v=10.7.2", "/js/rendez-vous.js?v=10.7.2", "/js/cabinet.js?v=10.7.2", "/js/listes.js?v=10.7.2", "/js/juridique.js?v=10.7.2", "/js/contacts-confidentialite.js?v=10.7.2", "/js/secteurs.js?v=10.7.2", "/js/restaurant.js?v=10.7.2", "/js/bar.js?v=10.7.2", "/js/froid.js?v=10.7.2", "/js/hotel.js?v=10.7.2", "/js/salon.js?v=10.7.2", "/js/commerce.js?v=10.7.2", "/js/commandes.js?v=10.7.2", "/js/abonnements.js?v=10.7.2", "/js/coeur-1.js?v=10.7.2", "/js/coeur-2.js?v=10.7.2", "/js/coeur-3.js?v=10.7.2", "/js/v93.js?v=10.7.2", "/js/bar-fiche.js?v=10.7.2", "/js/ecole.js?v=10.7.2", "/js/pointage.js?v=10.7.2", "/js/espaces.js?v=10.7.2", "/js/reductions.js?v=10.7.2", "/js/premiers-reglages.js?v=10.7.2", "/js/annuaire.js?v=10.7.2", "/js/notifs.js?v=10.7.2", "/js/appels.js?v=10.7.2", "/js/comptes.js?v=10.7.2", "/js/messagerie.js?v=10.7.2", "/js/paiement.js?v=10.7.2", "/js/securite-v99.js?v=10.7.2", "/js/verrou-v100.js?v=10.7.2", "/js/apparence-v100.js?v=10.7.2", "/js/reset-v101.js?v=10.7.2", "/js/v102.js?v=10.7.2", "/js/v103.js?v=10.7.2", "/js/v1031.js?v=10.7.2", "/js/promos-v1031.js?v=10.7.2", "/js/v1032.js?v=10.7.2", "/js/garage.js?v=10.7.2", "/js/v105-base.js?v=10.7.2", "/js/v105-pages.js?v=10.7.2", "/js/v105-resto.js?v=10.7.2", "/js/v105-bar.js?v=10.7.2", "/js/v105-hotel.js?v=10.7.2", "/js/v105-commerce.js?v=10.7.2", "/js/v105-froid-ecole.js?v=10.7.2", "/js/v105-extras.js?v=10.7.2", "/js/v105-reset.js?v=10.7.2", "/js/v106-fichiers.js?v=10.7.2", "/js/v106-vocal.js?v=10.7.2", "/js/v106-permissions.js?v=10.7.2", "/js/v106-onboarding.js?v=10.7.2", "/js/v106-ecran.js?v=10.7.2", "/js/v106-retour.js?v=10.7.2", "/js/v106-hors-ligne.js?v=10.7.2", "/js/v106-plus.js?v=10.7.2", "/js/v107-messages.js?v=10.7.2", "/js/v107-ephemere.js?v=10.7.2", "/js/v107-video.js?v=10.7.2", "/js/v107-clients.js?v=10.7.2", "/js/v107-notif.js?v=10.7.2", "/reponse.html", "/js/reponse.js?v=10.7.2", "/js/i18n/fr.js?v=10.7.2"];
 const CDN_HOSTS = ["cdn.jsdelivr.net", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"];
 
 self.addEventListener("install", (event) => {
@@ -125,6 +125,20 @@ function zdPushTxt() {
   return ZD_PUSH_TXT[l] || ZD_PUSH_TXT.fr;
 }
 
+async function zdViewing(convId) {
+  const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+  const foc = wins.filter((c) => c.focused && c.visibilityState === "visible" && new URL(c.url).origin === self.location.origin);
+  if (!foc.length) return { focused: false, viewing: false };
+  if (!convId) return { focused: true, viewing: false };
+  const asks = foc.map((c) => new Promise((res) => {
+    const ch = new MessageChannel();
+    const tm = setTimeout(() => res(false), 400);
+    ch.port1.onmessage = (e) => { clearTimeout(tm); res(!!(e.data && e.data.viewing)); };
+    try { c.postMessage({ type: "zd-viewing?", conv_id: convId }, [ch.port2]); } catch (_) { clearTimeout(tm); res(false); }
+  }));
+  return { focused: true, viewing: (await Promise.all(asks)).some(Boolean) };
+}
+
 self.addEventListener("push", (event) => {
   let data = { title: "Zenith Dash", body: "Nouvelle notification", url: "/", tag: null };
   try {
@@ -148,9 +162,10 @@ self.addEventListener("push", (event) => {
     data: { url: data.url || "/", reply: data.reply || null, msg_id: data.msg_id || null, conv_id: data.conv_id || null, react: data.react || "👍",
       nid: data.nid || null, type: data.type || null, call_id: data.call_id || null, call_kind: data.call_kind || null, callback: data.callback || null },
     silent: !!data.silent,
+    timestamp: Date.now(),
   };
   const ringing = data.type === "call" && data.ring;
-  if (data.vibrate !== false && !data.silent) options.vibrate = ringing ? [800, 400, 800, 400, 800, 400, 800, 400, 800] : (data.vib === "short" ? [120, 60, 120] : [500, 200, 500, 200, 500]);
+  if (data.vibrate !== false && !data.silent) options.vibrate = ringing ? [800, 400, 800, 400, 800, 400, 800, 400, 800] : (data.vib === "short" ? [150, 80, 150] : [700, 250, 700, 250, 700]);
   if (data.tag) { options.tag = data.tag; options.renotify = !data.silent; }
   if (ringing) {
     options.requireInteraction = true;
@@ -166,9 +181,12 @@ self.addEventListener("push", (event) => {
   event.waitUntil((async () => {
     if (data.close_tag) { try { (await self.registration.getNotifications({ tag: data.close_tag })).forEach((n) => n.close()); } catch (_) {} }
     if (typeof data.badge === "number") zdBadge(data.badge);
-    await self.registration.showNotification(data.title || "Zenith Dash", options);
+    const v = ringing ? { focused: false, viewing: false } : await zdViewing(data.conv_id);
+    const show = !!data.test || !v.focused || (!v.viewing && data.fg !== false);
+    if (show) await self.registration.showNotification(data.title || "Zenith Dash", options);
+    if (data.test) { try { const c = await caches.open("zdmeta"); await c.put("/__zd_test", new Response(String(Date.now()))); } catch (_) {} }
     const list = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-    list.forEach((c) => { try { c.postMessage({ type: "zd-push", cat: data.cat || null }); } catch (_) {} });
+    list.forEach((c) => { try { c.postMessage({ type: "zd-push", cat: data.cat || null, msg_id: data.msg_id || null, conv_id: data.conv_id || null, shown: show, test: !!data.test, remind: !!data.remind }); } catch (_) {} });
   })());
 });
 

@@ -28,10 +28,10 @@ function handleIncomingMessage(msg){
   if(msg.conversation_id===_currentConvId){
     appendMessageBubble(msg);
     scrollChatToBottom();
-    if(document.visibilityState==="visible"&&_ws&&_ws.readyState===1){
+    if(document.visibilityState==="visible"&&document.getElementById("page-messaging")?.classList.contains("active")&&_ws&&_ws.readyState===1){
       _ws.send(JSON.stringify({type:"mark_read",conversation_id:_currentConvId}));
     }
-  }else{
+  }else if(typeof znBanner!=="function"){
     showToast(`💬 ${msg.sender_name}: ${msgPreviewText(msg)}`);
   }
   loadConversations();

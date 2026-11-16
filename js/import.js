@@ -48,18 +48,24 @@ function parseCsvText(text){
   if(cell!==""||row.length){row.push(cell);rows.push(row);}
   return rows.filter(r=>r.some(c=>String(c).trim()!==""));
 }
-async function loadSheetJs(){
-  if(window.XLSX)return;
-  await new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=res;s.onerror=()=>rej(new Error(t("import_xlsx_failed")));document.head.appendChild(s);});
+function zdReadSheet(buf){
+  return new Promise((ok,ko)=>{
+    let w;
+    try{w=new Worker("/js/v107-xlsx-worker.js?v="+String(typeof APP_BUILD!=="undefined"?APP_BUILD:"").split(" ")[0]);}catch(e){ko(new Error(t("import_xlsx_failed")));return;}
+    const tm=setTimeout(()=>{try{w.terminate();}catch(_){}ko(new Error(t("import_xlsx_slow")));},20000);
+    w.onmessage=e=>{clearTimeout(tm);try{w.terminate();}catch(_){}const d=e.data||{};
+      if(d.ok&&Array.isArray(d.rows))ok(d.rows);else ko(new Error(t("import_xlsx_failed")));};
+    w.onerror=()=>{clearTimeout(tm);try{w.terminate();}catch(_){}ko(new Error(t("import_xlsx_failed")));};
+    w.postMessage(buf,[buf]);
+  });
 }
 async function onImportFile(file){
   if(!file)return;
   try{
     let table;
     if(/\.(xlsx|xls|ods)$/i.test(file.name)){
-      await loadSheetJs();
-      const wb=XLSX.read(await file.arrayBuffer(),{type:"array",cellDates:false});
-      table=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:""}).filter(r=>r.some(c=>String(c).trim()!==""));
+      if(file.size>10*1024*1024){showToast(t("import_xlsx_big"),"error");return;}
+      table=(await zdReadSheet(await file.arrayBuffer())).filter(r=>r.some(c=>String(c).trim()!==""));
     }else table=parseCsvText(await file.text());
     if(table.length<2){showToast(t("import_empty"),"error");return;}
     _imp.headers=table[0].map(h=>String(h).trim());

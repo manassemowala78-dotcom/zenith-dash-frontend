@@ -277,7 +277,7 @@ async function ptkStartCam(video){
 }
 function ptkStopCam(){try{(_ptk.stream?.getTracks()||[]).forEach(x=>x.stop());}catch(_){}_ptk.stream=null;}
 function ptkGrab(video){const c=document.createElement("canvas");const w=480,h=Math.round(480*((video.videoHeight||480)/(video.videoWidth||640)));c.width=w;c.height=h;c.getContext("2d").drawImage(video,0,0,w,h);return c;}
-function ptLoadScript(src){return new Promise((ok,ko)=>{if(window.faceapi)return ok();const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>ko(new Error("face-api"));document.head.appendChild(s);});}
+function ptLoadScript(src){return new Promise((ok,ko)=>{if(window.faceapi)return ok();const s=document.createElement("script");s.src=src;if(/face-api\.js$/.test(src)){s.integrity="sha384-M5nePoB6/w/a9JhtegEibSLGiJy/+QMZZMfvcxjWVCQW/HPwrQ7i21V/Px/8AyVA";s.crossOrigin="anonymous";}s.onload=ok;s.onerror=()=>ko(new Error("face-api"));document.head.appendChild(s);});}
 function ptFaceInit(){
   if(window.zdPtFaceHook)return Promise.resolve(true);
   if(!_ptk.faceP)_ptk.faceP=(async()=>{await ptLoadScript(`${PT_FACE_CDN}/dist/face-api.js`);const M=`${PT_FACE_CDN}/model`;const tf=faceapi.tf;

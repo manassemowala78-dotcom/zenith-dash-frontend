@@ -1,4 +1,4 @@
-/* Zenith Dash 10.7.0 — l'appli occupe exactement la zone visible, sur n'importe quel téléphone.
+/* Zenith Dash 10.7.1 — l'appli occupe exactement la zone visible, sur n'importe quel téléphone.
    On mesure la vraie zone visible (visualViewport) au lieu de se fier à 100vh/100dvh, qui mentent selon les Android. */
 (function(){
   const root=document.documentElement,vv=window.visualViewport;

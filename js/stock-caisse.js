@@ -123,7 +123,7 @@ async function startCamera(){
   }
   status.textContent=t("scan_loading_engine");
   try{
-    if(!window.ZXing) await new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js";s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    if(!window.ZXing) await new Promise((res,rej)=>{const s=document.createElement("script");s.src="/js/vendor/zxing.min.js?v=0.21.3";s.onload=res;s.onerror=rej;document.head.appendChild(s);});
     _zxingReader=new ZXing.BrowserMultiFormatReader();
     status.textContent=t("scan_aim");
     _zxingReader.decodeFromVideoElementContinuously?_zxingReader.decodeFromVideoElementContinuously(video,(res)=>{if(res)handleScannedCode(res.getText());})

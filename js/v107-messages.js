@@ -1,4 +1,4 @@
-/* Zenith Dash 10.7.0 — messagerie fiable.
+/* Zenith Dash 10.7.1 — messagerie fiable.
    1. Chaque message texte part par une requête confirmée par le serveur : horloge tant que ce n'est pas
       enregistré, nouvel essai tout seul quand le réseau revient, « Non envoyé · Réessayer » s'il est refusé.
       Il ne reçoit ses coches que lorsqu'il est vraiment enregistré, et jamais deux fois.
@@ -74,7 +74,7 @@
     try{
       const r=await fetch(`${API_BASE}/messaging/conversations/${encodeURIComponent(m.conv)}/messages`,{method:"POST",signal:ctl.signal,
         headers:{"Content-Type":"application/json","Authorization":`Bearer ${State.token}`,"Idempotency-Key":"zm-"+m.id},
-        body:JSON.stringify({content:m.text,message_type:"text",client_msg_id:m.id,view_once:!!m.vo,view_once_mode:m.vo||null,reply_to_id:m.reply?m.reply.id:null,mentions:m.mentions||null})});
+        body:JSON.stringify({content:m.text,message_type:"text",client_msg_id:m.id,view_once:!!m.vo,view_once_mode:m.vo||null,reply_to_id:m.reply?m.reply.id:null,mentions:m.mentions||null,ephemeral_seconds:m.eph||null})});
       let d=null;try{d=await r.json();}catch(_){}
       if(r.ok)return {ok:true,data:d};
       let det=d&&d.detail;if(Array.isArray(det))det=det.map(x=>x&&x.msg).filter(Boolean).join(" · ");else if(det&&typeof det==="object")det=det.message||det.error;
@@ -119,7 +119,8 @@
     const rp=typeof _pendingReplyTo!=="undefined"&&_pendingReplyTo?{id:_pendingReplyTo.id,sender_name:_pendingReplyTo.sender_name,content:(_pendingReplyTo.content||"").slice(0,200)}:null;
     const m={id:`local-${Date.now()}-${Math.random().toString(36).slice(2,10)}`,u:me(),conv:_currentConvId,text,at:Date.now(),st:"wait",
       vo:(typeof _pendingViewOnce!=="undefined"&&_pendingViewOnce)||null,reply:rp,
-      mentions:(typeof _pendingMentions!=="undefined"&&_pendingMentions.length)?[..._pendingMentions]:null};
+      mentions:(typeof _pendingMentions!=="undefined"&&_pendingMentions.length)?[..._pendingMentions]:null,
+      eph:(typeof _pendingEphemeral!=="undefined"&&[3600,86400,604800].includes(_pendingEphemeral))?_pendingEphemeral:null};
     const l=all();l.push(m);
     if(!put(l)){showToast(t("zm_queue_full"),"error");return;}
     input.value="";zmGrow();
@@ -163,7 +164,8 @@
         box.appendChild(keep);_lastRenderedDayKey=dayAfter;
         box.scrollTop=box.scrollHeight-h0+t0;
       }
-      if(!rows||rows.length<PAGE||!fresh.length){
+      const realN=(rows||[]).filter(r=>r&&r.message_type!=="ephemeral_gone").length;
+      if(!rows||realN<PAGE||!fresh.some(r=>r.message_type!=="ephemeral_gone")){
         OLD.done=true;
         if(box.querySelectorAll(".mb").length>PAGE)box.insertBefore(pill(esc(t("zm_older_end")),"zm-old"),box.firstChild);
       }
@@ -216,7 +218,7 @@
   window.addEventListener("resize",()=>zmGrow());
 
   /* ═══════════ 4. Archiver un message ═══════════ */
-  const ARCH_OK=m=>m&&m.id&&!m._raw&&!m.deleted&&!m.destroyed&&!m.needs_reveal&&["text","file","voice"].includes(m.message_type)
+  const ARCH_OK=m=>m&&m.id&&!m._raw&&!m.expires_at&&m.message_type!=="ephemeral_gone"&&!m.deleted&&!m.destroyed&&!m.needs_reveal&&["text","file","voice"].includes(m.message_type)
     &&!/^(local-|uploading-|q-)/.test(String(m.id))&&!(m.view_once&&!(m.is_mine!==undefined?m.is_mine:m.sender_tenant_id===State.tenant?.id));
   function markArch(b,on){
     b.classList.toggle("zm-arch",on);

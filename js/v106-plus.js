@@ -1,4 +1,4 @@
-/* Zenith Dash 10.7.0 — menu « Plus » en plein écran : titre, recherche, fonctions rangées par groupes.
+/* Zenith Dash 10.7.1 — menu « Plus » en plein écran : titre, recherche, fonctions rangées par groupes.
    Les tuiles d'origine sont déplacées (jamais copiées) : les règles de rôle, de secteur et de pointage continuent de s'appliquer. */
 (function(){
   if(typeof toggleMoreMenu!=="function")return;
