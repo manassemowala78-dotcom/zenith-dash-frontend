@@ -259,6 +259,7 @@ function appendMessageBubble(m){
   }else if(m.message_type==="file"){
     media=zdMediaKind(m);
     content=media&&m.file_url?zdMediaHtml(m,media):`<a href="${m.file_url}" target="_blank" rel="noopener" class="mb-card"><span class="mb-card-ic"><i class="ti ti-file" aria-hidden="true"></i></span><span class="mb-card-tx"><b>${esc(m.file_name)||t("msg_file_label")}</b><span>${t("mv_open_file")}</span></span></a>`;
+    if(m.content&&String(m.content).trim())content+=`<span class="mb-tx mb-cap" id="content-${m.id}">${linkify(esc(m.content))}</span>`;
   }else{
     content=`<span id="content-${m.id}" class="mb-tx">${highlightMentions(linkify(esc(m.content)))}</span>`;
   }
@@ -1384,7 +1385,7 @@ function zdUpProgress(tempId,p,label){
   if(bar)bar.style.width=`${Math.round(Math.max(0.03,Math.min(1,p))*100)}%`;
   if(tx)tx.textContent=label||abTr("mv_sending",{p:Math.round(Math.min(1,p)*100)});
 }
-async function sendFileMessage(file,retryId){
+async function sendFileMessage(file,retryId,caption){
   if(!file||!_currentConvId)return;
   const convId=_currentConvId;
   const tempId=retryId||`uploading-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
@@ -1394,14 +1395,16 @@ async function sendFileMessage(file,retryId){
   const prev=_zdUps.get(tempId);
   let local=prev&&prev.local;
   if(!local&&(isImg||isVid||/gif/i.test(file.type||""))){try{local=URL.createObjectURL(file);}catch(_){}}
-  _zdUps.set(tempId,{file,local,convId});
+  const cap=((caption!=null?caption:(prev&&prev.caption))||"").toString().trim().slice(0,2000)||null;
+  _zdUps.set(tempId,{file,local,convId,caption:cap});
   const prog=`<div class="mb-up"><span class="mb-up-bar"><i></i></span><span class="mb-up-tx">${esc(isImg?t("mv_preparing"):abTr("mv_sending",{p:0}))}</span></div>`;
   const body=local?(isVid?`<div class="mb-upm"><video src="${local}" muted playsinline preload="metadata"></video>${prog}</div>`:`<div class="mb-upm"><img src="${local}" alt="">${prog}</div>`)
     :`<div class="mb-upf"><span class="mb-card-ic"><i class="ti ${isVoice?"ti-microphone":"ti-file"}" aria-hidden="true"></i></span><span class="mb-card-tx"><b>${esc(isVoice?t("preview_voice"):(file.name||t("msg_file_label")))}</b></span>${prog}</div>`;
+  const capHtml=cap?`<span class="mb-tx mb-cap">${esc(cap)}</span>`:"";
   let bub=document.getElementById(`msg-bubble-${tempId}`);
   if(bub){bub.classList.remove("failed");bub.querySelector(".mb-fail")?.remove();const u=bub.querySelector(".mb-up");if(u)u.outerHTML=prog;else bub.insertAdjacentHTML("beforeend",prog);}
   else{
-    appendMessageBubble({id:tempId,sender_tenant_id:State.tenant?.id,sender_name:State.tenant?.name,content:body,message_type:"text",
+    appendMessageBubble({id:tempId,sender_tenant_id:State.tenant?.id,sender_name:State.tenant?.name,content:body+capHtml,message_type:"text",
       created_at:new Date().toISOString(),is_mine:true,reactions:[],_raw:true});
     bub=document.getElementById(`msg-bubble-${tempId}`);
     if(bub){bub.classList.add("uploading");if(local)bub.classList.add("media");}
@@ -1416,7 +1419,7 @@ async function sendFileMessage(file,retryId){
     const uploaded=await zdUploadWithProgress("/files/upload",fd,p=>zdUpProgress(tempId,p*0.96));
     zdUpProgress(tempId,0.98);
     const saved=await api("POST",`/messaging/conversations/${convId}/messages`,{
-      message_type:isVoice?"voice":"file",file_url:uploaded.r2_key,file_name:uploaded.filename,
+      message_type:isVoice?"voice":"file",file_url:uploaded.r2_key,file_name:uploaded.filename,content:isVoice?null:cap,client_msg_id:tempId,
       view_once:viewOnce,view_once_mode:viewOnceMode,ephemeral_seconds:ephemeralSeconds,reply_to_id:replyToId});
     _zdUps.delete(tempId);
     const temp=document.getElementById(`msg-bubble-${tempId}`);

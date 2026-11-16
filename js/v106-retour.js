@@ -1,4 +1,4 @@
-// ── 10.6.5 · Le geste « retour » du téléphone ramène d'un pas dans l'application ──
+// ── 10.7.0 · Le geste « retour » du téléphone ramène d'un pas dans l'application ──
 // Liste des discussions → discussion : retour = liste. Menu/fenêtre ouverts : retour les ferme.
 // Sur l'accueil : « Appuie encore pour quitter ».
 const ZB={on:false,entries:[],ign:0,exitAt:0,nav:false,ov:new Set(),busy:false};
@@ -7,7 +7,8 @@ function zbPage(){return (document.querySelector(".page.active")?.id||"").replac
 function zbOverlays(){
   const ids=[];
   document.querySelectorAll(".modal-overlay").forEach(m=>{if(m.id&&!ZB_PERSIST.includes(m.id)&&m.style.display==="flex")ids.push(m.id);});
-  ["zd-photo-v"].forEach(i=>{if(document.getElementById(i))ids.push(i);});
+  ["zd-photo-v","zv-rec"].forEach(i=>{if(document.getElementById(i))ids.push(i);});
+  {const mm=document.getElementById("more-menu");if(mm&&mm.classList.contains("mm-full")&&mm.style.display!=="none"&&mm.style.display!=="")ids.push("more-menu");}
   return ids;
 }
 function zbChatOpen(){const l=document.getElementById("msg-layout");return !!(l&&l.classList.contains("mobile-chat-open")&&window.innerWidth<=768);}
@@ -27,6 +28,11 @@ function zbUndo(en){
   if(en.k==="chat"){if(typeof backToConvList==="function"&&zbChatOpen())backToConvList();}
   else if(en.k==="modal"){
     if(en.id==="zd-photo-v"){document.getElementById("zd-photo-v")?.remove();}
+    else if(en.id==="zv-rec"){try{zvRecClose();}catch(_){document.getElementById("zv-rec")?.remove();}}
+
+    else if(en.id==="more-menu"){try{closeMoreMenu();}catch(_){}}
+    else if(en.id==="mf-ov"){try{mfClose();}catch(_){document.getElementById("mf-ov")?.remove();}}
+    else if(en.id==="zc-fiche"||en.id==="ci-rename"){document.getElementById(en.id)?.remove();}
     else{const m=document.getElementById(en.id);if(m&&m.style.display==="flex")m.style.display="none";}
     ZB.ov.delete(en.id);
   }else if(en.k==="page"){
@@ -102,7 +108,7 @@ if(typeof backToConvList==="function"){
   };
   let t=0;const soon=()=>{clearTimeout(t);t=setTimeout(sync,30);};
   new MutationObserver(soon).observe(document.documentElement,{attributes:true,subtree:true,attributeFilter:["style"]});
-  new MutationObserver(m=>{if(m.some(x=>[...x.addedNodes,...x.removedNodes].some(n=>n.id==="zd-photo-v")))soon();}).observe(document.body,{childList:true});
+  new MutationObserver(m=>{if(m.some(x=>[...x.addedNodes,...x.removedNodes].some(n=>n.nodeType===1&&(n.id==="zd-photo-v"||n.id==="zv-rec"||(n.classList&&n.classList.contains("modal-overlay"))))))soon();}).observe(document.body,{childList:true});
 })();
 // Démarrage / déconnexion
 if(typeof showAppLayout==="function"){

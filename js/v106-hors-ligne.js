@@ -39,68 +39,8 @@
     return d;
   };
 
-  /* ── 2. Messages en attente ── */
-  const QK="zd_msgq";
-  const queue=()=>jget(QK,[]).filter(m=>m.u===me());
-  const allQ=()=>jget(QK,[]);
-  const clockHtml=id=>`<i id="ticks-${id}" data-tick="queued" class="ti ti-clock" style="font-size:13px;margin-left:3px;opacity:.75" title="${esc(t("oq_wait"))}"></i>`;
-  function paintQueued(conv){
-    if(_currentConvId!==conv)return;
-    queue().filter(m=>m.conv===conv).forEach(m=>{
-      if(document.getElementById("msg-bubble-"+m.id))return;
-      try{
-        appendMessageBubble({id:m.id,sender_tenant_id:State.tenant?.id,sender_name:State.tenant?.name,content:m.text,message_type:"text",created_at:new Date(m.at).toISOString(),is_mine:true,reactions:[],reply_to:null});
-        const tk=document.getElementById("ticks-"+m.id);if(tk)tk.outerHTML=clockHtml(m.id);
-      }catch(_){}
-    });
-  }
-  const _send=sendChatMessage;
-  sendChatMessage=function(){
-    const input=document.getElementById("chat-input");
-    const text=(input?.value||"").trim();
-    if(!text||!_currentConvId)return;
-    if(navigator.onLine){return _send.apply(this,arguments);}
-    // Hors-ligne : on garde le message, avec une horloge
-    if(text.length>8000){showToast(t("oq_too_long"),"error");return;}
-    const m={id:"q-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),u:me(),conv:_currentConvId,text,at:Date.now()};
-    const q=allQ();q.push(m);
-    if(q.filter(x=>x.u===me()).length>100){showToast(t("oq_full"),"error");return;}
-    jset(QK,q);
-    input.value="";try{input.dispatchEvent(new Event("input"));}catch(_){}
-    paintQueued(m.conv);scrollChatToBottom();
-    if(typeof setNetworkState==="function")setNetworkState(false);
-    showToast(t("oq_queued"),"info");
-  };
-  let flushing=false;
-  async function flushMsgs(){
-    if(flushing||!navigator.onLine||!State.token)return;
-    const mine=queue();if(!mine.length)return;
-    flushing=true;
-    try{
-      for(const m of mine){
-        try{
-          await api("POST",`/messaging/conversations/${m.conv}/messages`,{content:m.text,message_type:"text"});
-        }catch(e){
-          if(e&&e.zdNetwork)break;                        // le réseau a recoupé : on réessaiera
-          if(e&&(e.status===403||e.status===404||e.status===423)){} // discussion fermée/verrouillée : on abandonne ce message
-          else break;
-        }
-        jset(QK,allQ().filter(x=>x.id!==m.id));
-        const b=document.getElementById("msg-bubble-"+m.id);if(b)b.remove();
-      }
-    }finally{flushing=false;}
-    if(_currentConvId&&typeof openConversation==="function"&&!queue().length){
-      const had=mine.some(m=>m.conv===_currentConvId);
-      if(had){try{openConversation(_currentConvId);}catch(_){}}
-    }
-    if(typeof loadConversations==="function"&&document.getElementById("conv-list"))loadConversations().catch(()=>{});
-  }
-  window.zdFlushMsgs=flushMsgs;
-  window.addEventListener("online",()=>setTimeout(flushMsgs,600));
-  setInterval(()=>{if(navigator.onLine&&queue().length)flushMsgs();},10000);
-  /* repeindre les messages en attente quand on (ré)ouvre la discussion */
-  const _oc2=openConversation;
-  openConversation=async function(id){const r=await _oc2.apply(this,arguments);paintQueued(id);return r;};
+  /* ── 2. Messages en attente : voir v107-messages.js (envoi confirmé par le serveur) ── */
+  const queue=()=>({length:typeof window.zmPendingCount==="function"?window.zmPendingCount():0});
 
   /* ── 3. Liste des discussions hors-ligne ── */
   const _lc=loadConversations;
