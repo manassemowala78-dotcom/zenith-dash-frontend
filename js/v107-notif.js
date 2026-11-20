@@ -141,16 +141,16 @@ function znNudge(){
   const n=document.createElement("div");n.id="zn-nudge";n.className="zn-nudge";n.setAttribute("role","region");n.setAttribute("aria-label",t("zn_nudge_t"));
   n.innerHTML=`<i class="ti ti-bell-ringing" aria-hidden="true"></i><div class="zn-ntx"><b>${esc(t("zn_nudge_t"))}</b><small>${esc(t("zn_nudge_x"))}</small></div>
     <div class="zn-nb"><button type="button" class="btn btn-g btn-sm" onclick="znNudgeYes(this)">${esc(t("zn_enable"))}</button><button type="button" class="btn btn-o btn-sm" onclick="znNudgeLater()">${esc(t("ob_later"))}</button></div>`;
-  document.body.appendChild(n);
+  document.body.appendChild(n);document.body.classList.add("zn-has-nudge");
 }
 async function znNudgeYes(b){
   if(b)b.disabled=true;
   const r=await zpermAsk("push");
-  document.getElementById("zn-nudge")?.remove();
+  document.getElementById("zn-nudge")?.remove();document.body.classList.remove("zn-has-nudge");
   if(r==="granted"){await znEnsureSub(true);showToast(t("push_enabled"));}
   else if(r==="denied"){showToast(t("zn_denied_toast"),"error");}
 }
-function znNudgeLater(){try{localStorage.setItem("zd_zn_nudge",String(Date.now()+24*3600*1000));}catch(_){}document.getElementById("zn-nudge")?.remove();}
+function znNudgeLater(){try{localStorage.setItem("zd_zn_nudge",String(Date.now()+24*3600*1000));}catch(_){}document.getElementById("zn-nudge")?.remove();document.body.classList.remove("zn-has-nudge");}
 
 setTimeout(()=>{if(State.token){znEnsureSub();znNudge();}},3500);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){znCheckTest();if(State.token)znEnsureSub();}});

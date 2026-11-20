@@ -79,12 +79,7 @@ function zaDone(r){
   if(typeof r.backup_codes_left==="number")showToast(t("backup_codes_left").replace("{n}",r.backup_codes_left),r.backup_codes_left<=2?"error":"info");
 }
 (function zaBoot(){
-  const go=()=>{
-    if(!/[?&]acces=admin\b/.test(location.search))return;
-    if(State.token){try{history.replaceState(null,"",location.pathname+location.hash);}catch(_){}return;}
-    zdAdminOpen();
-  };
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();
+  try{if(/[?&]acces=admin\b/.test(location.search))history.replaceState(null,"",location.pathname+location.hash);}catch(_){}
 })();
 
 // ── Administration → Envoi des e-mails ──
