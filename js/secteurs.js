@@ -155,7 +155,7 @@ async function loadSectorToday(){
 }
 
 // ── Choix du secteur à l'inscription ──
-let _regSector="pme";
+let _regSector=null;
 function renderRegisterSectors(){
   const box=document.getElementById("reg-sector-grid");if(!box)return;
   box.innerHTML=SECTOR_KEYS.map(k=>{const m=SECTOR_META[k];return `<button type="button" class="sector-chip${k===_regSector?" active":""}" style="--sc:${m.color}" onclick="selectRegSector('${k}')" aria-pressed="${k===_regSector}"><i class="ti ti-${m.icon}"></i><span>${esc(t("sector_short_"+k))}</span></button>`;}).join("");
