@@ -13,7 +13,7 @@ let lang="fr";try{lang=localStorage.getItem("zd_lang")||(navigator.language||"fr
 const T=TX[lang]||TX.fr;
 document.documentElement.lang=TX[lang]?lang:"fr";
 if(lang==="ar")document.documentElement.dir="rtl";
-try{if(localStorage.getItem("zd_theme")==="light")document.documentElement.classList.add("light");}catch(_){}
+try{const th=localStorage.getItem("zd_theme")||"soft";if(th!=="dark")document.documentElement.classList.add("light");if(th==="soft")document.documentElement.classList.add("zd-soft");}catch(_){}
 document.title=T.title+" · Zenith Dash";
 const q=new URLSearchParams(location.search);const tok=q.get("t")||"";let target=q.get("m")||"";
 let conv=null;try{conv=JSON.parse(atob(tok.split(".")[0].replace(/-/g,"+").replace(/_/g,"/"))).c;}catch(_){}

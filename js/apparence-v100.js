@@ -24,7 +24,7 @@ async function uiPull(){
 function uiTheme(){
   const th=UI.p.theme;if(!th||typeof setTheme!=="function")return;
   const want=th==="auto"?(window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):th;
-  if(State.theme!==want||document.documentElement.classList.contains("light")!==(want==="light")){UI.applying=true;try{setTheme(want);}finally{UI.applying=false;}}
+  if(State.theme!==want||document.documentElement.classList.contains("light")!==(want!=="dark")||document.documentElement.classList.contains("zd-soft")!==(want==="soft")){UI.applying=true;try{setTheme(want);}finally{UI.applying=false;}}
 }
 function uiApply(){
   const h=document.documentElement,b=document.body;
@@ -40,8 +40,8 @@ function uiApply(){
   uiColStyle();uiBlocks();uiTables();uiThemeBtns();
 }
 function uiThemeBtns(){
-  const th=UI.p.theme||(State.theme==="light"?"light":"dark");
-  ["dark","light","auto"].forEach(k=>{const el=document.getElementById("theme-btn-"+k);if(el)el.classList.toggle("btn-g",th===k);});
+  const th=UI.p.theme||(["light","soft"].includes(State.theme)?State.theme:"dark");
+  ["soft","dark","light","auto"].forEach(k=>{const el=document.getElementById("theme-btn-"+k);if(el)el.classList.toggle("btn-g",th===k);});
 }
 function uiNav(){
   const hidden=new Set((UI.p.nav&&UI.p.nav.hidden)||[]),order=(UI.p.nav&&UI.p.nav.order)||[];
@@ -244,7 +244,7 @@ function uiViewSummary(id){
 function uiOpen(){
   const feats=uiFeatures(),hidden=new Set((UI.p.nav&&UI.p.nav.hidden)||[]),home=UI.p.home||"dashboard";
   const seg=(key,opts,cur,cls)=>`<div class="ui-seg${cls?" "+cls:""}" role="radiogroup">${opts.map(([v,l,extra])=>`<button type="button" role="radio" aria-checked="${v===cur}" class="ui-segb${v===cur?" on":""}" onclick="uiSetGen('${key}','${v}')"${extra||""}>${l}</button>`).join("")}</div>`;
-  const th=UI.p.theme||(State.theme==="light"?"light":"dark"),ac=UI.p.accent||"green",fs=UI.p.font||"m",dn=UI.p.density||"comfy";
+  const th=UI.p.theme||(["light","soft"].includes(State.theme)?State.theme:"dark"),ac=UI.p.accent||"green",fs=UI.p.font||"m",dn=UI.p.density||"comfy";
   const rows=feats.map((f,i)=>{
     const changed=hidden.has(f.id)||!!UI.p.pages?.[f.id]||((UI.p.nav&&UI.p.nav.order)||[]).includes(f.id)||(UI.p.home===f.id);
     const sameGroup=feats.filter(x=>x.group===f.group);const k=sameGroup.indexOf(f);
@@ -260,7 +260,7 @@ function uiOpen(){
   zdModal("modal-ui",`<div class="ui-head"><div><div class="modal-title" style="margin:0"><i class="ti ti-palette" style="color:var(--green)"></i> ${esc(t("ui_title"))}</div><p class="ui-note">${esc(t("ui_only_you"))}</p></div>
       <button type="button" class="btn btn-o btn-sm" onclick="uiResetAll()"><i class="ti ti-restore" aria-hidden="true"></i> ${esc(t("ui_reset_all"))}</button></div>
     <div class="ui-gen">
-      <div><div class="ui-cap">${esc(t("ui_theme"))}</div>${seg("theme",[["dark",esc(t("ui_dark"))],["light",esc(t("ui_light"))],["auto",esc(t("ui_auto"))]],th)}</div>
+      <div><div class="ui-cap">${esc(t("ui_theme"))}</div>${seg("theme",[["soft",esc(t("zp_theme_soft"))],["dark",esc(t("ui_dark"))],["light",esc(t("ui_light"))],["auto",esc(t("ui_auto"))]],th)}</div>
       <div><div class="ui-cap">${esc(t("ui_accent"))}</div><div class="ui-sw-row" role="radiogroup">${Object.entries(UI_ACCENTS).map(([k,c])=>`<button type="button" role="radio" aria-checked="${k===ac}" class="ui-acc${k===ac?" on":""}" style="background:${c}" aria-label="${esc(t("ui_acc_"+k))}" onclick="uiSetGen('accent','${k}')"></button>`).join("")}</div></div>
       <div><div class="ui-cap">${esc(t("ui_font"))}</div>${seg("font",[["s","A",' style="font-size:12px" aria-label="'+esc(t("ui_fs_s"))+'"'],["m","A",' style="font-size:14px" aria-label="'+esc(t("ui_fs_m"))+'"'],["l","A",' style="font-size:17px" aria-label="'+esc(t("ui_fs_l"))+'"'],["xl","A",' style="font-size:20px" aria-label="'+esc(t("ui_fs_xl"))+'"']],fs,"fs")}</div>
       <div><div class="ui-cap">${esc(t("ui_density"))}</div>${seg("density",[["comfy",esc(t("ui_comfy"))],["compact",esc(t("ui_compact"))]],dn)}</div>
@@ -295,7 +295,7 @@ function uiResetOne(id){
 function uiResetAll(){
   if(!confirm(t("ui_reset_confirm")))return;
   const th=UI.p.theme;UI.p={};
-  if(th&&th!=="dark"&&typeof setTheme==="function"){UI.applying=true;try{setTheme("dark");}finally{UI.applying=false;}}
+  if(th&&th!=="soft"&&typeof setTheme==="function"){UI.applying=true;try{setTheme("soft");}finally{UI.applying=false;}}
   uiChanged();uiOpen();showToast(t("ui_reset_done"));
 }
 function uiGoSheet(id){zdCloseModal("modal-ui");navigate(id);setTimeout(()=>uiSheet(id),700);}

@@ -1,4 +1,4 @@
-const APP_BUILD="10.8.2 · 20/11/2026";
+const APP_BUILD="11.0.0 · 25/11/2026";
 const ZD_ENV=(()=>{const host=window.location.hostname;if(host==="localhost"||host==="127.0.0.1")return "local";if(host.includes("staging"))return "staging";return "production";})();
 const API_URLS={local:"http://localhost:8000/v1",staging:"https://zenith-dash-staging.up.railway.app/v1",production:"https://zenith-dash-production.up.railway.app/v1"};
 const API_BASE=API_URLS[ZD_ENV];
@@ -14,12 +14,12 @@ function t(key){
   return (I18N[lang]&&I18N[lang][key])||I18N.fr[key]||key;
 }
 function setTheme(theme){
+  if(!["dark","light","soft"].includes(theme))theme="soft";
   State.theme=theme;
   localStorage.setItem("zd_theme",theme);
-  document.documentElement.classList.toggle("light",theme==="light");
-  const dbtn=document.getElementById("theme-btn-dark"),lbtn=document.getElementById("theme-btn-light");
-  if(dbtn) dbtn.classList.toggle("btn-g",theme==="dark");
-  if(lbtn) lbtn.classList.toggle("btn-g",theme==="light");
+  document.documentElement.classList.toggle("light",theme!=="dark");
+  document.documentElement.classList.toggle("zd-soft",theme==="soft");
+  ["dark","light","soft"].forEach(k=>{const b=document.getElementById("theme-btn-"+k);if(b)b.classList.toggle("btn-g",theme===k);});
 }
 const ZD_LANGS=["fr","en","es","ar","sw","ln"];
 const ZD_ASSET_V=(document.querySelector('script[src*="/js/base-1.js"]')?.getAttribute("src").split("?v=")[1])||"";
@@ -67,7 +67,7 @@ function applyLanguageNow(lang){
   try{if(State.token&&State.tenant&&typeof applySectorUI==="function"){applySectorUI();const act=document.querySelector(".page.active")?.id?.replace("page-","");if(act){document.querySelector(`.sidebar .nav-i[data-p="${act}"]`)?.classList.add("active");if(typeof SECTOR_PAGE_LOADERS!=="undefined"&&SECTOR_PAGE_LOADERS[act])loadSectorPage(act);}}}catch(_){}
 }
 
-const State={token:localStorage.getItem("zd_token"),tenant:JSON.parse(localStorage.getItem("zd_tenant")||"null"),lang:localStorage.getItem("zd_lang")||"fr",theme:localStorage.getItem("zd_theme")||"dark"};
+const State={token:localStorage.getItem("zd_token"),tenant:JSON.parse(localStorage.getItem("zd_tenant")||"null"),lang:localStorage.getItem("zd_lang")||"fr",theme:localStorage.getItem("zd_theme")||"soft"};
 const _shareTexts={};
 async function shareViaNative(key){
   const text=_shareTexts[key];
