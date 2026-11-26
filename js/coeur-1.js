@@ -176,6 +176,7 @@ async function showAppLayout(){
     const fresh=await api("GET","/profile/");
     if(fresh&&fresh.trial){
       State.tenant={...State.tenant,...fresh,trial:fresh.trial,chat_wallpaper:_pendingDefaultWallpaper||fresh.chat_wallpaper};
+      if(!fresh.free_all)delete State.tenant.free_all;
       localStorage.setItem("zd_tenant",JSON.stringify(State.tenant));
       applyMemberUI();
       setTopbarAvatar(State.tenant.avatar_url,State.tenant.acting_as_member_name||State.tenant.name);
