@@ -1,0 +1,5 @@
+.zt-bar{height:10px;border-radius:6px;background:var(--c2);overflow:hidden;border:1px solid var(--b)}
+.zt-bar span{display:block;height:100%;background:var(--green);border-radius:6px}
+.zt-of{font-size:13px;color:var(--muted)}
+.zp-lock .zt-bar{width:100%;max-width:360px;margin:8px auto 4px}
+.zp-lock .zt-of{display:block;text-align:center;margin-bottom:12px}

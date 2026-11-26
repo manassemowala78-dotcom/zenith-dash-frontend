@@ -1,4 +1,4 @@
-const APP_BUILD="11.0.0 · 25/11/2026";
+const APP_BUILD="11.5.0 · 25/11/2026";
 const ZD_ENV=(()=>{const host=window.location.hostname;if(host==="localhost"||host==="127.0.0.1")return "local";if(host.includes("staging"))return "staging";return "production";})();
 const API_URLS={local:"http://localhost:8000/v1",staging:"https://zenith-dash-staging.up.railway.app/v1",production:"https://zenith-dash-production.up.railway.app/v1"};
 const API_BASE=API_URLS[ZD_ENV];
@@ -14,11 +14,12 @@ function t(key){
   return (I18N[lang]&&I18N[lang][key])||I18N.fr[key]||key;
 }
 function setTheme(theme){
-  if(!["dark","light","soft"].includes(theme))theme="soft";
+  if(theme!=="soft-dark")theme="soft";
   State.theme=theme;
   localStorage.setItem("zd_theme",theme);
-  document.documentElement.classList.toggle("light",theme!=="dark");
-  document.documentElement.classList.toggle("zd-soft",theme==="soft");
+  document.documentElement.classList.toggle("light",theme!=="soft-dark");
+  document.documentElement.classList.add("zd-soft");
+  document.documentElement.classList.toggle("zd-sd",theme==="soft-dark");
   ["dark","light","soft"].forEach(k=>{const b=document.getElementById("theme-btn-"+k);if(b)b.classList.toggle("btn-g",theme===k);});
 }
 const ZD_LANGS=["fr","en","es","ar","sw","ln"];

@@ -1,0 +1,16 @@
+.zl-box{gap:12px}
+.zl-head{display:flex;align-items:center;gap:12px}
+.zl-head h2{margin:0!important}
+.zl-ic{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.zl-box>p{margin:0;font-size:15px;line-height:1.5}
+.zl-list{list-style:none;margin:0;padding:0}
+.zl-row{display:flex;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--b)}
+.zl-row:last-child{border-bottom:1px solid var(--b)}
+.zl-row div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.zl-row b{font-size:15.5px;font-weight:500}
+.zl-row small{font-size:13px;color:var(--muted);line-height:1.4}
+.zl-go{width:100%;min-height:50px;justify-content:center}
+.zl-bi{position:relative;display:inline-flex}
+.zl-bb{position:absolute;top:-6px;inset-inline-end:-12px;min-width:18px;height:18px;box-sizing:border-box;border-radius:9px;background:var(--green);color:var(--zap-on,#fff);font-size:11px;font-weight:700;line-height:18px;text-align:center;padding:0 4px;font-family:inherit}
+.zl-bb[hidden]{display:none}
+#topbar-av[role=button]:focus-visible{outline:2px solid var(--green);outline-offset:2px}
