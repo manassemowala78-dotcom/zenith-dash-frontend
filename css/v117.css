@@ -23,7 +23,8 @@
 .zk-ab-l{font-size:13.5px;color:var(--muted)}
 .zk-ab-n{margin-top:4px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .zk-ab-n b{font-family:var(--zp-serif,Georgia,serif);font-weight:500;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
-.zk-ab-n span{font-size:16px}
+.zk-ab-n span{font-size:16px;margin-inline-end:8px}
+.zk-ab-of{margin-top:4px;font-size:14px;color:var(--muted)}
 .zk-ab-bar{margin-top:14px;height:8px;border-radius:4px;background:var(--c2);overflow:hidden}
 .zk-ab-bar span{display:block;height:100%;background:var(--green);border-radius:4px}
 .zk-ab-x{margin:12px 0 0;font-size:14px;line-height:1.55;color:var(--muted)}

@@ -201,7 +201,7 @@ if(typeof updateExpiryBar==="function"){
       if(ms<=0){if(ZKT){clearInterval(ZKT);ZKT=null;}zkPausedBar({trial:{expired:true,expires_at:tr.expires_at}});if(typeof enterRestrictedMode==="function")enterRestrictedMode();return;}
       let txt,soon=ms<1728e5;
       if(ms<864e5){const h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);txt=zkHtml("zk_t_last",{h,m:String(m).padStart(2,"0")},["h","m"]);}
-      else txt=zkHtml("zk_t_left",{n:Math.ceil(ms/864e5),d:zkDate(end)},["n"]);
+      else{const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5);txt=zkHtml("zk_t_dh",{n:d,h,d:zkDate(end)},["n","h"]);}
       bar.className="trial-bar zx-tbar"+(soon?" zx-soon":"");
       bar.innerHTML=`${zxIcon("clock",18)}<span>${txt}</span><a href="#" onclick="navigate('billing');return false">${esc(t(soon?"zk_t_choose":"zx_t_plans"))}</a>`;
     };
@@ -224,11 +224,14 @@ if(typeof abStatusHtml==="function"){
     const u=State.tenant;if(!zkTrialOn(u))return h;
     const tr=u.trial||{},end=zkEnd(tr);
     if(tr.active&&end&&end>new Date()){
-      const left=Math.max(1,Math.ceil((end-new Date())/864e5));
+      const ms=end-new Date(),left=Math.max(1,Math.ceil(ms/864e5));
+      const dd=Math.floor(ms/864e5),hh=Math.floor(ms%864e5/36e5),mm=Math.floor(ms%36e5/6e4);
       const total=Math.max(left,parseInt(tr.total_days,10)||15);
-      const used=Math.min(total,Math.max(0,total-left)),pct=Math.round(100*used/total);
+      const used=Math.min(total,Math.max(0,Math.round((total*864e5-ms)/864e5))),pct=Math.max(0,Math.min(100,Math.round(100*(total*864e5-ms)/(total*864e5))));
+      const u=(n,one,many)=>`<b>${n}</b><span>${esc(t(n===1?one:many))}</span>`;
+      const big=dd>0?u(dd,"zk_u_day","zk_u_days")+u(hh,"zk_u_hour","zk_u_hours"):u(hh,"zk_u_hour","zk_u_hours")+u(mm,"zk_u_min","zk_u_mins");
       return `<section class="zk-ab" aria-labelledby="zk-ab-l"><div class="zk-ab-l" id="zk-ab-l">${esc(t("zk_ab_label"))}</div>
-        <div class="zk-ab-n"><b>${left}</b><span>${esc(zkTr(left>1?"zk_ab_days":"zk_ab_day",{t:total}))}</span></div>
+        <div class="zk-ab-n">${big}</div><div class="zk-ab-of">${esc(zkTr("zk_ab_of",{t:total}))}</div>
         <div class="zk-ab-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${used}" aria-label="${esc(t("zk_ab_used"))}"><span style="width:${pct}%"></span></div>
         <p class="zk-ab-x">${zkHtml("zk_ab_end",{d:zkDate(end,true)},["d"])}</p></section>`+h;
     }
