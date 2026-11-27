@@ -99,9 +99,9 @@ function zsSheet(ids){
   const one=ids.length===1;
   const other=zsOther();
   const ov=document.createElement("div");ov.id="zs-sheet";ov.className="modal-overlay";ov.style.display="flex";ov.style.alignItems="flex-end";ov.style.zIndex="3000";
-  ov.innerHTML=`<div class="modal zx-sheet zs-box" role="dialog" aria-modal="true" aria-labelledby="zs-t"><span class="zx-grab" aria-hidden="true"></span>
-    <h2 id="zs-t"></h2><p class="zs-x"></p><div class="zs-acts"></div><button type="button" class="btn btn-o zs-no"></button></div>`;
-  ov.querySelector("#zs-t").textContent=one?t("zs_t1"):zrTr("zs_tn",{n:ids.length});
+  ov.innerHTML=`<div class="modal zx-sheet zs-box" role="dialog" aria-modal="true" aria-labelledby="zsd-t"><span class="zx-grab" aria-hidden="true"></span>
+    <h2 id="zsd-t"></h2><p class="zs-x"></p><div class="zs-acts"></div><button type="button" class="btn btn-o zs-no"></button></div>`;
+  ov.querySelector("#zsd-t").textContent=one?t("zs_t1"):zrTr("zs_tn",{n:ids.length});
   const x=ov.querySelector(".zs-x");
   if(one){
     const b=bubbles[0],raw=b&&(b.dataset.rawContent||"");
